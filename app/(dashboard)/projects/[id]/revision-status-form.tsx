@@ -1,8 +1,8 @@
 'use client'
 
 import { useFormStatus } from 'react-dom'
-import { Check } from 'lucide-react'
-import { updateRevisionStatus } from '@/lib/actions/revision'
+import { Check, Trash2 } from 'lucide-react'
+import { deleteRevisionRequest, updateRevisionStatus } from '@/lib/actions/revision'
 
 type RevisionStatusFormProps = {
   revisionId: string
@@ -53,6 +53,17 @@ export function RevisionStatusForm({
         <input type="hidden" name="revisionId" value={revisionId} />
         <input type="hidden" name="status" value="DONE" />
         <DoneButton done={done} />
+      </form>
+
+      <form action={deleteRevisionRequest}>
+        <input type="hidden" name="revisionId" value={revisionId} />
+        <button
+          type="submit"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-gray-500 transition-colors hover:border-red-200 hover:text-red-600"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          삭제
+        </button>
       </form>
     </div>
   )

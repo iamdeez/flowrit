@@ -7,11 +7,12 @@ type ProjectFormProps = {
   customers: { id: string; name: string }[]
   templates: { id: string; name: string; stages: { id: string }[] }[]
   members: { userId: string; user: { name: string; email: string } }[]
+  defaultCustomerId?: string
 }
 
 const initialState: ProjectFormState = {}
 
-export function ProjectForm({ customers, templates, members }: ProjectFormProps) {
+export function ProjectForm({ customers, templates, members, defaultCustomerId }: ProjectFormProps) {
   const [state, action, pending] = useActionState(createProject, initialState)
 
   return (
@@ -24,7 +25,7 @@ export function ProjectForm({ customers, templates, members }: ProjectFormProps)
           id="customerId"
           name="customerId"
           required
-          defaultValue=""
+          defaultValue={defaultCustomerId ?? ''}
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="" disabled>

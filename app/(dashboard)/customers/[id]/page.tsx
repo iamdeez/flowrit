@@ -67,7 +67,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
             프로젝트 ({customer.projects.length}개)
           </h2>
           <Link
-            href="/projects/new"
+            href={`/projects/new?customerId=${customer.id}`}
             className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
           >
             새 프로젝트

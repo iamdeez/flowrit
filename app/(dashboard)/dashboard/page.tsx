@@ -11,10 +11,17 @@ async function getDashboardData(workspaceId: string) {
   const twoDaysFromNow = new Date()
   twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2)
 
-  const [inquiries, urgentProjects, openRevisions, customers, templates] = await Promise.all([
+  const [inquiries, allProjects, urgentCandidates, openRevisions, customers, templates] = await Promise.all([
     prisma.inquiry.findMany({
       where: { workspaceId, status: 'PENDING' },
       orderBy: { createdAt: 'desc' },
+    }),
+    prisma.project.findMany({
+      where: { workspaceId },
+      include: {
+        stages: { orderBy: { order: 'asc' } },
+        revisions: { where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } },
+      },
     }),
     prisma.project.findMany({
       where: {
@@ -47,16 +54,19 @@ async function getDashboardData(workspaceId: string) {
     }),
   ])
 
-  const activeUrgentProjects = urgentProjects.filter((p) => !isProjectDone(p))
+  const activeProjects = allProjects.filter((p) => !isProjectDone(p))
+  const activeUrgentProjects = urgentCandidates.filter((p) => !isProjectDone(p))
+  const activeCount = activeProjects.length
+  const urgentCount = activeUrgentProjects.length
 
-  return { inquiries, activeUrgentProjects, openRevisions, customers, templates }
+  return { inquiries, activeUrgentProjects, openRevisions, customers, templates, activeCount, urgentCount }
 }
 
 export default async function DashboardPage() {
   const session = await auth()
   const workspaceId = session?.user?.workspaceId ?? ''
 
-  const { inquiries, activeUrgentProjects, openRevisions, customers, templates } =
+  const { inquiries, activeUrgentProjects, openRevisions, customers, templates, activeCount, urgentCount } =
     await getDashboardData(workspaceId)
 
   return (
@@ -70,6 +80,22 @@ export default async function DashboardPage() {
           새 프로젝트
         </Link>
       </div>
+
+      {/* 현황 요약 */}
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <p className="text-xs font-medium text-gray-500">진행 중</p>
+          <p className="mt-2 text-3xl font-semibold text-gray-900">{activeCount}</p>
+          <p className="mt-1 text-xs text-gray-400">건</p>
+        </div>
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+          <p className="text-xs font-medium text-gray-500">마감 임박 (2일 이내)</p>
+          <p className={`mt-2 text-3xl font-semibold ${urgentCount > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
+            {urgentCount}
+          </p>
+          <p className="mt-1 text-xs text-gray-400">건</p>
+        </div>
+      </section>
 
       {/* 신규 접수 */}
       <section>

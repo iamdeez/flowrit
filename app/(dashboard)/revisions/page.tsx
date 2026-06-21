@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, FileText } from 'lucide-react'
+import { ArrowUpRight, FileText, Paperclip } from 'lucide-react'
 import { getRevisionGroups } from '@/lib/actions/revision'
 import {
   revisionPriorityLabels,
@@ -78,6 +78,23 @@ export default async function RevisionsPage() {
                       <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-gray-900">
                         {revision.content}
                       </p>
+                      {(revision.fileUrls as string[]).length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-xs font-medium text-gray-500">첨부 파일</p>
+                          {(revision.fileUrls as string[]).map((url, i) => (
+                            <a
+                              key={url}
+                              href={url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
+                            >
+                              <Paperclip className="h-3 w-3" />
+                              {url.split('/').pop() || `첨부파일 ${i + 1}`}
+                            </a>
+                          ))}
+                        </div>
+                      )}
                       <p className="mt-2 text-xs text-gray-500">
                         {revision.createdAt.toLocaleDateString('ko-KR')} 등록
                       </p>

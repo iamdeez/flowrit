@@ -3,8 +3,13 @@ import { ArrowLeft } from 'lucide-react'
 import { getProjectFormData } from '@/lib/actions/project'
 import { ProjectForm } from './project-form'
 
-export default async function NewProjectPage() {
+type NewProjectPageProps = {
+  searchParams: Promise<{ customerId?: string }>
+}
+
+export default async function NewProjectPage({ searchParams }: NewProjectPageProps) {
   const { customers, templates, members } = await getProjectFormData()
+  const { customerId } = await searchParams
 
   return (
     <div className="max-w-2xl p-8">
@@ -24,7 +29,12 @@ export default async function NewProjectPage() {
       </div>
 
       <section className="rounded-xl border border-gray-200 bg-white p-6">
-        <ProjectForm customers={customers} templates={templates} members={members} />
+        <ProjectForm
+          customers={customers}
+          templates={templates}
+          members={members}
+          defaultCustomerId={customerId}
+        />
       </section>
     </div>
   )

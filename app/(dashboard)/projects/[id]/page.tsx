@@ -8,10 +8,11 @@ import {
   ExternalLink,
   FileText,
   MessageSquare,
+  Paperclip,
   UserRound,
 } from 'lucide-react'
 import { assetStatusLabels, assetTypeLabels } from '@/lib/asset-labels'
-import { getProjectDetail } from '@/lib/actions/project'
+import { getProjectDetail, createTimelineMemo } from '@/lib/actions/project'
 import { getMessageTemplates } from '@/lib/actions/message'
 import { getCurrentStage } from '@/lib/project-utils'
 import {
@@ -153,6 +154,23 @@ export default async function ProjectDetailPage({
                     <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-gray-900">
                       {revision.content}
                     </p>
+                    {(revision.fileUrls as string[]).length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        <p className="text-xs font-medium text-gray-500">첨부 파일</p>
+                        {(revision.fileUrls as string[]).map((url, i) => (
+                          <a
+                            key={url}
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
+                          >
+                            <Paperclip className="h-3 w-3" />
+                            {url.split('/').pop() || `첨부파일 ${i + 1}`}
+                          </a>
+                        ))}
+                      </div>
+                    )}
                     <p className="mt-2 text-xs text-gray-500">
                       {revision.createdAt.toLocaleDateString('ko-KR')} 등록
                     </p>
@@ -246,25 +264,56 @@ export default async function ProjectDetailPage({
       )}
 
       {tab === 'timeline' && (
-        <section className="rounded-xl border border-gray-200 bg-white">
-          {project.events.length > 0 ? (
-            <div className="divide-y divide-gray-100">
-              {project.events.map((event) => (
-                <div key={event.id} className="p-5">
-                  <p className="text-sm font-medium text-gray-900">{event.title}</p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {event.eventType} · {event.createdAt.toLocaleString('ko-KR')}
-                  </p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyPanel
-              icon={<CalendarDays className="h-5 w-5" />}
-              title="타임라인 기록이 없습니다."
-              description="단계를 변경하면 이곳에 기록됩니다."
+        <section className="space-y-4">
+          <form action={createTimelineMemo} className="rounded-xl border border-gray-200 bg-white p-4">
+            <input type="hidden" name="projectId" value={project.id} />
+            <textarea
+              name="content"
+              rows={3}
+              placeholder="내부 메모를 입력하세요..."
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
-          )}
+            <div className="mt-2 flex justify-end">
+              <button
+                type="submit"
+                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+              >
+                메모 저장
+              </button>
+            </div>
+          </form>
+
+          <div className="rounded-xl border border-gray-200 bg-white">
+            {project.events.length > 0 ? (
+              <div className="divide-y divide-gray-100">
+                {project.events.map((event) => (
+                  <div key={event.id} className="p-5">
+                    {event.eventType === 'MEMO' ? (
+                      <>
+                        <div className="mb-1 flex items-center gap-1.5">
+                          <MessageSquare className="h-3.5 w-3.5 text-indigo-500" />
+                          <span className="text-xs font-medium text-indigo-600">메모</span>
+                        </div>
+                        <p className="whitespace-pre-wrap text-sm text-gray-900">{event.title}</p>
+                      </>
+                    ) : (
+                      <p className="text-sm font-medium text-gray-900">{event.title}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      {event.eventType !== 'MEMO' && `${event.eventType} · `}
+                      {event.createdAt.toLocaleString('ko-KR')}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyPanel
+                icon={<CalendarDays className="h-5 w-5" />}
+                title="타임라인 기록이 없습니다."
+                description="단계를 변경하면 이곳에 기록됩니다."
+              />
+            )}
+          </div>
         </section>
       )}
 

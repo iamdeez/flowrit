@@ -67,6 +67,17 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">
+                  마감일 (선택)
+                </label>
+                <input
+                  type="date"
+                  name="dueDate"
+                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
                   워크플로우 템플릿 <span className="text-red-500">*</span>
                 </label>
                 <select

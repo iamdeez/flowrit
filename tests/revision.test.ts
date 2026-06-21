@@ -220,7 +220,7 @@ describe('submitCustomerRevision (SC-007)', () => {
     expect(prismaMock.revisionRequest.create).not.toHaveBeenCalled()
   })
 
-  it('첨부 파일 URL이 있으면 content에 추가한다', async () => {
+  it('첨부 파일 URL이 있으면 fileUrls에 저장하고 content에는 포함하지 않는다', async () => {
     prismaMock.publicProjectPage.findUnique.mockResolvedValue({
       id: 'pp1',
       projectId: 'p1',
@@ -240,7 +240,8 @@ describe('submitCustomerRevision (SC-007)', () => {
     expect(prismaMock.revisionRequest.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          content: expect.stringContaining('https://example.com/file.jpg'),
+          content: '수정 요청입니다.',
+          fileUrls: ['https://example.com/file.jpg'],
         }),
       })
     )

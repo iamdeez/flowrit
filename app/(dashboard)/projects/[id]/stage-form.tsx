@@ -1,6 +1,6 @@
 'use client'
 
-import { useFormStatus } from 'react-dom'
+import { Check } from 'lucide-react'
 import { updateProjectStage } from '@/lib/actions/project'
 
 type StageFormProps = {
@@ -13,35 +13,40 @@ type StageFormProps = {
   }[]
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus()
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      {pending ? '변경 중...' : '단계 변경'}
-    </button>
-  )
-}
-
 export function StageForm({ projectId, currentStageId, stages }: StageFormProps) {
+  if (stages.length === 0) {
+    return <p className="text-sm text-gray-400">단계 없음</p>
+  }
+
+  const currentIndex = stages.findIndex((s) => s.id === currentStageId)
+
   return (
-    <form action={updateProjectStage} className="flex gap-2">
-      <input type="hidden" name="projectId" value={projectId} />
-      <select
-        name="stageId"
-        defaultValue={currentStageId ?? ''}
-        className="min-w-52 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      >
-        {stages.map((stage) => (
-          <option key={stage.id} value={stage.id}>
-            {stage.internalName}
-          </option>
-        ))}
-      </select>
-      <SubmitButton />
-    </form>
+    <div className="flex flex-wrap gap-2">
+      {stages.map((stage, index) => {
+        const isDone = index < currentIndex
+        const isCurrent = stage.id === currentStageId
+
+        return (
+          <form key={stage.id} action={updateProjectStage}>
+            <input type="hidden" name="projectId" value={projectId} />
+            <input type="hidden" name="stageId" value={stage.id} />
+            <button
+              type="submit"
+              disabled={isCurrent}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                isDone
+                  ? 'bg-gray-700 text-white hover:bg-gray-800'
+                  : isCurrent
+                    ? 'cursor-default bg-indigo-600 text-white'
+                    : 'border border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+              }`}
+            >
+              {isDone && <Check className="h-3 w-3" />}
+              {stage.internalName}
+            </button>
+          </form>
+        )
+      })}
+    </div>
   )
 }

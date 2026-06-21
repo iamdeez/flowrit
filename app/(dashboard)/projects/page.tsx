@@ -1,11 +1,13 @@
 import Link from 'next/link'
-import { CalendarDays, FolderOpen, Plus } from 'lucide-react'
+import Form from 'next/form'
+import { CalendarDays, FolderOpen, Plus, Search } from 'lucide-react'
 import { getProjects } from '@/lib/actions/project'
 import { getCurrentStage, isProjectDone } from '@/lib/project-utils'
 
 type ProjectsPageProps = {
   searchParams: Promise<{
     status?: string
+    q?: string
   }>
 }
 
@@ -16,8 +18,8 @@ const filters = [
 ]
 
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
-  const status = (await searchParams).status
-  const projects = await getProjects(status)
+  const { status, q } = await searchParams
+  const projects = await getProjects(status, q)
 
   return (
     <div className="p-8">
@@ -36,6 +38,19 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           새 프로젝트
         </Link>
       </div>
+
+      <Form action="/projects" className="mb-4">
+        {status && <input type="hidden" name="status" value={status} />}
+        <div className="relative max-w-sm">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            name="q"
+            defaultValue={q ?? ''}
+            placeholder="프로젝트 제목 또는 고객명 검색"
+            className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+      </Form>
 
       <div className="mb-5 flex gap-2">
         {filters.map((filter) => {

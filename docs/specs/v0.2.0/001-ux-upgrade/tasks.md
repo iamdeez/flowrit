@@ -27,7 +27,7 @@
 
 ### Phase 1. 데이터 레이어
 
-- [ ] **T101** — RevisionRequest.fileUrls 필드 추가 (스키마 마이그레이션)
+- [x] **T101** — RevisionRequest.fileUrls 필드 추가 (스키마 마이그레이션)
   - 구현 파일: `prisma/schema.prisma`
   - 관련 요구사항: `FR-106`
   - 상세:
@@ -38,11 +38,12 @@
     }
     ```
     `prisma migrate dev --name add_file_urls_to_revision_request` 실행 후 `prisma generate`로 클라이언트 재생성
+    (실제 적용: 기존 DB가 migration history 없이 운영되어 `20260101000000_init` baseline으로 히스토리 정리, `RevisionRequest.fileUrls` 포함)
   - 완료 기준: `prisma/migrations/` 폴더에 마이그레이션 파일 생성, `app/generated/prisma` 타입에 `fileUrls` 포함
 
 ### Phase 2. 도메인 레이어 (Server Actions)
 
-- [ ] **T102** `[P]` — deleteAsset 서버 액션 구현
+- [x] **T102** `[P]` — deleteAsset 서버 액션 구현
   - 구현 파일: `lib/actions/asset.ts`
   - 관련 요구사항: `FR-108`
   - 상세:
@@ -52,7 +53,7 @@
     4. `revalidatePath` 처리
   - 완료 기준: 타 워크스페이스 assetId 전달 시 silent return, 정상 케이스 asset+이벤트 삭제
 
-- [ ] **T103** `[P]` — deleteRevisionRequest 서버 액션 구현
+- [x] **T103** `[P]` — deleteRevisionRequest 서버 액션 구현
   - 구현 파일: `lib/actions/revision.ts`
   - 관련 요구사항: `FR-109`
   - 상세:
@@ -62,7 +63,7 @@
     4. `revalidatePath` 처리
   - 완료 기준: 정상 케이스 삭제, 타 워크스페이스 접근 시 silent return
 
-- [ ] **T104** `[P]` — createTimelineMemo 서버 액션 구현
+- [x] **T104** `[P]` — createTimelineMemo 서버 액션 구현
   - 구현 파일: `lib/actions/project.ts`
   - 관련 요구사항: `FR-105`
   - 상세:
@@ -74,7 +75,7 @@
     6. `revalidatePath(`/projects/${projectId}`)`
   - 완료 기준: MEMO 이벤트가 타임라인에 생성됨
 
-- [ ] **T105** `[P]` — getProjects 검색 파라미터 확장
+- [x] **T105** `[P]` — getProjects 검색 파라미터 확장
   - 구현 파일: `lib/actions/project.ts`
   - 관련 요구사항: `FR-103`
   - 상세:
@@ -83,7 +84,7 @@
     - 기존 상태 필터(`isProjectDone` 기반)와 AND 조건으로 결합
   - 완료 기준: q 파라미터로 제목/고객명 부분 일치 검색 동작, 기존 status 필터와 병용 가능
 
-- [ ] **T106** `[P]` — publicRevision fileUrls 분리 저장
+- [x] **T106** `[P]` — publicRevision fileUrls 분리 저장
   - 구현 파일: `lib/actions/publicRevision.ts`
   - 관련 요구사항: `FR-106`
   - 상세:
@@ -92,7 +93,7 @@
     - `content`는 원본 그대로 저장
   - 완료 기준: 파일 첨부 제출 시 `content`에 URL 미포함, `fileUrls`에 배열로 저장
 
-- [ ] **T107** `[P]` — convertInquiryToProject dueDate 파라미터 추가
+- [x] **T107** `[P]` — convertInquiryToProject dueDate 파라미터 추가
   - 구현 파일: `lib/actions/inquiry.ts`
   - 관련 요구사항: `FR-102`
   - 상세:
@@ -103,7 +104,7 @@
 
 ### Phase 3. 인터페이스 레이어 (UI 컴포넌트)
 
-- [ ] **T108** — 고객 상세 → 새 프로젝트 링크 수정
+- [x] **T108** — 고객 상세 → 새 프로젝트 링크 수정
   - 구현 파일: `app/(dashboard)/customers/[id]/page.tsx`
   - 관련 요구사항: `FR-101`
   - 상세:
@@ -111,7 +112,7 @@
     - 변경: `href={/projects/new?customerId=${customer.id}}`
   - 완료 기준: 클릭 시 URL에 customerId 파라미터 포함
 
-- [ ] **T109** — 프로젝트 생성 폼 defaultCustomerId 지원 (T108 완료 후)
+- [x] **T109** — 프로젝트 생성 폼 defaultCustomerId 지원 (T108 완료 후)
   - 구현 파일: `app/(dashboard)/projects/new/page.tsx`, `app/(dashboard)/projects/new/project-form.tsx`
   - 관련 요구사항: `FR-101`
   - 상세:
@@ -119,7 +120,7 @@
     - `project-form.tsx`: `defaultCustomerId?: string` prop 추가, 고객 `<select>`의 `defaultValue={defaultCustomerId ?? ''}` 적용
   - 완료 기준: `?customerId=xxx` URL로 접근 시 해당 고객이 미리 선택됨
 
-- [ ] **T110** — 프로젝트 목록 검색 폼 추가 (T105 완료 후)
+- [x] **T110** — 프로젝트 목록 검색 폼 추가 (T105 완료 후)
   - 구현 파일: `app/(dashboard)/projects/page.tsx`
   - 관련 요구사항: `FR-103`
   - 상세:
@@ -129,7 +130,7 @@
     - 고객 목록과 동일한 스타일 적용
   - 완료 기준: 검색어 입력·제출 시 URL `?q=검색어` 파라미터 추가, 결과 필터링 동작
 
-- [ ] **T111** — 단계 시각화 스테퍼로 교체 (T105 완료 후)
+- [x] **T111** — 단계 시각화 스테퍼로 교체 (T105 완료 후)
   - 구현 파일: `app/(dashboard)/projects/[id]/stage-form.tsx`
   - 관련 요구사항: `FR-104`
   - 상세:
@@ -141,7 +142,7 @@
     - 단계 없는 경우 "단계 없음" 텍스트 표시
   - 완료 기준: 각 단계가 pill로 표시되고 클릭 시 해당 단계로 변경됨
 
-- [ ] **T112** — 타임라인 탭 메모 입력 폼 추가 (T104 완료 후)
+- [x] **T112** — 타임라인 탭 메모 입력 폼 추가 (T104 완료 후)
   - 구현 파일: `app/(dashboard)/projects/[id]/page.tsx` (타임라인 탭 섹션)
   - 관련 요구사항: `FR-105`
   - 상세:
@@ -152,7 +153,7 @@
     - `MEMO` 이벤트 표시 스타일: 메모 아이콘 + 텍스트 내용 (기존 단계 변경 이벤트와 구분)
   - 완료 기준: 메모 저장 후 타임라인에 MEMO 이벤트가 나타남
 
-- [ ] **T113** `[P]` — 수정 요청 첨부 파일 표시 추가 (T101, T106 완료 후)
+- [x] **T113** `[P]` — 수정 요청 첨부 파일 표시 추가 (T101, T106 완료 후)
   - 구현 파일: `app/(dashboard)/projects/[id]/page.tsx` (revisions 탭)
   - 관련 요구사항: `FR-107`
   - 상세:
@@ -161,13 +162,13 @@
     - `Paperclip` 아이콘 사용
   - 완료 기준: fileUrls가 있는 수정 요청에서 첨부 파일 링크가 표시됨
 
-- [ ] **T114** `[P]` — revisions 페이지 첨부 파일 표시 추가 (T101, T106 완료 후)
+- [x] **T114** `[P]` — revisions 페이지 첨부 파일 표시 추가 (T101, T106 완료 후)
   - 구현 파일: `app/(dashboard)/revisions/page.tsx`
   - 관련 요구사항: `FR-107`
   - 상세: T113과 동일한 첨부 파일 섹션 렌더링 추가
   - 완료 기준: 전체 수정 요청 목록에서도 첨부 파일 링크가 표시됨
 
-- [ ] **T115** `[P]` — 에셋 삭제 버튼 추가 (T102 완료 후)
+- [x] **T115** `[P]` — 에셋 삭제 버튼 추가 (T102 완료 후)
   - 구현 파일: `app/(dashboard)/projects/[id]/asset-status-form.tsx`
   - 관련 요구사항: `FR-108`
   - 상세:
@@ -175,7 +176,7 @@
     - 삭제 버튼 스타일: 작은 빨간색 텍스트 버튼 또는 아이콘 버튼(`Trash2` 아이콘)
   - 완료 기준: 삭제 버튼 클릭 시 에셋 제거 및 목록에서 사라짐
 
-- [ ] **T116** `[P]` — 수정 요청 삭제 버튼 추가 (T103 완료 후)
+- [x] **T116** `[P]` — 수정 요청 삭제 버튼 추가 (T103 완료 후)
   - 구현 파일: `app/(dashboard)/projects/[id]/revision-status-form.tsx`
   - 관련 요구사항: `FR-109`
   - 상세:
@@ -183,7 +184,7 @@
     - 삭제 버튼 스타일: 작은 회색 또는 빨간색 텍스트 버튼
   - 완료 기준: 삭제 버튼 클릭 시 수정 요청 제거 및 목록에서 사라짐
 
-- [ ] **T117** `[P]` — 공유 링크 복사 버튼 추가
+- [x] **T117** `[P]` — 공유 링크 복사 버튼 추가
   - 구현 파일: `app/(dashboard)/projects/[id]/public-page-form.tsx`, `app/(dashboard)/projects/[id]/page.tsx`
   - 관련 요구사항: `FR-110`
   - 상세:
@@ -194,7 +195,7 @@
     - 복사 성공 2초 후 상태 원복
   - 완료 기준: 활성 공유 링크가 있는 프로젝트에서 복사 버튼이 표시되고 클릭 시 URL이 클립보드에 복사됨
 
-- [ ] **T118** — 대시보드 통계 카드 추가
+- [x] **T118** — 대시보드 통계 카드 추가
   - 구현 파일: `app/(dashboard)/dashboard/page.tsx`
   - 관련 요구사항: `FR-111`
   - 상세:
@@ -205,7 +206,7 @@
     - 카드 디자인: 기존 대시보드 스타일(rounded-xl, border, bg-white)과 통일
   - 완료 기준: 대시보드 상단에 진행 중 N건, 마감 임박 N건 카드가 표시됨
 
-- [ ] **T119** — 의뢰 전환 대화상자 마감일 필드 추가 (T107 완료 후)
+- [x] **T119** — 의뢰 전환 대화상자 마감일 필드 추가 (T107 완료 후)
   - 구현 파일: `app/(dashboard)/dashboard/convert-dialog.tsx`
   - 관련 요구사항: `FR-102`
   - 상세:
@@ -216,7 +217,7 @@
 
 ### Phase 4. 테스트 (D 레이어)
 
-- [ ] **T120** — SC-101~SC-110 Vitest 테스트 구현
+- [x] **T120** — SC-101~SC-110 Vitest 테스트 구현
   - 테스트 파일: `tests/ux-upgrade.test.ts`
   - 관련 요구사항: 전체 SC-101~SC-110
   - 상세:
@@ -236,8 +237,8 @@
 
 ## 구현 완료 기준
 
-- [ ] T101~T119 체크박스 전체 완료 처리됨
-- [ ] `prisma migrate dev`가 에러 없이 완료됨
-- [ ] `pnpm typecheck` 에러 0건
-- [ ] `pnpm test` 전체 PASSED (기존 72개 + 신규 테스트 포함)
-- [ ] `git status`에 의도치 않은 파일 없음
+- [x] T101~T119 체크박스 전체 완료 처리됨
+- [x] `prisma migrate dev`가 에러 없이 완료됨
+- [x] `pnpm typecheck` 에러 0건
+- [x] `pnpm test` 전체 PASSED (기존 72개 + 신규 11개 = 83개, `npm test`로 검증)
+- [x] `git status`에 의도치 않은 파일 없음
