@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String            @id @default(cuid())
+  email       String            @unique
+  password    String
+  name        String
+  createdAt   DateTime          @default(now())
+  memberships WorkspaceMember[]
+  sessions    Session[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Workspace {
+  id               String            @id @default(cuid())
+  name             String
+  slug             String            @unique
+  plan             String            @default("beta")
+  createdAt        DateTime          @default(now())
+  members          WorkspaceMember[]
+  customers        Customer[]
+  projects         Project[]
+  templates        WorkflowTemplate[]
+  inquiries        Inquiry[]
+  messageTemplates MessageTemplate[]
+  invites          WorkspaceInvite[]
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        String    @default("MEMBER")
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+}
+
+model Customer {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  contact     String?
+  memo        String?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projects    Project[]
+}
+
+model Project {
+  id             String            @id @default(cuid())
+  workspaceId    String
+  customerId     String
+  title          String
+  dueDate        DateTime?
+  assigneeId     String?
+  currentStageId String?
+  createdAt      DateTime          @default(now())
+  workspace      Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  customer       Customer          @relation(fields: [customerId], references: [id])
+  stages         WorkflowStage[]
+  revisions      RevisionRequest[]
+  assets         Asset[]
+  events         TimelineEvent[]
+  publicPage     PublicProjectPage?
+}
+
+model WorkflowTemplate {
+  id          String          @id @default(cuid())
+  workspaceId String
+  name        String
+  industry    String?
+  isDefault   Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  stages      TemplateStage[]
+}
+
+model TemplateStage {
+  id            String           @id @default(cuid())
+  templateId    String
+  internalName  String
+  customerName  String
+  order         Int
+  template      WorkflowTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+}
+
+model WorkflowStage {
+  id           String    @id @default(cuid())
+  projectId    String
+  internalName String
+  customerName String
+  order        Int
+  completedAt  DateTime?
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model RevisionRequest {
+  id         String   @id @default(cuid())
+  projectId  String
+  content    String
+  priority   String   @default("MEDIUM")
+  status     String   @default("OPEN")
+  assigneeId String?
+  source     String   @default("MANUAL")
+  createdAt  DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Asset {
+  id        String    @id @default(cuid())
+  projectId String
+  name      String
+  url       String
+  type      String    @default("OTHER")
+  version   String?
+  status    String    @default("PREPARING")
+  expiredAt DateTime?
+  createdAt DateTime  @default(now())
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model PublicProjectPage {
+  id        String   @id @default(cuid())
+  projectId String   @unique
+  token     String   @unique @default(uuid())
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Inquiry {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  contact     String?
+  content     String
+  fileUrls    Json      @default("[]")
+  status      String    @default("PENDING")
+  projectId   String?
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model MessageTemplate {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  type        String
+  content     String
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model TimelineEvent {
+  id        String   @id @default(cuid())
+  projectId String
+  title     String
+  eventType String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model WorkspaceInvite {
+  id          String    @id @default(cuid())
+  workspaceId String
+  email       String
+  token       String    @unique @default(uuid())
+  role        String    @default("MEMBER")
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
