@@ -95,6 +95,26 @@ export async function createRevisionRequest(
   return { success: '수정 요청을 등록했습니다.' }
 }
 
+export async function deleteRevisionRequest(formData: FormData): Promise<void> {
+  const workspaceId = await requireWorkspaceId()
+  const revisionId = stringValue(formData, 'revisionId')
+
+  if (!revisionId) return
+
+  const revision = await prisma.revisionRequest.findFirst({
+    where: { id: revisionId, project: { workspaceId } },
+    include: { project: true },
+  })
+
+  if (!revision) return
+
+  await prisma.revisionRequest.delete({ where: { id: revision.id } })
+
+  revalidatePath('/revisions')
+  revalidatePath('/projects')
+  revalidatePath(`/projects/${revision.projectId}`)
+}
+
 export async function updateRevisionStatus(formData: FormData): Promise<void> {
   const workspaceId = await requireWorkspaceId()
   const revisionId = stringValue(formData, 'revisionId')

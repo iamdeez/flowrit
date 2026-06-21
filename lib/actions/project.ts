@@ -53,11 +53,20 @@ export async function getProjectFormData() {
   return { customers, templates, members }
 }
 
-export async function getProjects(status?: string) {
+export async function getProjects(status?: string, q?: string) {
   const workspaceId = await requireWorkspaceId()
 
+  const searchFilter = q
+    ? {
+        OR: [
+          { title: { contains: q, mode: 'insensitive' as const } },
+          { customer: { name: { contains: q, mode: 'insensitive' as const } } },
+        ],
+      }
+    : {}
+
   const projects = await prisma.project.findMany({
-    where: { workspaceId },
+    where: { workspaceId, ...searchFilter },
     include: {
       customer: true,
       stages: { orderBy: { order: 'asc' } },
@@ -72,6 +81,29 @@ export async function getProjects(status?: string) {
   if (status === 'done') return projects.filter(isProjectDone)
   if (status === 'in_progress') return projects.filter((project) => !isProjectDone(project))
   return projects
+}
+
+export async function createTimelineMemo(formData: FormData): Promise<void> {
+  const workspaceId = await requireWorkspaceId()
+  const projectId = ((formData.get('projectId') as string | null) ?? '').trim()
+  const content = ((formData.get('content') as string | null) ?? '').trim()
+
+  if (!content) return
+
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, workspaceId },
+  })
+  if (!project) return
+
+  await prisma.timelineEvent.create({
+    data: {
+      projectId,
+      title: content,
+      eventType: 'MEMO',
+    },
+  })
+
+  revalidatePath(`/projects/${projectId}`)
 }
 
 export async function getProjectDetail(projectId: string) {

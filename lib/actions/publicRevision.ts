@@ -23,12 +23,11 @@ export async function submitCustomerRevision(
   })
   if (!page) return { error: '유효하지 않은 공유 링크입니다.' }
 
-  const fullContent = fileUrl ? `${content}\n\n첨부 파일: ${fileUrl}` : content
-
   await prisma.revisionRequest.create({
     data: {
       projectId: page.projectId,
-      content: fullContent,
+      content,
+      fileUrls: fileUrl ? [fileUrl] : [],
       source: 'CUSTOMER_PORTAL',
     },
   })

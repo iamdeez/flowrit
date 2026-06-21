@@ -89,6 +89,35 @@ export async function createAsset(
   return { success: '파일·링크를 등록했습니다.' }
 }
 
+export async function deleteAsset(formData: FormData): Promise<void> {
+  const workspaceId = await requireWorkspaceId()
+  const assetId = stringValue(formData, 'assetId')
+
+  if (!assetId) return
+
+  const asset = await prisma.asset.findFirst({
+    where: { id: assetId, project: { workspaceId } },
+    include: { project: true },
+  })
+
+  if (!asset) return
+
+  await prisma.$transaction([
+    prisma.asset.delete({ where: { id: asset.id } }),
+    prisma.timelineEvent.create({
+      data: {
+        projectId: asset.projectId,
+        title: `파일·링크 삭제: ${asset.name}`,
+        eventType: 'ASSET_DELETED',
+        metadata: { assetId: asset.id, name: asset.name },
+      },
+    }),
+  ])
+
+  revalidatePath('/projects')
+  revalidatePath(`/projects/${asset.projectId}`)
+}
+
 export async function updateAssetStatus(formData: FormData): Promise<void> {
   const workspaceId = await requireWorkspaceId()
   const assetId = stringValue(formData, 'assetId')

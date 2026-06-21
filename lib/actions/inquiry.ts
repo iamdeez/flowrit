@@ -74,6 +74,8 @@ export async function convertInquiryToProject(
   const inquiryId = stringValue(formData, 'inquiryId')
   const title = stringValue(formData, 'title')
   const templateId = stringValue(formData, 'templateId')
+  const dueDateRaw = stringValue(formData, 'dueDate')
+  const dueDate = dueDateRaw ? (() => { const d = new Date(`${dueDateRaw}T00:00:00`); return Number.isNaN(d.getTime()) ? null : d })() : null
 
   const existingCustomerId = stringValue(formData, 'existingCustomerId')
   const newCustomerName = stringValue(formData, 'newCustomerName')
@@ -119,7 +121,7 @@ export async function convertInquiryToProject(
     }
 
     const createdProject = await tx.project.create({
-      data: { workspaceId, customerId, title },
+      data: { workspaceId, customerId, title, dueDate },
     })
 
     let firstStageId: string | null = null
