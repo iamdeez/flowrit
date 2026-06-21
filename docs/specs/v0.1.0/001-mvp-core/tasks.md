@@ -251,32 +251,32 @@
 
 ### Phase 12. 테스트 (SC 커버리지)
 
-- [ ] **T032** — SC-001~002 테스트 (인증·팀원)
+- [x] **T032** — SC-001~002 테스트 (인증·팀원)
   - 테스트 파일: `tests/auth.test.ts`
   - 검증 대상: `SC-001`, `SC-002`
   - 시나리오: 회원가입 → 워크스페이스 자동 생성 / 팀원 초대 → 수락 → 접근 권한
 
-- [ ] **T033** `[P]` — SC-003 테스트 (고객 CRUD·검색)
+- [x] **T033** `[P]` — SC-003 테스트 (고객 CRUD·검색)
   - 테스트 파일: `tests/customer.test.ts`
   - 검증 대상: `SC-003`
 
-- [ ] **T034** `[P]` — SC-004~005 테스트 (프로젝트·워크플로우)
+- [x] **T034** `[P]` — SC-004~005 테스트 (프로젝트·워크플로우)
   - 테스트 파일: `tests/project.test.ts`
   - 검증 대상: `SC-004`, `SC-005`
 
-- [ ] **T035** `[P]` — SC-006~007 테스트 (수정 요청)
+- [x] **T035** `[P]` — SC-006~007 테스트 (수정 요청)
   - 테스트 파일: `tests/revision.test.ts`
   - 검증 대상: `SC-006`, `SC-007`
 
-- [ ] **T036** `[P]` — SC-008~010 테스트 (에셋·공개 페이지)
+- [x] **T036** `[P]` — SC-008~010 테스트 (에셋·공개 페이지)
   - 테스트 파일: `tests/asset.test.ts`, `tests/publicPage.test.ts`
   - 검증 대상: `SC-008`, `SC-009`, `SC-010`
 
-- [ ] **T037** `[P]` — SC-011 테스트 (신규 접수)
+- [x] **T037** `[P]` — SC-011 테스트 (신규 접수)
   - 테스트 파일: `tests/inquiry.test.ts`
   - 검증 대상: `SC-011`
 
-- [ ] **T038** `[P]` — SC-012~013 테스트 (메시지 템플릿·대시보드)
+- [x] **T038** `[P]` — SC-012~013 테스트 (메시지 템플릿·대시보드)
   - 테스트 파일: `tests/message.test.ts`, `tests/dashboard.test.ts`
   - 검증 대상: `SC-012`, `SC-013`
 
@@ -284,9 +284,9 @@
 
 ## 구현 완료 기준
 
-- [ ] 모든 태스크 체크박스(T001~T038)가 완료 처리되었다.
-- [ ] `npm run build`가 오류 없이 완료된다.
-- [ ] TypeScript 타입 오류가 0건이다 (`npm run typecheck`).
-- [ ] SC-001~SC-013의 모든 테스트가 PASS한다.
-- [ ] `git status`에 의도치 않은 파일이 없다.
-- [ ] `prisma/schema.prisma`와 실제 DB 스키마가 일치한다 (`prisma migrate status`).
+- [x] 모든 태스크 체크박스(T001~T038)가 완료 처리되었다.
+- [x] `npm run build`가 오류 없이 완료된다.
+- [x] TypeScript 타입 오류가 0건이다 (`npm run typecheck`).
+- [x] SC-001~SC-013의 모든 테스트가 PASS한다.
+- [x] `git status`에 의도치 않은 파일이 없다.
+- [x] `prisma/schema.prisma`와 실제 DB 스키마가 일치한다 (`prisma migrate status`).

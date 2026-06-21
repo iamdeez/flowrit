@@ -183,12 +183,14 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "84543a0f96ca4869",
+  "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
+    "specs/v0.1.0/DIFF-001-mvp-core.md",
+    "specs/v0.1.0/CHANGES.md",
+    "specs/v0.1.0/001-mvp-core/tasks.md",
     "setup/env.md",
     "setup",
     "specs/v0.1.0/001-mvp-core/spec.md",
-    "specs/v0.1.0/001-mvp-core/tasks.md",
     "specs/v0.1.0/001-mvp-core/research.md",
     "specs/v0.1.0/001-mvp-core/plan.md",
     "mvp/ourwedding_레포_분석.md",
