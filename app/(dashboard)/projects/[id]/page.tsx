@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import {
   ArrowLeft,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react'
 import { assetStatusLabels, assetTypeLabels } from '@/lib/asset-labels'
 import { getProjectDetail } from '@/lib/actions/project'
+import { getMessageTemplates } from '@/lib/actions/message'
 import { getCurrentStage } from '@/lib/project-utils'
 import {
   revisionPriorityLabels,
@@ -19,6 +21,7 @@ import {
 } from '@/lib/revision-labels'
 import { AssetForm } from './asset-form'
 import { AssetStatusForm } from './asset-status-form'
+import { MessagePanel } from './message-panel'
 import { PublicPageForm } from './public-page-form'
 import { RevisionForm } from './revision-form'
 import { RevisionStatusForm } from './revision-status-form'
@@ -42,12 +45,23 @@ export default async function ProjectDetailPage({
 }: ProjectDetailPageProps) {
   const { id } = await params
   const tab = (await searchParams).tab ?? 'revisions'
-  const data = await getProjectDetail(id)
+
+  const [data, messageTemplates] = await Promise.all([
+    getProjectDetail(id),
+    tab === 'messages' ? getMessageTemplates() : Promise.resolve([]),
+  ])
 
   if (!data) notFound()
 
   const { project, assignee, members } = data
   const currentStage = getCurrentStage(project)
+
+  const hdrs = await headers()
+  const proto = hdrs.get('x-forwarded-proto') ?? 'http'
+  const host = hdrs.get('host') ?? 'localhost:3000'
+  const shareLink = project.publicPage?.token
+    ? `${proto}://${host}/p/${project.publicPage.token}`
+    : '(공유 링크 없음)'
 
   return (
     <div className="p-8">
@@ -256,10 +270,16 @@ export default async function ProjectDetailPage({
 
       {tab === 'messages' && (
         <section className="rounded-xl border border-gray-200 bg-white">
-          <EmptyPanel
-            icon={<MessageSquare className="h-5 w-5" />}
-            title="메시지 생성 기능은 준비 중입니다."
-            description="T030에서 템플릿 변수 치환과 복사가 연결됩니다."
+          <MessagePanel
+            templates={messageTemplates}
+            customerName={project.customer.name}
+            stageName={currentStage?.customerName ?? '대기'}
+            dueDate={
+              project.dueDate
+                ? project.dueDate.toLocaleDateString('ko-KR')
+                : '마감일 없음'
+            }
+            shareLink={shareLink}
           />
         </section>
       )}
