@@ -120,6 +120,7 @@ model RevisionRequest {
   status     String   @default("OPEN")
   assigneeId String?
   source     String   @default("MANUAL")
+  fileUrls   Json     @default("[]")
   createdAt  DateTime @default(now())
   project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
