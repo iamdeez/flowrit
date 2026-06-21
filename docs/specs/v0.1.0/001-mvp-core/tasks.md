@@ -55,25 +55,25 @@
 
 ### Phase 2. 인증·워크스페이스
 
-- [ ] **T006** — 회원가입 + 워크스페이스 자동 생성
+- [x] **T006** — 회원가입 + 워크스페이스 자동 생성
   - 구현: `app/(auth)/register/page.tsx`, `lib/actions/auth.ts`
   - 관련 요구사항: `FR-001`, `FR-002`
   - 상세: 이메일·비밀번호 폼. bcrypt로 해시 후 User 저장. Workspace 자동 생성 + WorkspaceMember(OWNER) 등록. 사진·웨딩 기본 WorkflowTemplate 시딩.
   - 완료 기준: SC-001 충족
 
-- [ ] **T007** — 로그인 페이지
+- [x] **T007** — 로그인 페이지
   - 구현: `app/(auth)/login/page.tsx`
   - 관련 요구사항: `FR-001`
   - 상세: NextAuth signIn 호출. 오류 메시지 표시. 가입 페이지 링크.
   - 완료 기준: 유효 자격증명 → 대시보드 이동, 무효 → 오류 메시지
 
-- [ ] **T008** — 팀원 초대 (이메일 발송)
+- [x] **T008** — 팀원 초대 (이메일 발송)
   - 구현: `app/(dashboard)/team/page.tsx`, `lib/actions/team.ts`, `lib/email.ts`
   - 관련 요구사항: `FR-003`, `FR-004`
   - 상세: WorkspaceInvite 생성 + Resend로 초대 링크 이메일 발송.
   - 완료 기준: 초대 이메일 발송 확인 (Resend 로그)
 
-- [ ] **T009** — 팀원 초대 수락
+- [x] **T009** — 팀원 초대 수락
   - 구현: `app/invite/[token]/page.tsx`
   - 관련 요구사항: `FR-003`
   - 상세: 토큰 유효성 확인 → 가입 폼 또는 기존 계정 연결 → WorkspaceMember 생성.
