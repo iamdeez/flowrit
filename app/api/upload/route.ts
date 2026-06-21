@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { createPresignedUploadUrl, MAX_UPLOAD_SIZE } from '@/lib/storage'
+import { createPresignedUploadUrl, getPublicUrl, MAX_UPLOAD_SIZE } from '@/lib/storage'
 
 export async function POST(request: NextRequest) {
   let body: unknown
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const { presignedUrl, key } = await createPresignedUploadUrl(filename, contentType)
-    return Response.json({ presignedUrl, key })
+    return Response.json({ presignedUrl, key, publicUrl: getPublicUrl(key) })
   } catch {
     return Response.json({ error: '업로드 URL 생성에 실패했습니다.' }, { status: 500 })
   }

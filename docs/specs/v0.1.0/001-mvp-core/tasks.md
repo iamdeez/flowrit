@@ -187,19 +187,19 @@
 
 ### Phase 8. 고객용 진행상황 페이지
 
-- [ ] **T024** — 공유 링크 생성 및 관리
+- [x] **T024** — 공유 링크 생성 및 관리
   - 구현: 프로젝트 상세 상단, `lib/actions/publicPage.ts`
   - 관련 요구사항: `FR-024`
   - 상세: PublicProjectPage 생성(UUID v4 토큰). 링크 활성·비활성 토글. 링크 복사 버튼.
   - 완료 기준: 공유 링크 URL이 사업자 화면에 표시
 
-- [ ] **T025** — 고객용 공개 진행상황 페이지 구현
+- [x] **T025** — 고객용 공개 진행상황 페이지 구현
   - 구현: `app/p/[token]/page.tsx`
   - 관련 요구사항: `FR-025`, `FR-026`
   - 상세: 토큰으로 PublicProjectPage 조회. isActive=false이면 404. 현재 단계(customerName)·마감일·SHARED 에셋·수정 요청 완료 여부 표시. 내부 메모 및 사업자 정보 미노출. 반응형 레이아웃.
   - 완료 기준: SC-009 충족
 
-- [ ] **T026** — 고객용 재수정 접수 폼
+- [x] **T026** — 고객용 재수정 접수 폼
   - 구현: `app/p/[token]/revision/page.tsx` 또는 모달
   - 관련 요구사항: `FR-027`
   - 상세: 수정 요청 내용 텍스트. 파일 첨부(R2, 10MB 이하). RevisionRequest(source=CUSTOMER_PORTAL) 생성.

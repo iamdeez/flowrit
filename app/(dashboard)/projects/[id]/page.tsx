@@ -7,7 +7,6 @@ import {
   ExternalLink,
   FileText,
   MessageSquare,
-  Share2,
   UserRound,
 } from 'lucide-react'
 import { assetStatusLabels, assetTypeLabels } from '@/lib/asset-labels'
@@ -20,6 +19,7 @@ import {
 } from '@/lib/revision-labels'
 import { AssetForm } from './asset-form'
 import { AssetStatusForm } from './asset-status-form'
+import { PublicPageForm } from './public-page-form'
 import { RevisionForm } from './revision-form'
 import { RevisionStatusForm } from './revision-status-form'
 import { StageForm } from './stage-form'
@@ -77,14 +77,7 @@ export default async function ProjectDetailPage({
               <span>담당자 {assignee?.user.name ?? '미지정'}</span>
             </div>
           </div>
-          <button
-            type="button"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-500"
-            disabled
-          >
-            <Share2 className="h-4 w-4" />
-            공유 링크 생성
-          </button>
+          <PublicPageForm projectId={project.id} publicPage={project.publicPage ?? null} />
         </div>
 
         <div className="flex items-center justify-between gap-4 rounded-lg bg-gray-50 p-4">
