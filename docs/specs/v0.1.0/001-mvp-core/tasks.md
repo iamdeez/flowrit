@@ -105,13 +105,13 @@
 
 ### Phase 4. 워크플로우 템플릿
 
-- [ ] **T013** — 기본 사진·웨딩 템플릿 시딩
+- [x] **T013** — 기본 사진·웨딩 템플릿 시딩
   - 구현: `prisma/seed.ts` 또는 Workspace 생성 로직 내 자동 삽입
   - 관련 요구사항: `FR-015`
   - 상세: plan.md의 10단계 사진·웨딩 템플릿을 WorkflowTemplate + TemplateStage로 저장. `isDefault=true`.
   - 완료 기준: 새 워크스페이스 생성 시 기본 템플릿 조회 가능
 
-- [ ] **T014** `[P]` — 워크플로우 템플릿 CRUD UI
+- [x] **T014** `[P]` — 워크플로우 템플릿 CRUD UI
   - 구현: `app/(dashboard)/templates/page.tsx`, `lib/actions/template.ts`
   - 관련 요구사항: `FR-014`, `FR-016`
   - 상세: 템플릿 목록. 신규 생성 폼. 단계 추가·순서 변경·내부명·고객표시명 설정. 삭제.
