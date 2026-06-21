@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "specs/v0.1.0/001-mvp-core/tasks.md",
+                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
                 "mode": "source",
                 "source": false
               },
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "specs/v0.1.0/001-mvp-core/tasks.md",
+                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,7 +113,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "specs/v0.1.0/001-mvp-core/tasks.md",
+                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -156,7 +156,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "specs/v0.1.0/001-mvp-core/tasks.md",
+                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -185,9 +185,16 @@
   },
   "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
+    "specs/v0.2.0/001-ux-upgrade/spec.md",
+    "specs/v0.2.0/CHANGES.md",
+    "specs/v0.2.0/001-ux-upgrade/tasks.md",
+    "specs/v0.2.0/001-ux-upgrade/plan.md",
+    "specs/v0.2.0/001-ux-upgrade/research.md",
+    "specs/v0.1.0/001-mvp-core/tasks.md",
+    "specs/v0.2.0/001-ux-upgrade",
+    "specs/v0.2.0",
     "specs/v0.1.0/DIFF-001-mvp-core.md",
     "specs/v0.1.0/CHANGES.md",
-    "specs/v0.1.0/001-mvp-core/tasks.md",
     "setup/env.md",
     "setup",
     "specs/v0.1.0/001-mvp-core/spec.md",
