@@ -11,6 +11,13 @@ import {
 } from 'lucide-react'
 import { getProjectDetail } from '@/lib/actions/project'
 import { getCurrentStage } from '@/lib/project-utils'
+import {
+  revisionPriorityLabels,
+  revisionSourceLabels,
+  revisionStatusLabels,
+} from '@/lib/revision-labels'
+import { RevisionForm } from './revision-form'
+import { RevisionStatusForm } from './revision-status-form'
 import { StageForm } from './stage-form'
 
 type ProjectDetailPageProps = {
@@ -35,7 +42,7 @@ export default async function ProjectDetailPage({
 
   if (!data) notFound()
 
-  const { project, assignee } = data
+  const { project, assignee, members } = data
   const currentStage = getCurrentStage(project)
 
   return (
@@ -110,25 +117,50 @@ export default async function ProjectDetailPage({
       </div>
 
       {tab === 'revisions' && (
-        <section className="rounded-xl border border-gray-200 bg-white">
+        <section className="space-y-5">
+          <RevisionForm projectId={project.id} members={members} />
+
           {project.revisions.length > 0 ? (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
               {project.revisions.map((revision) => (
-                <div key={revision.id} className="p-5">
-                  <p className="text-sm font-medium text-gray-900">{revision.content}</p>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {revision.status} · {revision.priority} ·{' '}
-                    {revision.createdAt.toLocaleDateString('ko-KR')}
-                  </p>
+                <div
+                  key={revision.id}
+                  className="grid gap-4 p-5 md:grid-cols-[1fr_auto]"
+                >
+                  <div>
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                        {revisionStatusLabels[revision.status] ?? revision.status}
+                      </span>
+                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
+                        {revisionPriorityLabels[revision.priority] ?? revision.priority}
+                      </span>
+                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                        {revisionSourceLabels[revision.source] ?? revision.source}
+                      </span>
+                    </div>
+                    <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-gray-900">
+                      {revision.content}
+                    </p>
+                    <p className="mt-2 text-xs text-gray-500">
+                      {revision.createdAt.toLocaleDateString('ko-KR')} 등록
+                    </p>
+                  </div>
+                  <RevisionStatusForm
+                    revisionId={revision.id}
+                    status={revision.status}
+                  />
                 </div>
               ))}
             </div>
           ) : (
-            <EmptyPanel
-              icon={<FileText className="h-5 w-5" />}
-              title="등록된 수정 요청이 없습니다."
-              description="T019에서 수정 요청 등록 폼이 연결됩니다."
-            />
+            <div className="rounded-xl border border-gray-200 bg-white">
+              <EmptyPanel
+                icon={<FileText className="h-5 w-5" />}
+                title="등록된 수정 요청이 없습니다."
+                description="위 폼에서 첫 수정 요청을 등록하세요."
+              />
+            </div>
           )}
         </section>
       )}

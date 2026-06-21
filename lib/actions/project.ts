@@ -91,14 +91,21 @@ export async function getProjectDetail(projectId: string) {
 
   if (!project) return null
 
-  const assignee = project.assigneeId
-    ? await prisma.workspaceMember.findFirst({
-        where: { workspaceId, userId: project.assigneeId },
-        include: { user: true },
-      })
-    : null
+  const [assignee, members] = await Promise.all([
+    project.assigneeId
+      ? prisma.workspaceMember.findFirst({
+          where: { workspaceId, userId: project.assigneeId },
+          include: { user: true },
+        })
+      : Promise.resolve(null),
+    prisma.workspaceMember.findMany({
+      where: { workspaceId },
+      include: { user: true },
+      orderBy: { createdAt: 'asc' },
+    }),
+  ])
 
-  return { project, assignee }
+  return { project, assignee, members }
 }
 
 export async function createProject(
