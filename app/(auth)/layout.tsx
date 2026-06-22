@@ -4,10 +4,13 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--flowrit-panel-subtle)] px-4">
       <div className="w-full max-w-sm px-4">
-        <div className="text-center mb-8">
-          <span className="text-2xl font-bold text-indigo-600">Flowrit</span>
+        <div className="mb-8 text-center">
+          <span className="text-2xl font-bold text-[var(--flowrit-primary)]">Flowrit</span>
+          <p className="mt-2 text-sm text-[var(--flowrit-text-muted)]">
+            고객 의뢰와 수정 요청을 한 곳에서 관리하세요.
+          </p>
         </div>
         {children}
       </div>

@@ -28,7 +28,7 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
           name="customerId"
           required
           defaultValue={defaultCustomerId ?? ''}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         >
           <option value="" disabled>
             고객 선택
@@ -50,7 +50,7 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
           name="title"
           required
           placeholder="예: 웨딩 본식 사진 보정"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
       </div>
 
@@ -63,7 +63,7 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
             id="dueDate"
             name="dueDate"
             type="date"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input"
           />
         </div>
         <div>
@@ -74,7 +74,7 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
             id="assigneeId"
             name="assigneeId"
             defaultValue=""
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input"
           >
             <option value="">미지정</option>
             {members.map((member) => (
@@ -99,7 +99,7 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
             step="10000"
             inputMode="numeric"
             placeholder="예: 500000"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input pr-10"
           />
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
             원
@@ -116,7 +116,7 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
           name="templateId"
           required
           defaultValue=""
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         >
           <option value="" disabled>
             템플릿 선택
@@ -137,7 +137,7 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
       <button
         type="submit"
         disabled={pending || customers.length === 0 || templates.length === 0}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? '생성 중...' : '프로젝트 생성'}
       </button>

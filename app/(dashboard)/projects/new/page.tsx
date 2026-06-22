@@ -12,7 +12,7 @@ export default async function NewProjectPage({ searchParams }: NewProjectPagePro
   const { customerId } = await searchParams
 
   return (
-    <div className="max-w-2xl p-8">
+    <div className="flowrit-page max-w-2xl">
       <Link
         href="/projects"
         className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900"
@@ -28,7 +28,7 @@ export default async function NewProjectPage({ searchParams }: NewProjectPagePro
         </p>
       </div>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6">
+      <section className="flowrit-panel-padded">
         <ProjectForm
           customers={customers}
           templates={templates}

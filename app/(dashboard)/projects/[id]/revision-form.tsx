@@ -21,7 +21,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
     >
       {pending ? '등록 중...' : '수정 요청 등록'}
     </button>
@@ -36,7 +36,7 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
   useFormToast(state)
 
   return (
-    <form action={formAction} className="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
+    <form action={formAction} className="flowrit-panel-padded space-y-4">
       <input type="hidden" name="projectId" value={projectId} />
       <div>
         <label htmlFor="content" className="text-sm font-medium text-gray-900">
@@ -48,7 +48,7 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
           rows={4}
           required
           placeholder="고객 요청이나 내부 수정 항목을 입력하세요."
-          className="mt-2 w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input mt-2 resize-none"
         />
       </div>
 
@@ -61,7 +61,7 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
             id="priority"
             name="priority"
             defaultValue="MEDIUM"
-            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-2"
           >
             <option value="HIGH">높음</option>
             <option value="MEDIUM">중간</option>
@@ -77,7 +77,7 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
             id="assigneeId"
             name="assigneeId"
             defaultValue=""
-            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-2"
           >
             <option value="">미지정</option>
             {members.map((member) => (

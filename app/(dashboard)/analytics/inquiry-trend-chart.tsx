@@ -28,7 +28,7 @@ export function InquiryTrendChart({ data }: InquiryTrendChartProps) {
         <Line
           type="monotone"
           dataKey="count"
-          name="신규 의뢰"
+          name="접수 건수"
           stroke="#14b8a6"
           strokeWidth={3}
           dot={{ r: 4 }}

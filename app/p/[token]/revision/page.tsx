@@ -19,7 +19,7 @@ export default async function CustomerRevisionPage({ params }: Props) {
   if (!page || !page.isActive) notFound()
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--flowrit-panel-subtle)]">
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="mb-8">
           <a
@@ -32,7 +32,7 @@ export default async function CustomerRevisionPage({ params }: Props) {
           <p className="mt-1 text-sm text-gray-500">{page.project.title}</p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <div className="flowrit-panel-padded">
           <CustomerRevisionForm token={token} />
         </div>
       </div>

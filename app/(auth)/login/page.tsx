@@ -12,8 +12,8 @@ export default function LoginPage() {
   useFormToast(state)
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">로그인</h2>
+    <div className="flowrit-panel-padded">
+      <h2 className="mb-6 text-xl font-semibold text-gray-900">로그인</h2>
 
       <form action={action} className="space-y-4">
         <div>
@@ -26,7 +26,7 @@ export default function LoginPage() {
             type="email"
             required
             placeholder="you@example.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="flowrit-input"
           />
         </div>
 
@@ -40,14 +40,14 @@ export default function LoginPage() {
             type="password"
             required
             placeholder="비밀번호 입력"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="flowrit-input"
           />
         </div>
 
         <button
           type="submit"
           disabled={pending}
-          className="w-full py-2 px-4 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flowrit-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? '로그인 중...' : '로그인'}
         </button>

@@ -107,7 +107,7 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
             required
             defaultValue={template?.name ?? ''}
             placeholder="예: 촬영 후 보정"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input"
           />
         </div>
         <div>
@@ -119,7 +119,7 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
             name="industry"
             defaultValue={template?.industry ?? ''}
             placeholder="photo"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input"
           />
         </div>
       </div>
@@ -130,7 +130,7 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
           <button
             type="button"
             onClick={addStage}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="flowrit-button-secondary min-h-8 px-3 py-1.5"
           >
             <Plus className="h-4 w-4" />
             단계 추가
@@ -151,7 +151,7 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
                   updateStage(stage.key, 'internalName', event.target.value)
                 }
                 placeholder="내부 표시명"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="flowrit-input"
               />
               <input
                 name="stageCustomerName"
@@ -160,7 +160,7 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
                   updateStage(stage.key, 'customerName', event.target.value)
                 }
                 placeholder="고객 표시명"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="flowrit-input"
               />
               <div className="flex justify-end gap-1">
                 <button
@@ -199,7 +199,7 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? '저장 중...' : mode === 'create' ? '템플릿 생성' : '변경사항 저장'}
       </button>

@@ -16,11 +16,11 @@ export default async function IntakePage({ params }: Props) {
   if (!workspace) notFound()
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--flowrit-panel-subtle)]">
       <div className="mx-auto max-w-lg px-4 py-12">
         <div className="mb-8 text-center">
           <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
-            신규 의뢰 접수
+            일반 문의 접수
           </p>
           <h1 className="mt-2 text-2xl font-bold text-gray-900">{workspace.name}</h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -28,7 +28,7 @@ export default async function IntakePage({ params }: Props) {
           </p>
         </div>
 
-        <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <section className="flowrit-panel-padded">
           <IntakeForm workspaceSlug={workspaceSlug} />
         </section>
 

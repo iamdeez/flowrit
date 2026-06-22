@@ -3,6 +3,7 @@ import { ExternalLink } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { getCurrentStage } from '@/lib/project-utils'
+import { ImageGallery } from '@/components/image-gallery'
 import { RevisionCommentForm } from './revision-comment-form'
 
 type Props = {
@@ -63,7 +64,7 @@ export default async function PublicProjectPage({ params }: Props) {
   const totalRevisions = project.revisions.length
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--flowrit-panel-subtle)]">
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="mb-8 text-center">
           <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
@@ -78,7 +79,7 @@ export default async function PublicProjectPage({ params }: Props) {
         </div>
 
         {/* 현재 단계 */}
-        <div className="mb-4 rounded-xl border border-gray-200 bg-white p-6">
+        <div className="flowrit-panel-padded mb-4">
           <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
             현재 단계
           </p>
@@ -110,7 +111,7 @@ export default async function PublicProjectPage({ params }: Props) {
 
         {/* 수정 요청 현황 */}
         {totalRevisions > 0 && (
-          <div className="mb-4 rounded-xl border border-gray-200 bg-white p-6">
+          <div className="flowrit-panel-padded mb-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
               수정 요청 현황
             </p>
@@ -129,7 +130,7 @@ export default async function PublicProjectPage({ params }: Props) {
 
         {/* 수정 요청별 댓글 스레드 */}
         {project.revisions.map((revision) => (
-          <div key={revision.id} className="mb-4 rounded-xl border border-gray-200 bg-white p-6">
+          <div key={revision.id} className="flowrit-panel-padded mb-4">
             <p className="mb-2 whitespace-pre-wrap text-sm font-medium text-gray-900">
               {revision.content}
             </p>
@@ -145,42 +146,53 @@ export default async function PublicProjectPage({ params }: Props) {
         ))}
 
         {/* 공유된 파일·링크 */}
-        {project.assets.length > 0 && (
-          <div className="mb-4 rounded-xl border border-gray-200 bg-white p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
-              공유된 파일·링크
-            </p>
-            <div className="space-y-3">
-              {project.assets.map((asset) => (
-                <a
-                  key={asset.id}
-                  href={asset.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-900">{asset.name}</p>
-                    {asset.version && (
-                      <p className="mt-0.5 text-xs text-gray-500">{asset.version}</p>
-                    )}
-                    {asset.expiredAt && (
-                      <p className="mt-0.5 text-xs text-gray-500">
-                        {asset.expiredAt.toLocaleDateString('ko-KR')} 만료
-                      </p>
-                    )}
-                  </div>
-                  <ExternalLink className="h-4 w-4 shrink-0 text-gray-400" />
-                </a>
-              ))}
+        {project.assets.length > 0 && (() => {
+          const galleryAssets = project.assets.filter((a) => a.type === 'GALLERY')
+          const otherAssets = project.assets.filter((a) => a.type !== 'GALLERY')
+          return (
+            <div className="flowrit-panel-padded mb-4">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                공유된 파일·링크
+              </p>
+              {galleryAssets.length > 0 && (
+                <div className="mb-4">
+                  <ImageGallery images={galleryAssets.map((a) => ({ url: a.url, name: a.name }))} />
+                </div>
+              )}
+              {otherAssets.length > 0 && (
+                <div className="space-y-3">
+                  {otherAssets.map((asset) => (
+                    <a
+                      key={asset.id}
+                      href={asset.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 rounded-lg border border-gray-200 p-3 hover:bg-gray-50"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-gray-900">{asset.name}</p>
+                        {asset.version && (
+                          <p className="mt-0.5 text-xs text-gray-500">{asset.version}</p>
+                        )}
+                        {asset.expiredAt && (
+                          <p className="mt-0.5 text-xs text-gray-500">
+                            {asset.expiredAt.toLocaleDateString('ko-KR')} 만료
+                          </p>
+                        )}
+                      </div>
+                      <ExternalLink className="h-4 w-4 shrink-0 text-gray-400" />
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* 수정 요청 버튼 */}
         <Link
           href={`/p/${token}/revision`}
-          className="block w-full rounded-xl border border-gray-200 bg-white px-4 py-4 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="flowrit-button-secondary w-full py-4"
         >
           수정 요청하기
         </Link>

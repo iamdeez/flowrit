@@ -23,7 +23,7 @@ export function InviteForm() {
             type="email"
             required
             placeholder="teammate@example.com"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="flowrit-input"
           />
         </div>
         <div>
@@ -34,7 +34,7 @@ export function InviteForm() {
             id="role"
             name="role"
             defaultValue="MEMBER"
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="flowrit-input"
           >
             <option value="MEMBER">멤버</option>
             <option value="ADMIN">어드민</option>
@@ -67,7 +67,7 @@ export function InviteForm() {
       <button
         type="submit"
         disabled={pending}
-        className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? '초대 발송 중...' : '초대 이메일 발송'}
       </button>

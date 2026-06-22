@@ -85,6 +85,81 @@ export async function submitInquiry(
   return { success: true }
 }
 
+export async function submitOrder(
+  workspaceSlug: string,
+  _prevState: InquiryFormState,
+  formData: FormData
+): Promise<InquiryFormState> {
+  const workspace = await prisma.workspace.findUnique({ where: { slug: workspaceSlug } })
+  if (!workspace) return { error: '존재하지 않는 워크스페이스입니다.' }
+
+  const name = stringValue(formData, 'name')
+  const contact = stringValue(formData, 'contact')
+  const preferredDate = stringValue(formData, 'preferredDate')
+  const budget = stringValue(formData, 'budget')
+  const rawContent = stringValue(formData, 'content')
+  const fileUrlsRaw = formData.get('fileUrls') as string | null
+  const fileUrls = fileUrlsRaw ? (JSON.parse(fileUrlsRaw) as string[]) : []
+
+  if (!name) return { error: '이름을 입력해 주세요.' }
+  if (!rawContent) return { error: '의뢰 내용을 입력해 주세요.' }
+
+  const metaLines: string[] = []
+  if (preferredDate) metaLines.push(`희망 날짜: ${preferredDate}`)
+  if (budget) metaLines.push(`예산: ${budget}`)
+  const content = metaLines.length > 0 ? `${metaLines.join('\n')}\n---\n${rawContent}` : rawContent
+
+  const inquiry = await prisma.inquiry.create({
+    data: {
+      workspaceId: workspace.id,
+      name,
+      contact: contact || null,
+      content,
+      fileUrls,
+      formType: 'ORDER',
+    },
+  })
+
+  try {
+    const members = await prisma.workspaceMember.findMany({
+      where: { workspaceId: workspace.id },
+      select: { userId: true },
+    })
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+    const excerpt = rawContent.length > 100 ? `${rawContent.slice(0, 100)}...` : rawContent
+
+    await sendNotification({
+      userIds: members.map((m) => m.userId),
+      workspaceId: workspace.id,
+      type: 'NEW_INQUIRY',
+      title: '[주문서] 새 의뢰가 접수되었습니다',
+      body: `${name}: ${excerpt}`,
+      href: '/orders',
+      emailFn: (to) =>
+        sendNewInquiryEmail(to, {
+          submitterName: name,
+          contact,
+          excerpt,
+          dashboardUrl: `${appUrl}/orders`,
+        }),
+    })
+  } catch (error) {
+    console.error('[notification] submitOrder failed', { inquiryId: inquiry.id, error })
+  }
+
+  return { success: true }
+}
+
+export async function dismissInquiry(inquiryId: string): Promise<{ error?: string }> {
+  const workspaceId = await requireWorkspaceId()
+  const inquiry = await prisma.inquiry.findFirst({ where: { id: inquiryId, workspaceId } })
+  if (!inquiry) return { error: '접수 건을 찾을 수 없습니다.' }
+  await prisma.inquiry.update({ where: { id: inquiryId }, data: { status: 'DISMISSED' } })
+  revalidatePath('/orders')
+  revalidatePath('/dashboard')
+  return {}
+}
+
 export async function getPendingInquiries() {
   const workspaceId = await requireWorkspaceId()
 

@@ -17,7 +17,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
     >
       {pending ? '등록 중...' : '파일·링크 등록'}
     </button>
@@ -32,7 +32,7 @@ export function AssetForm({ projectId }: AssetFormProps) {
   useFormToast(state)
 
   return (
-    <form action={formAction} className="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
+    <form action={formAction} className="flowrit-panel-padded space-y-4">
       <input type="hidden" name="projectId" value={projectId} />
 
       <div className="grid gap-4 md:grid-cols-[1fr_1.5fr]">
@@ -45,7 +45,7 @@ export function AssetForm({ projectId }: AssetFormProps) {
             name="name"
             required
             placeholder="최종 보정본 갤러리"
-            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-2"
           />
         </div>
 
@@ -59,7 +59,7 @@ export function AssetForm({ projectId }: AssetFormProps) {
             type="url"
             required
             placeholder="https://drive.google.com/..."
-            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-2"
           />
         </div>
       </div>
@@ -73,7 +73,7 @@ export function AssetForm({ projectId }: AssetFormProps) {
             id="asset-type"
             name="type"
             defaultValue="OTHER"
-            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-2"
           >
             <option value="DRIVE">드라이브</option>
             <option value="GALLERY">갤러리</option>
@@ -91,7 +91,7 @@ export function AssetForm({ projectId }: AssetFormProps) {
             id="asset-version"
             name="version"
             placeholder="v1, 최종본"
-            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-2"
           />
         </div>
 
@@ -103,7 +103,7 @@ export function AssetForm({ projectId }: AssetFormProps) {
             id="asset-expired-at"
             name="expiredAt"
             type="date"
-            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-2"
           />
         </div>
       </div>

@@ -29,6 +29,7 @@ import {
   revisionSourceLabels,
   revisionStatusLabels,
 } from '@/lib/revision-labels'
+import { ImageGallery } from '@/components/image-gallery'
 import { AssetForm } from './asset-form'
 import { AssetStatusForm } from './asset-status-form'
 import { DuplicateProjectDialog } from '../duplicate-project-dialog'
@@ -76,7 +77,7 @@ export default async function ProjectDetailPage({
     : '(공유 링크 없음)'
 
   return (
-    <div className="p-8">
+    <div className="flowrit-page">
       <Link
         href="/projects"
         className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900"
@@ -85,7 +86,7 @@ export default async function ProjectDetailPage({
         프로젝트 목록
       </Link>
 
-      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6">
+      <div className="flowrit-panel-padded mb-6">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">{project.title}</h1>
@@ -118,7 +119,7 @@ export default async function ProjectDetailPage({
               <input type="hidden" name="projectId" value={project.id} />
               <button
                 type="submit"
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                className="flowrit-button-secondary min-h-9 px-3 text-xs"
               >
                 <Archive className="h-3.5 w-3.5" />
                 {project.archivedAt ? '아카이브 해제' : '아카이브'}
@@ -156,12 +157,12 @@ export default async function ProjectDetailPage({
                   inputMode="numeric"
                   defaultValue={project.budget ?? ''}
                   placeholder="미입력"
-                  className="h-9 w-36 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flowrit-input h-9 min-h-9 w-36"
                 />
               </label>
               <button
                 type="submit"
-                className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+                className="flowrit-button-secondary min-h-9 px-3 text-xs"
               >
                 저장
               </button>
@@ -196,7 +197,7 @@ export default async function ProjectDetailPage({
           <RevisionForm projectId={project.id} members={members} />
 
           {project.revisions.length > 0 ? (
-            <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+            <div className="flowrit-panel divide-y divide-gray-100">
               {project.revisions.map((revision) => (
                 <div key={revision.id} className="p-5">
                   <div className="grid gap-4 md:grid-cols-[1fr_auto]">
@@ -246,7 +247,7 @@ export default async function ProjectDetailPage({
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-gray-200 bg-white">
+            <div className="flowrit-panel">
               <EmptyPanel
                 icon={<FileText className="h-5 w-5" />}
                 title="등록된 수정 요청이 없습니다."
@@ -262,60 +263,100 @@ export default async function ProjectDetailPage({
           <AssetForm projectId={project.id} />
 
           {project.assets.length > 0 ? (
-            <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
-              {project.assets.map((asset) => (
-                <div
-                  key={asset.id}
-                  className="grid gap-4 p-5 md:grid-cols-[1fr_auto]"
-                >
-                  <div>
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                        {assetStatusLabels[asset.status] ?? asset.status}
-                      </span>
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-                        {assetTypeLabels[asset.type] ?? asset.type}
-                      </span>
-                      {asset.version && (
-                        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                          {asset.version}
-                        </span>
-                      )}
+            <div className="space-y-4">
+              {/* 갤러리 타입 이미지 */}
+              {(() => {
+                const galleryAssets = project.assets.filter((a) => a.type === 'GALLERY')
+                if (galleryAssets.length === 0) return null
+                return (
+                  <div className="flowrit-panel p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-xs font-semibold text-[var(--flowrit-text-muted)]">
+                        갤러리 · {galleryAssets.length}장
+                      </p>
+                      <div className="flex items-center gap-2">
+                        {galleryAssets.some((a) => a.status !== 'SHARED') && (
+                          <span className="flowrit-badge flowrit-badge-pending">비공개 포함</span>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm font-medium text-gray-900">{asset.name}</p>
-                    <a
-                      href={asset.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 inline-flex max-w-full items-center gap-1.5 truncate text-xs font-medium text-indigo-700 hover:text-indigo-900"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{asset.url}</span>
-                    </a>
-                    <p className="mt-2 text-xs text-gray-500">
-                      {asset.expiredAt
-                        ? `${asset.expiredAt.toLocaleDateString('ko-KR')} 만료`
-                        : '만료일 없음'}{' '}
-                      · {asset.createdAt.toLocaleDateString('ko-KR')} 등록
-                    </p>
+                    <ImageGallery
+                      images={galleryAssets.map((a) => ({ url: a.url, name: a.name }))}
+                    />
+                    <div className="mt-3 divide-y divide-[var(--flowrit-border)]">
+                      {galleryAssets.map((asset) => (
+                        <div key={asset.id} className="flex items-center justify-between gap-3 py-2">
+                          <p className="min-w-0 truncate text-xs text-[var(--flowrit-text-secondary)]">{asset.name}</p>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <span className={`flowrit-badge ${asset.status === 'SHARED' ? 'flowrit-badge-active' : 'flowrit-badge-pending'}`}>
+                              {assetStatusLabels[asset.status] ?? asset.status}
+                            </span>
+                            <AssetStatusForm assetId={asset.id} status={asset.status} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                    <AssetStatusForm assetId={asset.id} status={asset.status} />
-                    <a
-                      href={asset.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                      열기
-                    </a>
+                )
+              })()}
+
+              {/* 링크/문서/기타 타입 */}
+              {(() => {
+                const linkAssets = project.assets.filter((a) => a.type !== 'GALLERY')
+                if (linkAssets.length === 0) return null
+                return (
+                  <div className="flowrit-panel divide-y divide-[var(--flowrit-border)]">
+                    {linkAssets.map((asset) => (
+                      <div key={asset.id} className="grid gap-4 p-5 md:grid-cols-[1fr_auto]">
+                        <div>
+                          <div className="mb-2 flex flex-wrap gap-2">
+                            <span className="flowrit-badge flowrit-badge-active">
+                              {assetStatusLabels[asset.status] ?? asset.status}
+                            </span>
+                            <span className="flowrit-badge flowrit-badge-pending">
+                              {assetTypeLabels[asset.type] ?? asset.type}
+                            </span>
+                            {asset.version && (
+                              <span className="flowrit-badge bg-amber-50 text-amber-700">{asset.version}</span>
+                            )}
+                          </div>
+                          <p className="text-sm font-medium text-[var(--flowrit-text)]">{asset.name}</p>
+                          <a
+                            href={asset.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-1 inline-flex max-w-full items-center gap-1.5 truncate text-xs font-medium text-[var(--flowrit-primary)] hover:underline"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">{asset.url}</span>
+                          </a>
+                          <p className="mt-2 text-xs text-[var(--flowrit-text-muted)]">
+                            {asset.expiredAt
+                              ? `${asset.expiredAt.toLocaleDateString('ko-KR')} 만료`
+                              : '만료일 없음'}{' '}
+                            · {asset.createdAt.toLocaleDateString('ko-KR')} 등록
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                          <AssetStatusForm assetId={asset.id} status={asset.status} />
+                          <a
+                            href={asset.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flowrit-button-secondary min-h-9 px-3 text-xs"
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                            열기
+                          </a>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))}
+                )
+              })()}
             </div>
           ) : (
-            <div className="rounded-xl border border-gray-200 bg-white">
+            <div className="flowrit-panel">
               <EmptyPanel
                 icon={<ExternalLink className="h-5 w-5" />}
                 title="등록된 파일·링크가 없습니다."
@@ -328,25 +369,25 @@ export default async function ProjectDetailPage({
 
       {tab === 'timeline' && (
         <section className="space-y-4">
-          <form action={createTimelineMemo} className="rounded-xl border border-gray-200 bg-white p-4">
+          <form action={createTimelineMemo} className="flowrit-panel-padded">
             <input type="hidden" name="projectId" value={project.id} />
             <textarea
               name="content"
               rows={3}
               placeholder="내부 메모를 입력하세요..."
-              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flowrit-input resize-none"
             />
             <div className="mt-2 flex justify-end">
               <button
                 type="submit"
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+                className="flowrit-button-primary"
               >
                 메모 저장
               </button>
             </div>
           </form>
 
-          <div className="rounded-xl border border-gray-200 bg-white">
+          <div className="flowrit-panel">
             {project.events.length > 0 ? (
               <div className="divide-y divide-gray-100">
                 {project.events.map((event) => (
@@ -381,7 +422,7 @@ export default async function ProjectDetailPage({
       )}
 
       {tab === 'messages' && (
-        <section className="rounded-xl border border-gray-200 bg-white">
+        <section className="flowrit-panel">
           <MessagePanel
             templates={messageTemplates}
             customerName={project.customer.name}

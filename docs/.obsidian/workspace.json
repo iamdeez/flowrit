@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
+                "file": "specs/v0.5.0/CHANGES.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "tasks"
+              "title": "CHANGES"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
+                "file": "specs/v0.5.0/CHANGES.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "tasks 의 백링크"
+              "title": "CHANGES 의 백링크"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
+                "file": "specs/v0.5.0/CHANGES.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "tasks 의 나가는 링크"
+              "title": "CHANGES 의 나가는 링크"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "specs/v0.2.0/001-ux-upgrade/tasks.md",
+                "file": "specs/v0.5.0/CHANGES.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tasks 의 개요"
+              "title": "CHANGES 의 개요"
             }
           }
         ]
@@ -185,24 +185,41 @@
   },
   "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
-    "specs/v0.2.0/001-ux-upgrade/spec.md",
-    "specs/v0.2.0/CHANGES.md",
-    "specs/v0.2.0/001-ux-upgrade/tasks.md",
-    "specs/v0.2.0/001-ux-upgrade/plan.md",
-    "specs/v0.2.0/001-ux-upgrade/research.md",
-    "specs/v0.1.0/001-mvp-core/tasks.md",
-    "specs/v0.2.0/001-ux-upgrade",
-    "specs/v0.2.0",
-    "specs/v0.1.0/DIFF-001-mvp-core.md",
-    "specs/v0.1.0/CHANGES.md",
-    "setup/env.md",
-    "setup",
-    "specs/v0.1.0/001-mvp-core/spec.md",
-    "specs/v0.1.0/001-mvp-core/research.md",
-    "specs/v0.1.0/001-mvp-core/plan.md",
-    "mvp/ourwedding_레포_분석.md",
-    "mvp/MVP_계획서.md",
-    "mvp/gohoc_레포_분석.md",
-    "mvp/이전_프로젝트_검토_프레임.md"
+    "specs/v0.6.0/CHANGES.md",
+    "specs/v0.6.0/002-order-form-management/tasks.md",
+    "specs/v0.6.0/002-order-form-management/plan.md",
+    "specs/v0.6.0/002-order-form-management/spec.md",
+    "specs/v0.6.0/001-webhook-platform-integration/tasks.md",
+    "specs/v0.6.0/001-webhook-platform-integration/plan.md",
+    "specs/v0.6.0/001-webhook-platform-integration/spec.md",
+    "specs/v0.6.0/002-order-form-management",
+    "specs/v0.6.0/001-webhook-platform-integration",
+    "specs/v0.6.0",
+    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-database-design-agent.md",
+    "specs/v0.5.0/001-revision-comment-threads/spec.md",
+    "specs/v0.5.0/001-revision-comment-threads/planning/plan.md",
+    "specs/v0.5.0/001-revision-comment-threads/security",
+    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-security-agent.md",
+    "specs/v0.5.0/DIFF-001-revision-comment-threads.md",
+    "specs/v0.5.0/CHANGES.md",
+    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-docs-agent.md",
+    "specs/v0.5.0/_ai-workspace/runs",
+    "specs/v0.5.0/_ai-workspace",
+    "specs/v0.5.0/001-revision-comment-threads/test/coverage-gap.md",
+    "specs/v0.5.0/001-revision-comment-threads/test/coverage.md",
+    "specs/v0.5.0/001-revision-comment-threads/test/test-report.md",
+    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-003-test-agent-execution.md",
+    "specs/v0.5.0/001-revision-comment-threads/test/test-cases.md",
+    "specs/v0.5.0/001-revision-comment-threads/test",
+    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-development-agent.md",
+    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-002-test-agent-authoring.md",
+    "specs/v0.5.0/001-revision-comment-threads/db-design/migrations/20260622134000_add_revision_comment_threads/migration.sql",
+    "specs/v0.5.0/001-revision-comment-threads/db-design/migrations/20260622134000_add_revision_comment_threads",
+    "specs/v0.5.0/001-revision-comment-threads/db-design/migrations",
+    "specs/v0.5.0/001-revision-comment-threads/db-design/data-model.md",
+    "specs/v0.5.0/001-revision-comment-threads/design/tasks.md",
+    "specs/v0.5.0/001-revision-comment-threads/gaps.md",
+    "specs/v0.5.0/001-revision-comment-threads/design/research.md",
+    "specs/v0.5.0/001-revision-comment-threads/planning/selection-phases.md"
   ]
 }

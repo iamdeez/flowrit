@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import Form from 'next/form'
-import { Archive, CalendarDays, ChevronLeft, ChevronRight, Download, FolderOpen, Plus, Search, User } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, Download, FilePen, FolderOpen, Plus } from 'lucide-react'
 import { getProjects, getWorkspaceMembers } from '@/lib/actions/project'
 import { getCurrentStage, isProjectDone } from '@/lib/project-utils'
+import { ProjectsFilter } from '@/components/projects-filter'
 
 type ProjectsPageProps = {
   searchParams: Promise<{
@@ -14,12 +14,52 @@ type ProjectsPageProps = {
   }>
 }
 
-const filters = [
-  { label: '전체', value: undefined },
-  { label: '진행 중', value: 'in_progress' },
-  { label: '완료', value: 'done' },
-  { label: '아카이브됨', value: 'archived' },
+const AVATAR_PALETTE = [
+  'bg-violet-100 text-violet-700',
+  'bg-indigo-100 text-indigo-700',
+  'bg-sky-100 text-sky-700',
+  'bg-emerald-100 text-emerald-700',
+  'bg-teal-100 text-teal-700',
+  'bg-amber-100 text-amber-700',
+  'bg-rose-100 text-rose-700',
+  'bg-pink-100 text-pink-700',
 ]
+
+function avatarColor(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash * 31 + name.charCodeAt(i)) & 0xffff
+  }
+  return AVATAR_PALETTE[hash % AVATAR_PALETTE.length]
+}
+
+type DueInfo = { text: string; cls: string; urgent: boolean }
+
+function getDueInfo(dueDate: Date | null, done: boolean, archived: boolean): DueInfo | null {
+  if (!dueDate) return null
+  if (done || archived) {
+    return {
+      text: dueDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }),
+      cls: 'text-[var(--flowrit-text-muted)]',
+      urgent: false,
+    }
+  }
+  const now = new Date()
+  now.setHours(0, 0, 0, 0)
+  const due = new Date(dueDate)
+  due.setHours(0, 0, 0, 0)
+  const diff = Math.round((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+
+  if (diff < 0) return { text: `D+${-diff} 초과`, cls: 'font-semibold text-red-600', urgent: true }
+  if (diff === 0) return { text: '오늘 마감', cls: 'font-semibold text-red-600', urgent: true }
+  if (diff === 1) return { text: '내일', cls: 'font-semibold text-orange-600', urgent: true }
+  if (diff <= 3) return { text: `D-${diff}`, cls: 'font-semibold text-orange-600', urgent: true }
+  return {
+    text: dueDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }),
+    cls: 'text-[var(--flowrit-text-muted)]',
+    urgent: false,
+  }
+}
 
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const { status, q, archived, page: pageParam, assigneeId } = await searchParams
@@ -45,7 +85,6 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   if (isArchivedFilter) exportParams.set('archived', 'true')
   const exportHref = `/api/export/projects${exportParams.size ? `?${exportParams}` : ''}`
 
-  // 페이지네이션 링크 생성 헬퍼
   function pageHref(p: number) {
     const params = new URLSearchParams()
     if (q) params.set('q', q)
@@ -57,164 +96,137 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8 flex items-start justify-between gap-4">
+    <div className="flowrit-page">
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">프로젝트</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-xl font-semibold text-[var(--flowrit-text)] md:text-2xl">프로젝트</h1>
+          <p className="mt-0.5 hidden text-sm text-[var(--flowrit-text-muted)] md:block">
             {role === 'MEMBER'
-              ? '내가 담당하는 프로젝트를 마감일 순서로 확인합니다.'
+              ? '내가 담당하는 프로젝트를 확인합니다.'
               : '진행 중인 작업을 마감일 순서로 확인합니다.'}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {isAdmin && (
-            <a
-              href={exportHref}
-              download
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-            >
+            <a href={exportHref} download className="flowrit-button-secondary hidden md:inline-flex">
               <Download className="h-4 w-4" />
-              CSV 내보내기
+              CSV
             </a>
           )}
-          <Link
-            href="/projects/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
-          >
+          <Link href="/projects/new" className="flowrit-button-primary">
             <Plus className="h-4 w-4" />
-            새 프로젝트
+            <span className="hidden md:inline">새 프로젝트</span>
+            <span className="md:hidden">추가</span>
           </Link>
         </div>
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Form action="/projects" className="flex-1">
-          {status && !isArchivedFilter && <input type="hidden" name="status" value={status} />}
-          {isArchivedFilter && <input type="hidden" name="archived" value="true" />}
-          {assigneeId && isAdmin && <input type="hidden" name="assigneeId" value={assigneeId} />}
-          <div className="relative max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
-              name="q"
-              defaultValue={q ?? ''}
-              placeholder="프로젝트 제목 또는 고객명 검색"
-              className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-        </Form>
+      {/* Filter bar */}
+      <div className="mb-4">
+        <ProjectsFilter isAdmin={isAdmin} members={members} />
+      </div>
 
-        {isAdmin && (
-          <Form action="/projects">
-            {status && !isArchivedFilter && <input type="hidden" name="status" value={status} />}
-            {isArchivedFilter && <input type="hidden" name="archived" value="true" />}
-            {q && <input type="hidden" name="q" value={q} />}
-            <div className="relative">
-              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <select
-                name="assigneeId"
-                defaultValue={assigneeId ?? ''}
-                className="appearance-none rounded-lg border border-gray-300 py-2 pl-9 pr-8 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">전체 담당자</option>
-                {members.map((m) => (
-                  <option key={m.userId} value={m.userId}>
-                    {m.user.name ?? m.userId}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className="ml-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
-              적용
-            </button>
-          </Form>
+      {/* Count */}
+      <p className="mb-3 text-xs text-[var(--flowrit-text-muted)]">
+        총 <span className="font-medium text-[var(--flowrit-text-secondary)]">{totalCount}</span>건
+        {q && (
+          <>
+            {' '}
+            · <span className="text-[var(--flowrit-primary-soft-text)]">&ldquo;{q}&rdquo;</span> 검색 결과
+          </>
         )}
-      </div>
+      </p>
 
-      <div className="mb-5 flex gap-2">
-        {filters.map((filter) => {
-          const href =
-            filter.value === 'archived'
-              ? '/projects?archived=true'
-              : filter.value
-                ? `/projects?status=${filter.value}`
-                : '/projects'
-          const active =
-            filter.value === 'archived'
-              ? isArchivedFilter
-              : !isArchivedFilter && (status === filter.value || (!status && !filter.value))
-          return (
-            <Link
-              key={filter.label}
-              href={href}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                active
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'border border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {filter.label}
-            </Link>
-          )
-        })}
-      </div>
-
+      {/* Project list */}
       {projects.length > 0 ? (
         <>
-          <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <section className="space-y-2">
             {projects.map((project) => {
               const currentStage = getCurrentStage(project)
               const done = isProjectDone(project)
+              const completedStages = project.stages.filter((s) => s.completedAt !== null).length
+              const totalStages = project.stages.length
+              const openRevisions = project.revisions.length
+              const dueInfo = getDueInfo(project.dueDate, done, !!project.archivedAt)
+              const color = avatarColor(project.customer.name)
+
+              const statusBadgeCls = project.archivedAt
+                ? 'flowrit-badge-archived'
+                : done
+                  ? 'flowrit-badge-done'
+                  : 'flowrit-badge-active'
+              const statusLabel = project.archivedAt
+                ? '아카이브됨'
+                : done
+                  ? '완료'
+                  : (currentStage?.internalName ?? '대기')
 
               return (
                 <Link
                   key={project.id}
                   href={`/projects/${project.id}`}
-                  className="rounded-xl border border-gray-200 bg-white p-5 transition-colors hover:bg-gray-50"
+                  className={`group flex items-center gap-3 rounded-xl border bg-white px-4 py-3.5 transition-all hover:shadow-sm md:gap-4 md:px-5 ${
+                    dueInfo?.urgent
+                      ? 'border-orange-200 hover:border-orange-300'
+                      : 'border-[var(--flowrit-border)] hover:border-indigo-200'
+                  }`}
                 >
-                  <div className="mb-4 flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-gray-900">
-                        {project.title}
-                      </p>
-                      <p className="mt-1 text-sm text-gray-500">{project.customer.name}</p>
-                    </div>
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        project.archivedAt
-                          ? 'bg-gray-100 text-gray-600'
-                          : done
-                          ? 'bg-green-50 text-green-700'
-                          : 'bg-indigo-50 text-indigo-700'
-                      }`}
-                    >
-                      {project.archivedAt ? '아카이브됨' : done ? '완료' : currentStage?.internalName ?? '대기'}
-                    </span>
+                  {/* Customer avatar */}
+                  <div
+                    className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold sm:flex ${color}`}
+                  >
+                    {project.customer.name.slice(0, 1)}
                   </div>
 
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <span className="inline-flex items-center gap-1.5">
-                      <CalendarDays className="h-4 w-4" />
-                      {project.dueDate
-                        ? project.dueDate.toLocaleDateString('ko-KR')
-                        : '마감일 없음'}
-                    </span>
-                    <span className="flex items-center gap-3">
-                      {project.assigneeName && (
-                        <span className="inline-flex items-center gap-1 text-xs text-gray-400">
-                          <User className="h-3.5 w-3.5" />
-                          {project.assigneeName}
-                        </span>
+                  {/* Main content */}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[15px] font-semibold text-[var(--flowrit-text)] transition-colors group-hover:text-[var(--flowrit-primary)]">
+                      {project.title}
+                    </p>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--flowrit-text-muted)]">
+                      <span className="text-[var(--flowrit-text-secondary)]">{project.customer.name}</span>
+                      {totalStages > 0 && (
+                        <>
+                          <span className="text-gray-200">·</span>
+                          <span>{completedStages}/{totalStages} 단계</span>
+                          <div className="flex h-1.5 w-12 gap-0.5">
+                            {project.stages.map((s) => (
+                              <div
+                                key={s.id}
+                                className={`flex-1 rounded-full ${
+                                  s.completedAt ? 'bg-[var(--flowrit-primary)]' : 'bg-gray-200'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </>
                       )}
-                      <span>
-                        {project.archivedAt && (
-                          <span className="mr-2 inline-flex items-center gap-1 text-gray-400">
-                            <Archive className="h-3.5 w-3.5" />
-                            보관
-                          </span>
-                        )}
-                        수정 {project.revisions.length} · 에셋 {project.assets.length}
+                      {project.assigneeName && (
+                        <>
+                          <span className="text-gray-200">·</span>
+                          <span>{project.assigneeName}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right meta */}
+                  <div className="flex shrink-0 items-center gap-2.5 text-xs md:gap-3">
+                    {openRevisions > 0 && (
+                      <span className="flex items-center gap-1 font-medium text-rose-500">
+                        <FilePen className="h-3.5 w-3.5" />
+                        {openRevisions}
                       </span>
+                    )}
+                    {dueInfo && (
+                      <span className={`hidden items-center gap-1 sm:flex ${dueInfo.cls}`}>
+                        <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                        {dueInfo.text}
+                      </span>
+                    )}
+                    <span className={`flowrit-badge shrink-0 ${statusBadgeCls}`}>
+                      {statusLabel}
                     </span>
                   </div>
                 </Link>
@@ -224,15 +236,12 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
 
           {totalPages > 1 && (
             <div className="mt-6 flex items-center justify-between">
-              <p className="text-sm text-gray-500">
-                총 {totalCount}건 · {page} / {totalPages} 페이지
+              <p className="text-sm text-[var(--flowrit-text-muted)]">
+                {page} / {totalPages} 페이지
               </p>
               <div className="flex gap-2">
                 {page > 1 ? (
-                  <Link
-                    href={pageHref(page - 1)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                  >
+                  <Link href={pageHref(page - 1)} className="flowrit-button-secondary">
                     <ChevronLeft className="h-4 w-4" />
                     이전
                   </Link>
@@ -243,10 +252,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                   </span>
                 )}
                 {page < totalPages ? (
-                  <Link
-                    href={pageHref(page + 1)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
-                  >
+                  <Link href={pageHref(page + 1)} className="flowrit-button-secondary">
                     다음
                     <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -261,7 +267,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           )}
         </>
       ) : (
-        <section className="rounded-xl border border-gray-200 bg-white px-5 py-16 text-center">
+        <section className="flowrit-panel px-5 py-16 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
             <FolderOpen className="h-5 w-5" />
           </div>
@@ -272,10 +278,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
               : '새 프로젝트를 만들어 작업 흐름을 시작하세요.'}
           </p>
           {!q && !isArchivedFilter && role !== 'MEMBER' && (
-            <Link
-              href="/projects/new"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
-            >
+            <Link href="/projects/new" className="flowrit-button-primary mt-4">
               <Plus className="h-4 w-4" />
               새 프로젝트
             </Link>

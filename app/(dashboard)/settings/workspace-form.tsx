@@ -29,7 +29,7 @@ export function WorkspaceForm({
           name="name"
           defaultValue={initialName}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
       </div>
 
@@ -41,7 +41,7 @@ export function WorkspaceForm({
           defaultValue={initialSlug}
           required
           pattern="[a-z0-9-]+"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
         <p className="text-xs text-gray-400 mt-1">
           영소문자, 숫자, 하이픈만 사용 가능합니다. 슬러그 변경 시 고객 포털 링크가 변경됩니다.
@@ -51,7 +51,7 @@ export function WorkspaceForm({
       <button
         type="submit"
         disabled={pending}
-        className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        className="flowrit-button-primary disabled:opacity-50"
       >
         {pending ? '저장 중...' : '저장'}
       </button>

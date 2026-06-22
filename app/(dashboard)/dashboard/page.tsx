@@ -1,26 +1,91 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
+import { unstable_cache } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { Activity, AlertTriangle, BadgeDollarSign, CheckCircle2, Clock, FilePen, FilePenLine, Inbox, Plus, Zap } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { seedDefaultWorkflowTemplates } from '@/lib/default-workflow-templates'
 import { isProjectDone } from '@/lib/project-utils'
+import {
+  formatKRW,
+  getPeriodRange,
+  getRecentMonthKeys,
+  monthKey,
+  monthLabel,
+  toAnalyticsPeriod,
+} from '@/lib/utils/analytics'
+import { CompletionChart } from '../analytics/completion-chart'
+import { InquiryTrendChart } from '../analytics/inquiry-trend-chart'
+import { PeriodSelector } from '../analytics/period-selector'
+import { RevisionSourceChart } from '../analytics/revision-source-chart'
+import { TeamWorkloadTable } from '../analytics/team-workload-table'
+import { WorkloadChart } from '../analytics/workload-chart'
 import { ConvertDialog } from './convert-dialog'
 
-async function getDashboardData(workspaceId: string) {
+type DashboardPageProps = {
+  searchParams: Promise<{ period?: string }>
+}
+
+function inRange(date: Date, from: Date, to: Date): boolean {
+  return date >= from && date <= to
+}
+
+function analyticsStatCard({
+  label,
+  value,
+  caption,
+  icon,
+}: {
+  label: string
+  value: string
+  caption: string
+  icon: React.ReactNode
+}) {
+  return (
+    <div className="flowrit-panel-padded">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-gray-500">{label}</p>
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-50 text-gray-500">
+          {icon}
+        </span>
+      </div>
+      <p className="text-2xl font-semibold text-gray-900">{value}</p>
+      <p className="mt-1 text-xs text-gray-400">{caption}</p>
+    </div>
+  )
+}
+
+async function getOperationalData(workspaceId: string) {
   await seedDefaultWorkflowTemplates(workspaceId)
 
   const twoDaysFromNow = new Date()
   twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2)
 
-  const [inquiries, allProjects, urgentCandidates, openRevisions, customers, templates, openRevisionCount] = await Promise.all([
+  const [
+    inquiries,
+    pendingInquiryCount,
+    projectsForStatus,
+    urgentCandidates,
+    openRevisions,
+    openRevisionCount,
+    customers,
+    templates,
+  ] = await Promise.all([
     prisma.inquiry.findMany({
       where: { workspaceId, status: 'PENDING' },
       orderBy: { createdAt: 'desc' },
+      take: 6,
+    }),
+    prisma.inquiry.count({
+      where: { workspaceId, status: 'PENDING' },
     }),
     prisma.project.findMany({
       where: { workspaceId, archivedAt: null },
-      include: {
+      select: {
+        id: true,
+        currentStageId: true,
         stages: { orderBy: { order: 'asc' } },
-        revisions: { where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } },
       },
     }),
     prisma.project.findMany({
@@ -30,20 +95,41 @@ async function getDashboardData(workspaceId: string) {
         dueDate: { lte: twoDaysFromNow },
       },
       include: {
-        customer: true,
+        customer: { select: { name: true } },
         stages: { orderBy: { order: 'asc' } },
-        revisions: { where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } },
+        revisions: {
+          where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
+          select: { id: true },
+        },
       },
       orderBy: { dueDate: 'asc' },
+      take: 8,
     }),
     prisma.revisionRequest.findMany({
       where: {
         status: { in: ['OPEN', 'IN_PROGRESS'] },
         project: { workspaceId, archivedAt: null },
       },
-      include: { project: { include: { customer: true } } },
+      select: {
+        id: true,
+        projectId: true,
+        content: true,
+        status: true,
+        project: {
+          select: {
+            title: true,
+            customer: { select: { name: true } },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
       take: 10,
+    }),
+    prisma.revisionRequest.count({
+      where: {
+        status: { in: ['OPEN', 'IN_PROGRESS'] },
+        project: { workspaceId, archivedAt: null },
+      },
     }),
     prisma.customer.findMany({
       where: { workspaceId },
@@ -53,187 +139,472 @@ async function getDashboardData(workspaceId: string) {
       where: { workspaceId },
       orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
     }),
+  ])
+
+  const activeProjects = projectsForStatus.filter((p) => !isProjectDone(p))
+  const activeUrgentProjects = urgentCandidates.filter((p) => !isProjectDone(p))
+
+  return {
+    inquiries,
+    pendingInquiryCount,
+    activeUrgentProjects,
+    openRevisions,
+    customers,
+    templates,
+    activeCount: activeProjects.length,
+    urgentCount: activeUrgentProjects.length,
+    openRevisionCount,
+  }
+}
+
+async function getAnalyticsData(workspaceId: string, periodParam?: string) {
+  const period = toAnalyticsPeriod(periodParam)
+  const { from, to } = getPeriodRange(period)
+  const recentMonths = getRecentMonthKeys(6)
+  const recentFrom = new Date(`${recentMonths[0]}-01T00:00:00`)
+
+  const [
+    projects,
+    periodRevisionCount,
+    revisionSourceGroups,
+    recentInquiries,
+    members,
+    openRevisionAssignees,
+  ] = await Promise.all([
+    prisma.project.findMany({
+      where: { workspaceId, archivedAt: null },
+      select: {
+        id: true,
+        createdAt: true,
+        budget: true,
+        assigneeId: true,
+        currentStageId: true,
+        stages: { orderBy: { order: 'asc' } },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
     prisma.revisionRequest.count({
+      where: {
+        project: { workspaceId, archivedAt: null },
+        createdAt: { gte: from, lte: to },
+      },
+    }),
+    prisma.revisionRequest.groupBy({
+      by: ['source'],
+      where: {
+        project: { workspaceId, archivedAt: null },
+        createdAt: { gte: from, lte: to },
+      },
+      _count: { _all: true },
+    }),
+    prisma.inquiry.findMany({
+      where: {
+        workspaceId,
+        createdAt: { gte: recentFrom },
+      },
+      select: { createdAt: true },
+      orderBy: { createdAt: 'asc' },
+    }),
+    prisma.workspaceMember.findMany({
+      where: { workspaceId },
+      select: {
+        userId: true,
+        user: { select: { name: true, email: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    }),
+    prisma.revisionRequest.findMany({
       where: {
         status: { in: ['OPEN', 'IN_PROGRESS'] },
         project: { workspaceId, archivedAt: null },
       },
+      select: { assigneeId: true },
     }),
   ])
 
-  const activeProjects = allProjects.filter((p) => !isProjectDone(p))
-  const activeUrgentProjects = urgentCandidates.filter((p) => !isProjectDone(p))
-  const activeCount = activeProjects.length
-  const urgentCount = activeUrgentProjects.length
+  const activeProjects = projects.filter((p) => !isProjectDone(p))
+  const completedProjects = projects.filter(isProjectDone)
+  const completedInPeriod = completedProjects.filter((project) => inRange(project.createdAt, from, to))
+  const createdInPeriod = projects.filter((project) => inRange(project.createdAt, from, to))
+  const completedWithBudget = completedInPeriod.filter((project) => project.budget !== null)
+  const estimatedRevenue = completedWithBudget.reduce((sum, project) => sum + (project.budget ?? 0), 0)
+  const budgetMissingCount = completedInPeriod.length - completedWithBudget.length
+  const averageRevisions = completedInPeriod.length > 0 ? periodRevisionCount / completedInPeriod.length : 0
+  const openRevisionCount = openRevisionAssignees.length
 
-  return { inquiries, activeUrgentProjects, openRevisions, customers, templates, activeCount, urgentCount, openRevisionCount }
+  const completionData = recentMonths.map((key) => {
+    const projectsInMonth = projects.filter((project) => monthKey(project.createdAt) === key)
+    return {
+      month: monthLabel(key),
+      created: projectsInMonth.length,
+      completed: projectsInMonth.filter(isProjectDone).length,
+    }
+  })
+
+  const inquiryTrendData = recentMonths.map((key) => ({
+    month: monthLabel(key),
+    count: recentInquiries.filter((inquiry) => monthKey(inquiry.createdAt) === key).length,
+  }))
+
+  const revisionSourceData = {
+    manual: revisionSourceGroups.find((group) => group.source === 'MANUAL')?._count._all ?? 0,
+    portal: revisionSourceGroups.find((group) => group.source !== 'MANUAL')?._count._all ?? 0,
+  }
+
+  const workloadRows = [
+    ...members.map((member) => ({
+      name: member.user.name,
+      email: member.user.email,
+      activeProjects: activeProjects.filter((project) => project.assigneeId === member.userId).length,
+      pendingRevisions: openRevisionAssignees.filter((revision) => revision.assigneeId === member.userId).length,
+    })),
+    {
+      name: '담당자 미지정',
+      activeProjects: activeProjects.filter((project) => !project.assigneeId).length,
+      pendingRevisions: openRevisionAssignees.filter((revision) => !revision.assigneeId).length,
+    },
+  ]
+
+  return {
+    openRevisionCount,
+    activeProjectCount: activeProjects.length,
+    completedInPeriodCount: completedInPeriod.length,
+    createdInPeriodCount: createdInPeriod.length,
+    periodRevisionCount,
+    estimatedRevenue,
+    budgetMissingCount,
+    averageRevisions,
+    completionData,
+    inquiryTrendData,
+    revisionSourceData,
+    workloadRows,
+  }
 }
 
-export default async function DashboardPage() {
-  const session = await auth()
-  const workspaceId = session?.user?.workspaceId ?? ''
+const getCachedAnalyticsData = unstable_cache(
+  async (workspaceId: string, periodParam?: string) => getAnalyticsData(workspaceId, periodParam),
+  ['dashboard-analytics'],
+  { revalidate: 60 }
+)
 
-  const { inquiries, activeUrgentProjects, openRevisions, customers, templates, activeCount, urgentCount, openRevisionCount } =
-    await getDashboardData(workspaceId)
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const session = await auth()
+  const workspaceId = session?.user?.workspaceId
+  if (!workspaceId) redirect('/login')
+
+  const { period: periodParam } = await searchParams
+  const period = toAnalyticsPeriod(periodParam)
+
+  const {
+    inquiries,
+    pendingInquiryCount,
+    activeUrgentProjects,
+    openRevisions,
+    customers,
+    templates,
+    activeCount,
+    urgentCount,
+    openRevisionCount,
+  } = await getOperationalData(workspaceId)
 
   return (
-    <div className="p-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">대시보드</h1>
-        <Link
-          href="/projects/new"
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          새 프로젝트
-        </Link>
+    <div className="flowrit-page space-y-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">Workspace overview</p>
+          <h1 className="mt-2 text-2xl font-semibold text-gray-900">대시보드</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            오늘 처리할 운영 항목과 기간별 성과 지표를 한 화면에서 확인합니다.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <PeriodSelector current={period} />
+          <Link href="/projects/new" className="flowrit-button-primary inline-flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            새 프로젝트
+          </Link>
+        </div>
       </div>
 
-      {/* 현황 요약 */}
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-xs font-medium text-gray-500">진행 중</p>
-          <p className="mt-2 text-3xl font-semibold text-gray-900">{activeCount}</p>
-          <p className="mt-1 text-xs text-gray-400">건</p>
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="flowrit-panel p-4">
+          <div className="flowrit-stat-icon bg-[var(--flowrit-primary-soft)]">
+            <Zap className="h-5 w-5 text-[var(--flowrit-primary)]" />
+          </div>
+          <p className="text-2xl font-bold tracking-tight text-[var(--flowrit-text)]">{activeCount}</p>
+          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">진행 중</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-xs font-medium text-gray-500">마감 임박 (2일 이내)</p>
-          <p className={`mt-2 text-3xl font-semibold ${urgentCount > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
+        <div className="flowrit-panel p-4">
+          <div className="flowrit-stat-icon bg-orange-50">
+            <Clock className={`h-5 w-5 ${urgentCount > 0 ? 'text-orange-600' : 'text-orange-300'}`} />
+          </div>
+          <p className={`text-2xl font-bold tracking-tight ${urgentCount > 0 ? 'text-orange-600' : 'text-[var(--flowrit-text)]'}`}>
             {urgentCount}
           </p>
-          <p className="mt-1 text-xs text-gray-400">건</p>
+          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">마감 임박 (2일)</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-xs font-medium text-gray-500">미완료 수정 요청</p>
-          <p className={`mt-2 text-3xl font-semibold ${openRevisionCount > 0 ? 'text-orange-600' : 'text-gray-900'}`}>
+        <div className="flowrit-panel p-4">
+          <div className="flowrit-stat-icon bg-rose-50">
+            <FilePen className={`h-5 w-5 ${openRevisionCount > 0 ? 'text-rose-600' : 'text-rose-300'}`} />
+          </div>
+          <p className={`text-2xl font-bold tracking-tight ${openRevisionCount > 0 ? 'text-rose-600' : 'text-[var(--flowrit-text)]'}`}>
             {openRevisionCount}
           </p>
-          <p className="mt-1 text-xs text-gray-400">건</p>
+          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">미완료 수정</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <p className="text-xs font-medium text-gray-500">신규 접수</p>
-          <p className={`mt-2 text-3xl font-semibold ${inquiries.length > 0 ? 'text-indigo-600' : 'text-gray-900'}`}>
-            {inquiries.length}
-          </p>
-          <p className="mt-1 text-xs text-gray-400">건</p>
-        </div>
-      </section>
-
-      {/* 신규 접수 */}
-      <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-700">
-            신규 접수{' '}
-            {inquiries.length > 0 && (
-              <span className="ml-1.5 rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">
-                {inquiries.length}
-              </span>
-            )}
-          </h2>
-        </div>
-
-        {inquiries.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-gray-200 bg-white px-5 py-8 text-center text-sm text-gray-400">
-            새로 접수된 의뢰가 없습니다.
-          </p>
-        ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 text-left text-xs font-medium text-gray-500">
-                  <th className="px-4 py-3">이름</th>
-                  <th className="px-4 py-3">연락처</th>
-                  <th className="px-4 py-3 max-w-xs">의뢰 내용</th>
-                  <th className="px-4 py-3">접수일</th>
-                  <th className="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {inquiries.map((inquiry) => (
-                  <tr key={inquiry.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">{inquiry.name}</td>
-                    <td className="px-4 py-3 text-gray-500">{inquiry.contact ?? '—'}</td>
-                    <td className="px-4 py-3 max-w-xs">
-                      <p className="truncate text-gray-600">{inquiry.content}</p>
-                    </td>
-                    <td className="px-4 py-3 text-gray-400 whitespace-nowrap">
-                      {inquiry.createdAt.toLocaleDateString('ko-KR')}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <ConvertDialog
-                        inquiry={inquiry}
-                        customers={customers}
-                        templates={templates}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flowrit-panel p-4">
+          <div className="flowrit-stat-icon bg-sky-50">
+            <Inbox className={`h-5 w-5 ${pendingInquiryCount > 0 ? 'text-sky-600' : 'text-sky-300'}`} />
           </div>
-        )}
+          <p className={`text-2xl font-bold tracking-tight ${pendingInquiryCount > 0 ? 'text-sky-700' : 'text-[var(--flowrit-text)]'}`}>
+            {pendingInquiryCount}
+          </p>
+          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">미확인 주문</p>
+        </div>
       </section>
 
-      {/* 오늘 처리할 작업 */}
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-gray-700">오늘 처리할 작업</h2>
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.85fr)]">
+        <div>
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold text-gray-900">오늘 처리할 작업</h2>
+            <p className="mt-1 text-xs text-gray-400">마감 임박 프로젝트와 아직 열려 있는 수정 요청입니다.</p>
+          </div>
 
-        {activeUrgentProjects.length === 0 && openRevisions.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-gray-200 bg-white px-5 py-8 text-center text-sm text-gray-400">
-            급하게 처리할 작업이 없습니다.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {activeUrgentProjects.map((project) => (
-              <Link
-                key={project.id}
-                href={`/projects/${project.id}`}
-                className="flex items-center justify-between rounded-xl border border-orange-100 bg-orange-50 px-4 py-3 hover:bg-orange-100 transition-colors"
-              >
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{project.title}</p>
-                  <p className="mt-0.5 text-xs text-gray-500">{project.customer.name}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-medium text-orange-700">
-                    마감 {project.dueDate?.toLocaleDateString('ko-KR')}
-                  </p>
-                  {project.revisions.length > 0 && (
-                    <p className="mt-0.5 text-xs text-gray-500">
-                      미완료 수정 {project.revisions.length}건
-                    </p>
-                  )}
-                </div>
-              </Link>
-            ))}
-
-            {openRevisions.map((revision) => (
-              <Link
-                key={revision.id}
-                href={`/projects/${revision.projectId}`}
-                className="flex items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 hover:bg-gray-50 transition-colors"
-              >
-                <div>
-                  <p className="text-sm font-medium text-gray-900 line-clamp-1">
-                    {revision.content}
-                  </p>
-                  <p className="mt-0.5 text-xs text-gray-500">
-                    {revision.project.title} · {revision.project.customer.name}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 ml-3 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    revision.status === 'IN_PROGRESS'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}
+          {activeUrgentProjects.length === 0 && openRevisions.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-gray-200 bg-white px-5 py-8 text-center text-sm text-gray-400">
+              급하게 처리할 작업이 없습니다.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {activeUrgentProjects.map((project) => (
+                <Link
+                  key={project.id}
+                  href={`/projects/${project.id}`}
+                  className="flex items-center gap-3 rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 transition-colors hover:bg-orange-100"
                 >
-                  {revision.status === 'IN_PROGRESS' ? '진행 중' : '대기'}
-                </span>
-              </Link>
-            ))}
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-orange-100">
+                    <AlertTriangle className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-[var(--flowrit-text)]">{project.title}</p>
+                    <p className="mt-0.5 text-xs text-[var(--flowrit-text-muted)]">{project.customer.name}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-xs font-semibold text-orange-700">
+                      {project.dueDate?.toLocaleDateString('ko-KR')} 마감
+                    </p>
+                    {project.revisions.length > 0 && (
+                      <p className="mt-0.5 text-xs text-[var(--flowrit-text-muted)]">수정 {project.revisions.length}건</p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+
+              {openRevisions.map((revision) => (
+                <Link
+                  key={revision.id}
+                  href={`/projects/${revision.projectId}`}
+                  className="flowrit-panel flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-gray-50"
+                >
+                  <div className="min-w-0">
+                    <p className="line-clamp-1 text-sm font-medium text-gray-900">{revision.content}</p>
+                    <p className="mt-0.5 truncate text-xs text-gray-500">
+                      {revision.project.title} · {revision.project.customer.name}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      revision.status === 'IN_PROGRESS'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {revision.status === 'IN_PROGRESS' ? '진행 중' : '대기'}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-900">접수 대기</h2>
+              <p className="mt-1 text-xs text-gray-400">프로젝트로 전환할 고객 의뢰입니다.</p>
+            </div>
+            <Link
+              href="/orders"
+              className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700 hover:bg-indigo-200 transition-colors"
+            >
+              {pendingInquiryCount > 0 ? `${pendingInquiryCount}건 보기` : '전체 보기'}
+            </Link>
           </div>
-        )}
+
+          {inquiries.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-[var(--flowrit-border)] bg-white px-5 py-8 text-center text-sm text-[var(--flowrit-text-muted)]">
+              대기 중인 의뢰가 없습니다.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {inquiries.map((inquiry) => (
+                <div key={inquiry.id} className="flowrit-panel p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-50 text-sm font-semibold text-sky-700">
+                        {inquiry.name.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[var(--flowrit-text)]">{inquiry.name}</p>
+                        {inquiry.contact && (
+                          <p className="text-xs text-[var(--flowrit-text-muted)]">{inquiry.contact}</p>
+                        )}
+                      </div>
+                    </div>
+                    <time className="shrink-0 text-xs text-[var(--flowrit-text-muted)]">
+                      {inquiry.createdAt.toLocaleDateString('ko-KR')}
+                    </time>
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-sm text-[var(--flowrit-text-secondary)]">{inquiry.content}</p>
+                  <div className="mt-3 flex justify-end">
+                    <ConvertDialog inquiry={inquiry} customers={customers} templates={templates} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
+
+      <Suspense fallback={<DashboardAnalyticsFallback />}>
+        <DashboardAnalytics workspaceId={workspaceId} periodParam={periodParam} />
+      </Suspense>
     </div>
+  )
+}
+
+async function DashboardAnalytics({
+  workspaceId,
+  periodParam,
+}: {
+  workspaceId: string
+  periodParam?: string
+}) {
+  const {
+    openRevisionCount,
+    activeProjectCount,
+    completedInPeriodCount,
+    createdInPeriodCount,
+    periodRevisionCount,
+    estimatedRevenue,
+    budgetMissingCount,
+    averageRevisions,
+    completionData,
+    inquiryTrendData,
+    revisionSourceData,
+    workloadRows,
+  } = await getCachedAnalyticsData(workspaceId, periodParam)
+
+  return (
+    <section className="space-y-5">
+      <div>
+        <h2 className="text-base font-semibold text-gray-900">성과 분석</h2>
+        <p className="mt-1 text-sm text-gray-500">상단 기간 선택 기준으로 프로젝트 완료, 수정 요청, 수익 흐름을 봅니다.</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {analyticsStatCard({
+          label: '완료 프로젝트',
+          value: `${completedInPeriodCount}건`,
+          caption: `신규 생성 ${createdInPeriodCount}건`,
+          icon: <CheckCircle2 className="h-4 w-4" />,
+        })}
+        {analyticsStatCard({
+          label: '수정 요청',
+          value: `${periodRevisionCount}건`,
+          caption: `완료 프로젝트당 평균 ${averageRevisions.toFixed(1)}건`,
+          icon: <FilePenLine className="h-4 w-4" />,
+        })}
+        {analyticsStatCard({
+          label: '예상 수익',
+          value: formatKRW(estimatedRevenue),
+          caption:
+            budgetMissingCount > 0
+              ? `예산 미입력 완료 프로젝트 ${budgetMissingCount}건 제외`
+              : '예산 입력 완료 프로젝트 합산',
+          icon: <BadgeDollarSign className="h-4 w-4" />,
+        })}
+        {analyticsStatCard({
+          label: '진행 중 작업',
+          value: `${activeProjectCount}건`,
+          caption: `미완료 수정 요청 ${openRevisionCount}건`,
+          icon: <Activity className="h-4 w-4" />,
+        })}
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+        <div className="flowrit-panel-padded">
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-gray-900">월별 프로젝트 추이</h3>
+            <p className="mt-1 text-xs text-gray-400">최근 6개월 생성·완료 건수</p>
+          </div>
+          <CompletionChart data={completionData} />
+        </div>
+
+        <div className="flowrit-panel-padded">
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-gray-900">수정 요청 출처</h3>
+            <p className="mt-1 text-xs text-gray-400">선택 기간 기준</p>
+          </div>
+          <RevisionSourceChart data={revisionSourceData} />
+        </div>
+      </div>
+
+      <div className="flowrit-panel-padded">
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-900">의뢰 접수 추이</h3>
+          <p className="mt-1 text-xs text-gray-400">최근 6개월 접수 건수</p>
+        </div>
+        <InquiryTrendChart data={inquiryTrendData} />
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(360px,0.75fr)_minmax(0,1.25fr)]">
+        <div className="flowrit-panel-padded">
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-gray-900">팀 워크로드</h3>
+            <p className="mt-1 text-xs text-gray-400">진행 중 프로젝트와 미완료 수정 요청 기준</p>
+          </div>
+          <WorkloadChart data={workloadRows} />
+        </div>
+        <TeamWorkloadTable rows={workloadRows} />
+      </div>
+    </section>
+  )
+}
+
+function DashboardAnalyticsFallback() {
+  return (
+    <section className="space-y-5">
+      <div>
+        <h2 className="text-base font-semibold text-gray-900">성과 분석</h2>
+        <p className="mt-1 text-sm text-gray-500">상단 기간 선택 기준으로 프로젝트 완료, 수정 요청, 수익 흐름을 봅니다.</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="flowrit-panel-padded animate-pulse">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="h-4 w-24 rounded bg-gray-100" />
+              <div className="h-9 w-9 rounded-lg bg-gray-100" />
+            </div>
+            <div className="h-7 w-16 rounded bg-gray-100" />
+            <div className="mt-2 h-3 w-32 rounded bg-gray-100" />
+          </div>
+        ))}
+      </div>
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+        <div className="flowrit-panel-padded h-72 animate-pulse bg-gray-50" />
+        <div className="flowrit-panel-padded h-72 animate-pulse bg-gray-50" />
+      </div>
+    </section>
   )
 }

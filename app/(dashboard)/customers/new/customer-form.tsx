@@ -21,7 +21,7 @@ export function CustomerForm() {
           name="name"
           required
           placeholder="예: 김민지"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
       </div>
       <div>
@@ -32,7 +32,7 @@ export function CustomerForm() {
           id="contact"
           name="contact"
           placeholder="전화번호, 이메일, 카카오톡 ID 등"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
       </div>
       <div>
@@ -44,14 +44,14 @@ export function CustomerForm() {
           name="memo"
           rows={5}
           placeholder="고객 선호사항, 상담 내용, 주의할 점을 남겨두세요."
-          className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input resize-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? '등록 중...' : '고객 등록'}
       </button>

@@ -29,7 +29,7 @@ export function AcceptInviteForm({ token, email, isNewUser }: Props) {
           type="email"
           value={email}
           readOnly
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+          className="flowrit-input cursor-not-allowed bg-gray-50 text-gray-500"
         />
       </div>
 
@@ -44,7 +44,7 @@ export function AcceptInviteForm({ token, email, isNewUser }: Props) {
             type="text"
             required
             placeholder="홍길동"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="flowrit-input"
           />
         </div>
       )}
@@ -60,7 +60,7 @@ export function AcceptInviteForm({ token, email, isNewUser }: Props) {
           required
           minLength={isNewUser ? 8 : 1}
           placeholder={isNewUser ? '8자 이상 설정' : '비밀번호 입력'}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="flowrit-input"
         />
       </div>
 
@@ -71,7 +71,7 @@ export function AcceptInviteForm({ token, email, isNewUser }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="w-full py-2 px-4 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flowrit-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending
           ? '처리 중...'

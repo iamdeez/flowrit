@@ -178,6 +178,7 @@ model Inquiry {
   content     String
   fileUrls    Json      @default("[]")
   status      String    @default("PENDING")
+  formType    String    @default("INQUIRY")
   projectId   String?
   createdAt   DateTime  @default(now())
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)

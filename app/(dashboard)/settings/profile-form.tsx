@@ -29,7 +29,7 @@ export function ProfileForm({
           name="name"
           defaultValue={initialName}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
       </div>
 
@@ -40,14 +40,14 @@ export function ProfileForm({
           name="email"
           defaultValue={initialEmail}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
       </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        className="flowrit-button-primary disabled:opacity-50"
       >
         {pending ? '저장 중...' : '저장'}
       </button>

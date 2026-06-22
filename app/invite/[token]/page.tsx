@@ -30,13 +30,13 @@ export default async function InviteAcceptPage({ params }: Props) {
   })
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--flowrit-panel-subtle)]">
       <div className="w-full max-w-sm px-4">
         <div className="text-center mb-8">
-          <span className="text-2xl font-bold text-indigo-600">Flowrit</span>
+          <span className="text-2xl font-bold text-[var(--flowrit-primary)]">Flowrit</span>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
+        <div className="flowrit-panel-padded p-8">
           {isInvalid ? (
             <div className="text-center">
               <p className="text-gray-700 font-medium mb-2">초대 링크가 유효하지 않습니다</p>

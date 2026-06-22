@@ -6,6 +6,8 @@ import { PasswordForm } from './password-form'
 import { WorkspaceForm } from './workspace-form'
 import { NotificationForm } from './notification-form'
 import { DangerZone } from './danger-zone'
+import { IntakeLinkCopy } from './intake-link-copy'
+import { WebhookInfo } from './webhook-info'
 
 const TABS = [
   { key: 'profile', label: '프로필' },
@@ -53,14 +55,14 @@ export default async function SettingsPage({
   const isOwner = member.role === 'OWNER'
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="flowrit-page max-w-2xl">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">설정</h1>
         <p className="text-sm text-gray-500 mt-1">계정 및 워크스페이스 설정을 관리합니다.</p>
       </div>
 
       {/* 탭 네비게이션 */}
-      <div className="flex gap-1 mb-8 border-b border-gray-200">
+      <div className="mb-8 flex gap-1 border-b border-gray-200">
         {TABS.filter((t) => t.key !== 'workspace' || isOwner).map((t) => (
           <a
             key={t.key}
@@ -82,7 +84,15 @@ export default async function SettingsPage({
       )}
       {tab === 'password' && <PasswordForm />}
       {tab === 'workspace' && isOwner && (
-        <WorkspaceForm initialName={workspace.name} initialSlug={workspace.slug} />
+        <div className="space-y-8">
+          <WorkspaceForm initialName={workspace.name} initialSlug={workspace.slug} />
+          <div className="border-t border-[var(--flowrit-border)] pt-8">
+            <IntakeLinkCopy slug={workspace.slug} />
+          </div>
+          <div className="border-t border-[var(--flowrit-border)] pt-8">
+            <WebhookInfo slug={workspace.slug} />
+          </div>
+        </div>
       )}
       {tab === 'notifications' && (
         <NotificationForm

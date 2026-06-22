@@ -53,7 +53,7 @@ export function MessageForm({ mode, template, onSuccess }: MessageFormProps) {
           required
           defaultValue={template?.name ?? ''}
           placeholder="예: 결과물 전달 안내"
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input"
         />
       </div>
 
@@ -83,14 +83,14 @@ export function MessageForm({ mode, template, onSuccess }: MessageFormProps) {
           rows={6}
           defaultValue={template?.content ?? ''}
           placeholder={`안녕하세요 {고객명}님,\n{단계} 단계가 완료되었습니다.\n결과물 확인: {공유링크}`}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm leading-relaxed focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flowrit-input leading-relaxed"
         />
       </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? '저장 중...' : mode === 'create' ? '템플릿 생성' : '변경사항 저장'}
       </button>

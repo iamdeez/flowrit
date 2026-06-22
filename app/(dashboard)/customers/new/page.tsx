@@ -4,7 +4,7 @@ import { CustomerForm } from './customer-form'
 
 export default function NewCustomerPage() {
   return (
-    <div className="max-w-2xl p-8">
+    <div className="flowrit-page max-w-2xl">
       <Link
         href="/customers"
         className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900"
@@ -20,7 +20,7 @@ export default function NewCustomerPage() {
         </p>
       </div>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-6">
+      <section className="flowrit-panel-padded">
         <CustomerForm />
       </section>
     </div>

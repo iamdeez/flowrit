@@ -26,7 +26,7 @@ export default async function TeamPage() {
   const canManage = myRole === 'OWNER' || myRole === 'ADMIN'
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="flowrit-page max-w-2xl">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-gray-900">팀</h1>
         <p className="text-sm text-gray-500 mt-1">워크스페이스 팀원을 관리하고 새 팀원을 초대합니다.</p>
@@ -35,7 +35,7 @@ export default async function TeamPage() {
       {/* 팀원 목록 */}
       <section className="mb-8">
         <h2 className="text-sm font-medium text-gray-700 mb-3">팀원 ({members.length}명)</h2>
-        <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+        <div className="flowrit-panel divide-y divide-gray-100">
           {members.map((m) => {
             const memberRole = m.role as WorkspaceRole
             const isSelf = m.userId === myId
@@ -93,7 +93,7 @@ export default async function TeamPage() {
           <h2 className="text-sm font-medium text-gray-700 mb-3">
             초대 대기 중 ({invites.length})
           </h2>
-          <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+          <div className="flowrit-panel divide-y divide-gray-100">
             {invites.map((invite) => (
               <div key={invite.id} className="flex items-center justify-between px-5 py-4">
                 <p className="text-sm text-gray-700">{invite.email}</p>
@@ -113,7 +113,7 @@ export default async function TeamPage() {
       {canManage && (
         <section>
           <h2 className="text-sm font-medium text-gray-700 mb-3">팀원 초대</h2>
-          <div className="bg-white rounded-xl border border-gray-200 p-5">
+          <div className="flowrit-panel-padded">
             <InviteForm />
           </div>
         </section>

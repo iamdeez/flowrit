@@ -1,8 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --flowrit-panel: #ffffff;
+  --flowrit-panel-subtle: #f1f5f9;
+  --flowrit-border: #e2e8f0;
+  --flowrit-border-strong: #cbd5e1;
+  --flowrit-text: #0f172a;
+  --flowrit-text-secondary: #475569;
+  --flowrit-text-muted: #64748b;
+  --flowrit-primary: #4f46e5;
+  --flowrit-primary-hover: #4338ca;
+  --flowrit-primary-soft: #eef2ff;
+  --flowrit-primary-soft-text: #3730a3;
+  --flowrit-success-soft: #f0fdf4;
+  --flowrit-success-text: #166534;
+  --flowrit-warning-soft: #fffbeb;
+  --flowrit-warning-text: #92400e;
+  --flowrit-danger-soft: #fef2f2;
+  --flowrit-danger-text: #991b1b;
+  --flowrit-radius-control: 0.5rem;
+  --flowrit-radius-panel: 0.625rem;
+  --flowrit-page-padding: 2rem;
+  --flowrit-panel-padding: 1.25rem;
 }
 
 @theme inline {
@@ -12,20 +33,218 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: 'Hanken Grotesk', 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
 input, textarea, select {
-  color: #171717;
-  background-color: #ffffff;
+  color: var(--flowrit-text);
+  background-color: var(--flowrit-panel);
+}
+
+button,
+input,
+textarea,
+select,
+a {
+  outline-color: var(--flowrit-primary);
+}
+
+::selection {
+  background: var(--flowrit-primary-soft);
+  color: var(--flowrit-primary-soft-text);
+}
+
+@layer components {
+  .flowrit-page {
+    padding: var(--flowrit-page-padding);
+  }
+
+  .flowrit-panel {
+    border: 1px solid var(--flowrit-border);
+    border-radius: var(--flowrit-radius-panel);
+    background: var(--flowrit-panel);
+  }
+
+  .flowrit-panel-padded {
+    border: 1px solid var(--flowrit-border);
+    border-radius: var(--flowrit-radius-panel);
+    background: var(--flowrit-panel);
+    padding: var(--flowrit-panel-padding);
+  }
+
+  .flowrit-button-primary {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--flowrit-radius-control);
+    background: var(--flowrit-primary);
+    padding: 0.5rem 1rem;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .flowrit-button-primary:hover {
+    background: var(--flowrit-primary-hover);
+  }
+
+  .flowrit-button-secondary {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid var(--flowrit-border-strong);
+    border-radius: var(--flowrit-radius-control);
+    background: var(--flowrit-panel);
+    padding: 0.5rem 1rem;
+    color: var(--flowrit-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .flowrit-button-secondary:hover {
+    background: var(--flowrit-panel-subtle);
+    color: var(--flowrit-text);
+  }
+
+  .flowrit-input {
+    min-height: 2.5rem;
+    width: 100%;
+    border: 1px solid var(--flowrit-border-strong);
+    border-radius: var(--flowrit-radius-control);
+    background: var(--flowrit-panel);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .flowrit-input:focus {
+    border-color: transparent;
+    outline: 2px solid var(--flowrit-primary);
+    outline-offset: 0;
+  }
+}
+
+@layer utilities {
+  .bg-gray-50 {
+    background-color: var(--flowrit-panel-subtle);
+  }
+
+  .bg-indigo-600 {
+    background-color: var(--flowrit-primary);
+  }
+
+  .hover\:bg-indigo-700:hover {
+    background-color: var(--flowrit-primary-hover);
+  }
+
+  .bg-indigo-50 {
+    background-color: var(--flowrit-primary-soft);
+  }
+
+  .text-indigo-600,
+  .text-indigo-700 {
+    color: var(--flowrit-primary-soft-text);
+  }
+
+  .border-gray-200 {
+    border-color: var(--flowrit-border);
+  }
+
+  .border-gray-300 {
+    border-color: var(--flowrit-border-strong);
+  }
+
+  .text-gray-900 {
+    color: var(--flowrit-text);
+  }
+
+  .text-gray-700,
+  .text-gray-600 {
+    color: var(--flowrit-text-secondary);
+  }
+
+  .text-gray-500,
+  .text-gray-400 {
+    color: var(--flowrit-text-muted);
+  }
+
+  .rounded-xl {
+    border-radius: var(--flowrit-radius-panel);
+  }
+
+  .rounded-lg {
+    border-radius: var(--flowrit-radius-control);
+  }
+
+  .shadow-sm {
+    box-shadow: none;
+  }
+}
+
+/* ── Badge component ── */
+@layer components {
+  .flowrit-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    padding: 0.1875rem 0.5625rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  .flowrit-badge-active {
+    background: var(--flowrit-primary-soft);
+    color: var(--flowrit-primary-soft-text);
+  }
+
+  .flowrit-badge-done {
+    background: var(--flowrit-success-soft);
+    color: var(--flowrit-success-text);
+  }
+
+  .flowrit-badge-pending {
+    background: var(--flowrit-panel-subtle);
+    color: var(--flowrit-text-muted);
+    border: 1px solid var(--flowrit-border);
+  }
+
+  .flowrit-badge-urgent {
+    background: #fff7ed;
+    color: #c2410c;
+  }
+
+  .flowrit-badge-archived {
+    background: var(--flowrit-panel-subtle);
+    color: var(--flowrit-text-muted);
+  }
+
+  /* Stat card with colored icon tile */
+  .flowrit-stat-icon {
+    display: flex;
+    height: 2.5rem;
+    width: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.625rem;
+    margin-bottom: 0.875rem;
+  }
+}
+
+/* Mobile: compact spacing */
+@media (max-width: 767px) {
+  :root {
+    --flowrit-page-padding: 1rem;
+    --flowrit-panel-padding: 1rem;
+  }
 }

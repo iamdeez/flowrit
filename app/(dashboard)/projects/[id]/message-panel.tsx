@@ -82,7 +82,7 @@ export function MessagePanel({
             <select
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flowrit-input"
             >
               <option value="">— 템플릿을 선택하세요 —</option>
               {templates.map((t) => (
@@ -100,7 +100,7 @@ export function MessagePanel({
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  className="flowrit-button-secondary min-h-8 px-3 py-1.5"
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-green-600" />

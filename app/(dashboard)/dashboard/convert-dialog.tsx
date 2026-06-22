@@ -34,14 +34,14 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 transition-colors"
+        className="flowrit-button-primary min-h-8 px-3 py-1.5 text-xs"
       >
         프로젝트로 전환
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
               <div>
                 <h2 className="text-sm font-semibold text-gray-900">프로젝트로 전환</h2>
@@ -62,7 +62,7 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
                 <input
                   name="title"
                   required
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="flowrit-input mt-1"
                   placeholder="예: 웨딩 본식 사진 보정"
                 />
               </div>
@@ -74,7 +74,7 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
                 <input
                   type="date"
                   name="dueDate"
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="flowrit-input mt-1"
                 />
               </div>
 
@@ -86,7 +86,7 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
                   name="templateId"
                   required
                   defaultValue=""
-                  className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="flowrit-input mt-1"
                 >
                   <option value="" disabled>템플릿 선택</option>
                   {templates.map((t) => (
@@ -113,13 +113,13 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
                   <div className="mt-1 space-y-2">
                     <input
                       name="newCustomerName"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="flowrit-input"
                       placeholder={`고객 이름 (기본값: ${inquiry.name})`}
                       defaultValue={inquiry.name}
                     />
                     <input
                       name="newCustomerContact"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="flowrit-input"
                       placeholder="연락처 (선택)"
                       defaultValue={inquiry.contact ?? ''}
                     />
@@ -128,7 +128,7 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
                   <select
                     name="existingCustomerId"
                     defaultValue=""
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flowrit-input mt-1"
                   >
                     <option value="">고객 선택 (또는 새 고객으로 등록)</option>
                     {customers.map((c) => (
@@ -142,14 +142,14 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flowrit-button-secondary"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
                   disabled={pending}
-                  className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                  className="flowrit-button-primary disabled:opacity-50"
                 >
                   {pending ? '처리 중...' : '프로젝트 생성'}
                 </button>

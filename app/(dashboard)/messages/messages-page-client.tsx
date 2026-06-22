@@ -21,7 +21,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
           템플릿 목록 ({templates.length})
         </h2>
         {templates.length === 0 ? (
-          <div className="rounded-xl border border-gray-200 bg-white px-5 py-16 text-center">
+          <div className="flowrit-panel px-5 py-16 text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
               <MessageSquare className="h-5 w-5" />
             </div>
@@ -33,7 +33,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
             {templates.map((t) => (
               <article
                 key={t.id}
-                className="rounded-xl border border-gray-200 bg-white p-5"
+                className="flowrit-panel-padded"
               >
                 <div className="mb-2 flex items-start justify-between gap-4">
                   <div className="flex min-w-0 items-start gap-3">
@@ -46,7 +46,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
                     <button
                       type="button"
                       onClick={() => setEditing(t)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                      className="flowrit-button-secondary"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                       편집
@@ -72,7 +72,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
         )}
       </section>
 
-      <aside className="rounded-xl border border-gray-200 bg-white p-5">
+      <aside className="flowrit-panel-padded">
         <h2 className="mb-4 text-sm font-semibold text-gray-900">
           {editing ? '템플릿 편집' : '새 템플릿'}
         </h2>

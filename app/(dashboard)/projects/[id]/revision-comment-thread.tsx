@@ -13,7 +13,7 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flowrit-button-primary min-h-8 px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50"
     >
       {pending ? '등록 중...' : label}
     </button>
@@ -33,7 +33,7 @@ function CommentForm({ revisionId, parentId }: { revisionId: string; parentId?: 
         rows={2}
         maxLength={2000}
         placeholder={parentId ? '답글을 입력하세요...' : '댓글을 입력하세요...'}
-        className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="flowrit-input resize-none"
       />
       <div className="flex justify-end">
         <SubmitButton label={parentId ? '답글 등록' : '댓글 등록'} />

@@ -12,5 +12,6 @@ export const revisionStatusLabels: Record<string, string> = {
 
 export const revisionSourceLabels: Record<string, string> = {
   MANUAL: '직접 등록',
-  CUSTOMER_PORTAL: '고객 접수',
+  PORTAL: '고객 포털',
+  CUSTOMER_PORTAL: '고객 포털',
 }

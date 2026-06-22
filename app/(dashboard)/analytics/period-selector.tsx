@@ -19,7 +19,7 @@ export function PeriodSelector({ current }: { current: AnalyticsPeriod }) {
         <button
           key={option.value}
           type="button"
-          onClick={() => router.push(`/analytics?period=${option.value}`)}
+          onClick={() => router.push(`/dashboard?period=${option.value}`)}
           className={`h-8 rounded-md px-3 text-sm font-medium transition-colors ${
             current === option.value
               ? 'bg-indigo-600 text-white'

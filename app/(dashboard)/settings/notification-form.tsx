@@ -72,7 +72,7 @@ export function NotificationForm({
       <button
         type="submit"
         disabled={pending}
-        className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        className="flowrit-button-primary disabled:opacity-50"
       >
         {pending ? '저장 중...' : '저장'}
       </button>

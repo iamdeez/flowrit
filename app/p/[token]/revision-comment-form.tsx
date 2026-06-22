@@ -35,7 +35,7 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
     >
       {pending ? '등록 중...' : label}
     </button>
@@ -91,7 +91,7 @@ export function RevisionCommentForm({ token, revisionId, parentId, comments }: P
         </div>
       )}
 
-      <form ref={formRef} action={formAction} className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
+      <form ref={formRef} action={formAction} className="flowrit-panel-padded space-y-3">
         <input type="hidden" name="token" value={token} />
         <input type="hidden" name="revisionId" value={revisionId} />
         {parentId && <input type="hidden" name="parentId" value={parentId} />}
@@ -115,7 +115,7 @@ export function RevisionCommentForm({ token, revisionId, parentId, comments }: P
               required
               maxLength={100}
               placeholder="이름을 입력하세요"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flowrit-input mt-1"
             />
           </div>
           <div>
@@ -127,7 +127,7 @@ export function RevisionCommentForm({ token, revisionId, parentId, comments }: P
               name="authorEmail"
               type="email"
               placeholder="답글 알림을 받으려면 입력하세요"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flowrit-input mt-1"
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ export function RevisionCommentForm({ token, revisionId, parentId, comments }: P
             required
             maxLength={2000}
             placeholder="댓글을 입력하세요..."
-            className="mt-1 w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flowrit-input mt-1 resize-none"
           />
         </div>
 

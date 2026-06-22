@@ -15,7 +15,7 @@
 
 - **프로젝트명**: Flowrit
 - **목적**: 프리랜서 디자이너·개발자를 위한 AI Workflow OS SaaS — 고객 관리, 프로젝트 진행, 수정 요청, 납품, 팀 협업을 한 곳에서 처리한다.
-- **현재 버전**: v0.5.0
+- **현재 버전**: v0.6.0
 - **주요 기술 스택**: Next.js 16.2.9 (App Router), React 19, TypeScript, NextAuth v5 beta (Credentials + JWT), Prisma 7 + PostgreSQL (Neon), Tailwind CSS v4, Vitest 4
 
 ---
@@ -33,6 +33,7 @@ flowrit/
 │   │   ├── customers/   ← 고객 관리 (OWNER/ADMIN 전용)
 │   │   ├── dashboard/   ← 메인 대시보드
 │   │   ├── messages/    ← 메시지 템플릿 (OWNER/ADMIN 전용)
+│   │   ├── orders/      ← 주문서 관리 (PENDING 의뢰 목록·전환·무시) (v0.6.0)
 │   │   ├── projects/    ← 프로젝트 관리
 │   │   ├── revisions/   ← 수정 요청 목록
 │   │   ├── settings/    ← 설정 (OWNER/ADMIN 전용)
@@ -42,8 +43,10 @@ flowrit/
 │   │   ├── auth/[...nextauth]/  ← NextAuth 핸들러
 │   │   ├── cron/deadline-reminder/  ← Vercel Cron (매시간)
 │   │   ├── export/      ← 데이터 내보내기
-│   │   └── upload/      ← Presigned URL 발급
-│   ├── intake/[workspaceSlug]/  ← 고객 의뢰 접수 공개 페이지
+│   │   ├── upload/      ← Presigned URL 발급
+│   │   └── webhooks/intake/[workspaceSlug]/  ← 외부 플랫폼 의뢰 접수 Webhook POST
+│   ├── intake/[workspaceSlug]/  ← 고객 일반 문의 접수 공개 페이지
+│   ├── order/[workspaceSlug]/   ← 고객 주문서 공개 페이지 (v0.6.0)
 │   ├── invite/[token]/          ← 팀 초대 수락 페이지
 │   └── p/[token]/               ← 고객용 공개 프로젝트 페이지
 ├── lib/
@@ -85,7 +88,9 @@ Prisma Client (lib/db.ts)  →  PostgreSQL (Neon)
 | `lib/project-utils.ts` | lib | `isProjectDone` — 완료 단계 판별 유틸 |
 | `lib/actions/revisionComment.ts` | lib/actions | 작업자용 수정 요청 댓글 조회·작성 Server Actions (workspaceId scope) |
 | `lib/actions/publicRevisionComment.ts` | lib/actions | 고객 포털용 수정 요청 댓글 작성 Server Action (token 검증, 인앱 알림) |
-| `components/sidebar-nav.tsx` | components | RBAC 기반 메뉴 필터링 |
+| `lib/actions/testWebhook.ts` | lib/actions | 설정 화면 테스트 의뢰 전송 Server Action |
+| `components/sidebar-nav.tsx` | components | RBAC 기반 메뉴 필터링, pendingOrderCount 뱃지 |
+| `app/api/webhooks/intake/[workspaceSlug]/route.ts` | app/api | Bearer 인증 기반 외부 플랫폼 Webhook 수신 엔드포인트 |
 | `app/api/cron/deadline-reminder/` | app/api | Vercel Cron — 마감 24시간 전 알림 발송 |
 | `app/api/upload/route.ts` | app/api | presigned URL 발급 엔드포인트 (10MB 제한 검증) |
 
@@ -124,7 +129,7 @@ Prisma Client (lib/db.ts)  →  PostgreSQL (Neon)
 
 | 이벤트 타입 | 발생 조건 | 수신 대상 |
 |---|---|---|
-| `NEW_INQUIRY` | intake 폼 제출 | OWNER 전체 |
+| `NEW_INQUIRY` | intake 폼 제출 또는 주문서 폼 제출 또는 webhook 수신 | OWNER 전체 |
 | `REVISION_SUBMITTED` | 고객 포털에서 수정 요청 제출 | 프로젝트 assignee 또는 OWNER |
 | `REVISION_COMMENT` | 고객 포털에서 수정 요청 댓글 작성 | 프로젝트 assignee 또는 OWNER |
 | `STAGE_CHANGED` | 프로젝트 스테이지 변경 | [TBD — 코드 추적 필요] |
@@ -171,10 +176,16 @@ PENDING → (수락) 멤버 가입 후 invite 레코드는 token 무효화
 ### 상태 흐름 (Inquiry)
 
 ```
-PENDING → (대시보드에서 처리) → projectId 연결
+PENDING → CONVERTED (projectId 연결)
+        → DISMISSED (무시 처리)
 ```
-- PENDING: 고객 의뢰 접수 기본 상태
-- projectId가 연결되면 실제 프로젝트로 전환됨
+- PENDING: 고객 의뢰·주문서 접수 기본 상태
+- CONVERTED: 프로젝트로 전환됨 (projectId 연결)
+- DISMISSED: 무시 처리 (대시보드 목록에서 제거, 별도 조회 UI 없음)
+
+`formType` 필드로 접수 유형 구분:
+- `INQUIRY`: `/intake/[slug]` 공개 폼 또는 webhook API 접수
+- `ORDER`: `/order/[slug]` 주문서 폼 접수 (희망 날짜·예산 content prefix 포함)
 
 ### 3.4 외부 시스템 연동
 
@@ -225,7 +236,8 @@ Workspace
 | 수정 요청 (RevisionRequest) | 클라이언트 또는 작업자가 등록하는 수정 사항. MANUAL 또는 CUSTOMER_PORTAL 접수. | 피드백, 수정 사항 |
 | 납품물 (Asset) | 프로젝트에 첨부하는 파일·링크. PREPARING → SHARED → EXPIRED 상태로 관리. | 파일, 결과물 |
 | 고객 포털 (PublicProjectPage) | token 기반 비인증 고객용 공개 페이지. `/p/[token]` 경로. | 클라이언트 페이지 |
-| 의뢰 접수 (Inquiry) | 공개 intake 폼을 통한 신규 고객 의뢰. 처리 후 Project로 전환 가능. | 문의, 견적 요청 |
+| 의뢰 접수 (Inquiry) | 공개 폼(일반 문의·주문서) 또는 webhook을 통한 고객 의뢰. `formType`으로 구분. 처리 후 Project로 전환 가능. | 문의, 견적 요청 |
+| 주문서 (Order Form) | `/order/[slug]` 경로의 고객 전용 작업 의뢰 폼. 희망 날짜·예산 필드 포함. `Inquiry.formType = 'ORDER'`로 저장. | 발주서 |
 | 역할 (WorkspaceRole) | OWNER / ADMIN / MEMBER 세 등급. `lib/types.ts`에 타입 정의. | 권한, 등급 |
 | 인앱 알림 (Notification) | DB에 저장되는 알림. `isRead` 필드로 읽음 관리. 벨 아이콘으로 표시. | 푸시, 메시지 |
 | 수정 요청 댓글 (RevisionComment) | 수정 요청에 달리는 2단계 댓글 스레드. 작업자(WORKER)와 고객(CLIENT)이 작성 가능. | 댓글, 답글 |
@@ -250,3 +262,4 @@ Workspace
 | 날짜 | commit | 갱신 내용 | 관련 spec |
 |---|---|---|---|
 | 2026-06-22 | — | 최초 작성 | — |
+| 2026-06-23 | — | v0.6.0 반영: webhook 엔드포인트, 주문서 폼, 주문서 관리 대시보드, Inquiry.formType/DISMISSED 추가, 사이드바 메뉴 갱신 | v0.6.0/001, v0.6.0/002 |

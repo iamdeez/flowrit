@@ -15,7 +15,7 @@ export async function submitCustomerRevision(
 ): Promise<CustomerRevisionState> {
   const token = ((formData.get('token') as string | null) ?? '').trim()
   const content = ((formData.get('content') as string | null) ?? '').trim()
-  const fileUrl = ((formData.get('fileUrl') as string | null) ?? '').trim()
+  const fileUrls = (formData.getAll('fileUrls') as string[]).filter(Boolean)
 
   if (!token) return { error: '잘못된 요청입니다.' }
   if (!content) return { error: '수정 요청 내용을 입력해 주세요.' }
@@ -30,7 +30,7 @@ export async function submitCustomerRevision(
     data: {
       projectId: page.projectId,
       content,
-      fileUrls: fileUrl ? [fileUrl] : [],
+      fileUrls,
       source: 'CUSTOMER_PORTAL',
     },
   })
@@ -56,7 +56,7 @@ export async function submitCustomerRevision(
         sendRevisionSubmittedEmail(to, {
           projectTitle: page.project.title,
           content,
-          fileCount: fileUrl ? 1 : 0,
+          fileCount: fileUrls.length,
           projectUrl: `${appUrl}/projects/${page.projectId}?tab=revisions`,
         }),
     })

@@ -22,7 +22,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
   if (!customer) notFound()
 
   return (
-    <div className="p-8">
+    <div className="flowrit-page">
       <Link
         href="/customers"
         className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900"
@@ -55,7 +55,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
       </div>
 
       {customer.memo && (
-        <section className="mb-8 rounded-xl border border-gray-200 bg-white p-5">
+        <section className="flowrit-panel-padded mb-8">
           <h2 className="mb-2 text-sm font-medium text-gray-700">메모</h2>
           <p className="whitespace-pre-wrap text-sm leading-6 text-gray-600">{customer.memo}</p>
         </section>
@@ -74,7 +74,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <div className="flowrit-panel overflow-hidden">
           {customer.projects.length > 0 ? (
             <div className="divide-y divide-gray-100">
               {customer.projects.map((project) => (

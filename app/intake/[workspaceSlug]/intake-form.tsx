@@ -101,7 +101,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
           name="name"
           type="text"
           required
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flowrit-input mt-1"
           placeholder="홍길동"
         />
       </div>
@@ -111,7 +111,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
         <input
           name="contact"
           type="text"
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flowrit-input mt-1"
           placeholder="010-0000-0000 또는 이메일"
         />
       </div>
@@ -124,7 +124,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
           name="content"
           required
           rows={5}
-          className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="flowrit-input mt-1"
           placeholder="원하시는 내용, 일정, 참고사항 등을 자유롭게 적어주세요."
         />
       </div>
@@ -138,7 +138,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="flowrit-button-secondary px-3 disabled:opacity-50"
           >
             {uploading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -186,7 +186,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
       <button
         type="submit"
         disabled={pending || uploading}
-        className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+        className="flowrit-button-primary w-full py-2.5 disabled:opacity-50"
       >
         {pending ? '제출 중...' : '의뢰 접수하기'}
       </button>
