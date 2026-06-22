@@ -3,11 +3,13 @@
 import { useActionState } from 'react'
 import Link from 'next/link'
 import { register, type RegisterState } from '@/lib/actions/auth'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 const initialState: RegisterState = {}
 
 export default function RegisterPage() {
   const [state, action, pending] = useActionState(register, initialState)
+  useFormToast(state)
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
@@ -56,10 +58,6 @@ export default function RegisterPage() {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           />
         </div>
-
-        {state?.error && (
-          <p className="text-sm text-red-600">{state.error}</p>
-        )}
 
         <button
           type="submit"

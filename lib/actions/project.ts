@@ -8,6 +8,7 @@ import { seedDefaultWorkflowTemplates } from '@/lib/default-workflow-templates'
 import { sendStageChangedEmail } from '@/lib/email'
 import { sendNotification } from '@/lib/notifications'
 import { isProjectDone } from '@/lib/project-utils'
+import type { WorkspaceRole } from '@/lib/types'
 
 export type ProjectFormState = {
   error?: string
@@ -15,6 +16,32 @@ export type ProjectFormState = {
 
 export type DuplicateProjectState = {
   error?: string
+}
+
+export type ProjectWithAssignee = {
+  assigneeName: string | null
+  id: string
+  title: string
+  workspaceId: string
+  customerId: string
+  assigneeId: string | null
+  dueDate: Date | null
+  budget: number | null
+  archivedAt: Date | null
+  currentStageId: string | null
+  createdAt: Date
+  customer: { id: string; workspaceId: string; name: string; contact: string | null; memo: string | null; createdAt: Date }
+  stages: Array<{ id: string; order: number; internalName: string; customerName: string; projectId: string; completedAt: Date | null }>
+  revisions: Array<{ id: string; status: string }>
+  assets: Array<{ id: string }>
+}
+
+export type GetProjectsResult = {
+  projects: ProjectWithAssignee[]
+  totalCount: number
+  page: number
+  totalPages: number
+  role: WorkspaceRole
 }
 
 function stringValue(formData: FormData, key: string): string {
@@ -27,6 +54,19 @@ async function requireWorkspaceId(): Promise<string> {
     throw new Error('로그인이 필요합니다.')
   }
   return session.user.workspaceId
+}
+
+async function requireAuth(): Promise<{ workspaceId: string; userId: string; role: WorkspaceRole }> {
+  const session = await auth()
+  if (!session?.user?.workspaceId) throw new Error('로그인이 필요합니다.')
+  const { workspaceId } = session.user
+  const userId = session.user.id
+  const member = await prisma.workspaceMember.findFirst({
+    where: { userId, workspaceId },
+    select: { role: true },
+  })
+  const role = (member?.role as WorkspaceRole) ?? 'MEMBER'
+  return { workspaceId, userId, role }
 }
 
 function parseDueDate(value: string): Date | null {
@@ -66,8 +106,25 @@ export async function getProjectFormData() {
   return { customers, templates, members }
 }
 
-export async function getProjects(status?: string, q?: string, archived?: string) {
+export async function getWorkspaceMembers() {
   const workspaceId = await requireWorkspaceId()
+  return prisma.workspaceMember.findMany({
+    where: { workspaceId },
+    include: { user: { select: { id: true, name: true } } },
+    orderBy: { createdAt: 'asc' },
+  })
+}
+
+const PAGE_SIZE = 20
+
+export async function getProjects(
+  status?: string,
+  q?: string,
+  archived?: string,
+  page?: number,
+  assigneeFilter?: string,
+): Promise<GetProjectsResult> {
+  const { workspaceId, userId, role } = await requireAuth()
 
   const searchFilter = q
     ? {
@@ -78,26 +135,73 @@ export async function getProjects(status?: string, q?: string, archived?: string
       }
     : {}
 
-  const projects = await prisma.project.findMany({
-    where: {
-      workspaceId,
-      archivedAt: archived === 'true' ? { not: null } : null,
-      ...searchFilter,
-    },
-    include: {
-      customer: true,
-      stages: { orderBy: { order: 'asc' } },
-      revisions: {
-        where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
-      },
-      assets: true,
-    },
-    orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
-  })
+  // MEMBER는 본인 담당 프로젝트만 — 파라미터로 우회 불가
+  const roleFilter =
+    role === 'MEMBER'
+      ? { assigneeId: userId }
+      : assigneeFilter
+        ? { assigneeId: assigneeFilter }
+        : {}
 
-  if (status === 'done') return projects.filter(isProjectDone)
-  if (status === 'in_progress') return projects.filter((project) => !isProjectDone(project))
-  return projects
+  const where = {
+    workspaceId,
+    archivedAt: archived === 'true' ? { not: null } : null,
+    ...searchFilter,
+    ...roleFilter,
+  }
+
+  const currentPage = Math.max(1, page ?? 1)
+  const skip = (currentPage - 1) * PAGE_SIZE
+
+  const [rawProjects, totalCount] = await Promise.all([
+    prisma.project.findMany({
+      where,
+      include: {
+        customer: true,
+        stages: { orderBy: { order: 'asc' } },
+        revisions: {
+          where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
+        },
+        assets: true,
+      },
+      orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+      take: PAGE_SIZE,
+      skip,
+    }),
+    prisma.project.count({ where }),
+  ])
+
+  // status 필터 (done/in_progress)는 클라이언트 필터이므로 count와 일치하지 않을 수 있음
+  // 단순 구현: status 필터는 in-memory (페이지 내에서만 적용)
+  const filteredProjects =
+    status === 'done'
+      ? rawProjects.filter(isProjectDone)
+      : status === 'in_progress'
+        ? rawProjects.filter((p) => !isProjectDone(p))
+        : rawProjects
+
+  // 담당자 이름 일괄 조회
+  const assigneeIds = [...new Set(
+    filteredProjects.map((p) => p.assigneeId).filter(Boolean) as string[]
+  )]
+  const assigneeNameMap =
+    assigneeIds.length > 0
+      ? await prisma.user
+          .findMany({
+            where: { id: { in: assigneeIds } },
+            select: { id: true, name: true },
+          })
+          .then((users) => new Map(users.map((u) => [u.id, u.name])))
+      : new Map<string, string | null>()
+
+  const projects = filteredProjects.map((p) => ({
+    ...p,
+    assigneeName: p.assigneeId ? (assigneeNameMap.get(p.assigneeId) ?? null) : null,
+  }))
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE)
+
+  return { projects, totalCount, page: currentPage, totalPages, role }
 }
 
 export async function createTimelineMemo(formData: FormData): Promise<void> {

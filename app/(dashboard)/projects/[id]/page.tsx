@@ -34,6 +34,7 @@ import { AssetStatusForm } from './asset-status-form'
 import { DuplicateProjectDialog } from '../duplicate-project-dialog'
 import { MessagePanel } from './message-panel'
 import { PublicPageForm } from './public-page-form'
+import { RevisionCommentSection } from './revision-comment-section'
 import { RevisionForm } from './revision-form'
 import { RevisionStatusForm } from './revision-status-form'
 import { StageForm } from './stage-form'
@@ -197,50 +198,50 @@ export default async function ProjectDetailPage({
           {project.revisions.length > 0 ? (
             <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
               {project.revisions.map((revision) => (
-                <div
-                  key={revision.id}
-                  className="grid gap-4 p-5 md:grid-cols-[1fr_auto]"
-                >
-                  <div>
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
-                        {revisionStatusLabels[revision.status] ?? revision.status}
-                      </span>
-                      <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                        {revisionPriorityLabels[revision.priority] ?? revision.priority}
-                      </span>
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-                        {revisionSourceLabels[revision.source] ?? revision.source}
-                      </span>
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-gray-900">
-                      {revision.content}
-                    </p>
-                    {(revision.fileUrls as string[]).length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        <p className="text-xs font-medium text-gray-500">첨부 파일</p>
-                        {(revision.fileUrls as string[]).map((url, i) => (
-                          <a
-                            key={url}
-                            href={url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
-                          >
-                            <Paperclip className="h-3 w-3" />
-                            {url.split('/').pop() || `첨부파일 ${i + 1}`}
-                          </a>
-                        ))}
+                <div key={revision.id} className="p-5">
+                  <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+                    <div>
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+                          {revisionStatusLabels[revision.status] ?? revision.status}
+                        </span>
+                        <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
+                          {revisionPriorityLabels[revision.priority] ?? revision.priority}
+                        </span>
+                        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                          {revisionSourceLabels[revision.source] ?? revision.source}
+                        </span>
                       </div>
-                    )}
-                    <p className="mt-2 text-xs text-gray-500">
-                      {revision.createdAt.toLocaleDateString('ko-KR')} 등록
-                    </p>
+                      <p className="whitespace-pre-wrap text-sm font-medium leading-6 text-gray-900">
+                        {revision.content}
+                      </p>
+                      {(revision.fileUrls as string[]).length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-xs font-medium text-gray-500">첨부 파일</p>
+                          {(revision.fileUrls as string[]).map((url, i) => (
+                            <a
+                              key={url}
+                              href={url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800"
+                            >
+                              <Paperclip className="h-3 w-3" />
+                              {url.split('/').pop() || `첨부파일 ${i + 1}`}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      <p className="mt-2 text-xs text-gray-500">
+                        {revision.createdAt.toLocaleDateString('ko-KR')} 등록
+                      </p>
+                    </div>
+                    <RevisionStatusForm
+                      revisionId={revision.id}
+                      status={revision.status}
+                    />
                   </div>
-                  <RevisionStatusForm
-                    revisionId={revision.id}
-                    status={revision.status}
-                  />
+                  <RevisionCommentSection revisionId={revision.id} />
                 </div>
               ))}
             </div>

@@ -7,6 +7,7 @@ import {
   updateWorkflowTemplate,
   type TemplateFormState,
 } from '@/lib/actions/template'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 type StageDraft = {
   key: string
@@ -51,6 +52,7 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
   const action = mode === 'create' ? createWorkflowTemplate : updateWorkflowTemplate
   const [state, formAction, pending] = useActionState(action, initialState)
   const [stages, setStages] = useState(() => initialStages(template))
+  useFormToast(state)
 
   function updateStage(key: string, field: 'internalName' | 'customerName', value: string) {
     setStages((current) =>
@@ -193,9 +195,6 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
           ))}
         </div>
       </div>
-
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state?.success && <p className="text-sm text-green-600">{state.success}</p>}
 
       <button
         type="submit"

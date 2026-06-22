@@ -44,3 +44,15 @@ next-env.d.ts
 
 # reference repos (nested git repos, not part of this project)
 /_reference/
+
+# .claude/ — AI 메타데이터 (전체 제외, docs/ 문서 추적)
+.claude/*
+!.claude/docs/
+!.claude/docs/*.md
+
+# AI workspace (pipeline 실행 로그·기록)
+_ai-workspace/
+
+# OS / Tool crash dumps
+*.stackdump
+core.*

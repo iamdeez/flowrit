@@ -1,7 +1,7 @@
 'use server'
 
 import bcrypt from 'bcryptjs'
-import { signIn } from '@/lib/auth'
+import { signIn, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { AuthError } from 'next-auth'
 import { seedDefaultWorkflowTemplates } from '@/lib/default-workflow-templates'
@@ -99,4 +99,8 @@ export async function login(
   }
 
   return {}
+}
+
+export async function logout() {
+  await signOut({ redirectTo: '/login' })
 }

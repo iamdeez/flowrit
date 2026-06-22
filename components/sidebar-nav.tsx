@@ -12,7 +12,9 @@ import {
   MessageSquare,
   UserPlus,
   Settings,
+  LogOut,
 } from 'lucide-react'
+import { logout } from '@/lib/actions/auth'
 
 const navItems = [
   { href: '/dashboard', label: '대시보드', icon: LayoutDashboard },
@@ -26,12 +28,29 @@ const navItems = [
   { href: '/settings', label: '설정', icon: Settings },
 ]
 
-export function SidebarNav() {
+const MEMBER_ALLOWED_PATHS = ['/dashboard', '/projects', '/revisions']
+
+type SidebarNavProps = {
+  userName: string
+  userRole: string
+}
+
+export function SidebarNav({ userName, userRole }: SidebarNavProps) {
   const pathname = usePathname()
+  const initials = userName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || '?'
+
+  const visibleItems = userRole === 'MEMBER'
+    ? navItems.filter(item => MEMBER_ALLOWED_PATHS.includes(item.href))
+    : navItems
 
   return (
     <nav className="flex flex-col gap-1 px-3 py-4 flex-1">
-      {navItems.map(({ href, label, icon: Icon }) => {
+      {visibleItems.map(({ href, label, icon: Icon }) => {
         const isActive =
           pathname === href || pathname.startsWith(href + '/')
         return (
@@ -49,6 +68,24 @@ export function SidebarNav() {
           </Link>
         )
       })}
+
+      <div className="mt-auto pt-3 border-t border-gray-100">
+        <div className="flex items-center gap-2.5 px-3 py-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-xs font-semibold text-indigo-700">
+            {initials}
+          </div>
+          <span className="flex-1 truncate text-sm font-medium text-gray-700">{userName}</span>
+          <form action={logout}>
+            <button
+              type="submit"
+              title="로그아웃"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
+          </form>
+        </div>
+      </div>
     </nav>
   )
 }

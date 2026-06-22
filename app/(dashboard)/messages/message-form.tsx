@@ -6,6 +6,7 @@ import {
   updateMessageTemplate,
   type MessageFormState,
 } from '@/lib/actions/message'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 type MessageTemplate = {
   id: string
@@ -33,6 +34,7 @@ export function MessageForm({ mode, template, onSuccess }: MessageFormProps) {
     },
     initialState
   )
+  useFormToast(state)
 
   return (
     <form action={formAction} className="space-y-4">
@@ -84,9 +86,6 @@ export function MessageForm({ mode, template, onSuccess }: MessageFormProps) {
           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm leading-relaxed focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
-
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
-      {state?.success && <p className="text-sm text-green-600">{state.success}</p>}
 
       <button
         type="submit"

@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import { updateWorkspace, type WorkspaceState } from '@/lib/actions/settings'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 const initialState: WorkspaceState = {}
 
@@ -13,6 +14,7 @@ export function WorkspaceForm({
   initialSlug: string
 }) {
   const [state, action, pending] = useActionState(updateWorkspace, initialState)
+  useFormToast(state)
 
   return (
     <form action={action} className="space-y-5">
@@ -45,13 +47,6 @@ export function WorkspaceForm({
           영소문자, 숫자, 하이픈만 사용 가능합니다. 슬러그 변경 시 고객 포털 링크가 변경됩니다.
         </p>
       </div>
-
-      {state?.error && (
-        <p className="text-sm text-red-600">{state.error}</p>
-      )}
-      {state?.success && (
-        <p className="text-sm text-green-600">{state.success}</p>
-      )}
 
       <button
         type="submit"

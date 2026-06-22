@@ -128,6 +128,24 @@ model RevisionRequest {
   fileUrls   Json     @default("[]")
   createdAt  DateTime @default(now())
   project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  comments   RevisionComment[]
+}
+
+model RevisionComment {
+  id          String   @id @default(cuid())
+  revisionId  String
+  parentId    String?
+  authorType  String   // "WORKER" | "CLIENT"
+  authorName  String
+  authorEmail String?
+  content     String
+  createdAt   DateTime @default(now())
+
+  revision RevisionRequest  @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  parent   RevisionComment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Restrict)
+  replies  RevisionComment[] @relation("CommentReplies")
+
+  @@index([revisionId, createdAt])
 }
 
 model Asset {

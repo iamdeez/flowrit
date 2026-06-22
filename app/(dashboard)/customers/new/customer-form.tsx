@@ -2,11 +2,13 @@
 
 import { useActionState } from 'react'
 import { createCustomer, type CustomerFormState } from '@/lib/actions/customer'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 const initialState: CustomerFormState = {}
 
 export function CustomerForm() {
   const [state, action, pending] = useActionState(createCustomer, initialState)
+  useFormToast(state)
 
   return (
     <form action={action} className="space-y-5">
@@ -45,8 +47,6 @@ export function CustomerForm() {
           className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
-
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
 
       <button
         type="submit"

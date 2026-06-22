@@ -8,10 +8,12 @@ declare module 'next-auth' {
     user: DefaultSession['user'] & {
       id: string
       workspaceId: string
+      role: string
     }
   }
   interface User {
     workspaceId: string
+    role: string
   }
 }
 
@@ -49,6 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           workspaceId: membership?.workspaceId ?? '',
+          role: membership?.role ?? 'MEMBER',
         }
       },
     }),
@@ -58,12 +61,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id!
         token.workspaceId = user.workspaceId
+        token.role = user.role
       }
       return token
     },
     session({ session, token }) {
       session.user.id = token.id as string
       session.user.workspaceId = token.workspaceId as string
+      session.user.role = token.role as string
       return session
     },
   },

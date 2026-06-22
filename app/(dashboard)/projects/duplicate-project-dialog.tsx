@@ -6,6 +6,7 @@ import {
   duplicateProject,
   type DuplicateProjectState,
 } from '@/lib/actions/project'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 type DuplicateProjectDialogProps = {
   sourceId: string
@@ -24,6 +25,7 @@ export function DuplicateProjectDialog({
 }: DuplicateProjectDialogProps) {
   const [open, setOpen] = useState(false)
   const [state, action, pending] = useActionState(duplicateProject, initialState)
+  useFormToast(state)
 
   return (
     <>
@@ -91,8 +93,6 @@ export function DuplicateProjectDialog({
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-
-              {state.error && <p className="text-sm text-red-600">{state.error}</p>}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button

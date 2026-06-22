@@ -2,11 +2,13 @@
 
 import { useActionState } from 'react'
 import { changePassword, type PasswordState } from '@/lib/actions/settings'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 const initialState: PasswordState = {}
 
 export function PasswordForm() {
   const [state, action, pending] = useActionState(changePassword, initialState)
+  useFormToast(state)
 
   return (
     <form action={action} className="space-y-5">
@@ -45,13 +47,6 @@ export function PasswordForm() {
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
-
-      {state?.error && (
-        <p className="text-sm text-red-600">{state.error}</p>
-      )}
-      {state?.success && (
-        <p className="text-sm text-green-600">{state.success}</p>
-      )}
 
       <button
         type="submit"

@@ -6,6 +6,7 @@ import {
   updateCustomer,
   type CustomerFormState,
 } from '@/lib/actions/customer'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 type CustomerEditModalProps = {
   customer: {
@@ -28,6 +29,7 @@ export function CustomerEditModal({ customer }: CustomerEditModalProps) {
     },
     initialState
   )
+  useFormToast(state)
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
 
@@ -123,8 +125,6 @@ export function CustomerEditModal({ customer }: CustomerEditModalProps) {
                   className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
-
-              {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import type { WorkspaceRole } from '@/lib/types'
 
 export type RevisionFormState = {
   error?: string
@@ -25,13 +26,30 @@ async function requireWorkspaceId(): Promise<string> {
   return session.user.workspaceId
 }
 
+async function requireAuth(): Promise<{ workspaceId: string; userId: string; role: WorkspaceRole }> {
+  const session = await auth()
+  if (!session?.user?.workspaceId) throw new Error('로그인이 필요합니다.')
+  const { workspaceId } = session.user
+  const userId = session.user.id
+  const member = await prisma.workspaceMember.findFirst({
+    where: { userId, workspaceId },
+    select: { role: true },
+  })
+  const role = (member?.role as WorkspaceRole) ?? 'MEMBER'
+  return { workspaceId, userId, role }
+}
+
+const REVISION_CAP = 30
+
 export async function getRevisionGroups() {
-  const workspaceId = await requireWorkspaceId()
+  const { workspaceId, userId, role } = await requireAuth()
+  const assigneeFilter = role === 'MEMBER' ? { assigneeId: userId } : {}
 
   return prisma.project.findMany({
     where: {
       workspaceId,
       archivedAt: null,
+      ...assigneeFilter,
       revisions: { some: { status: { in: incompleteStatuses } } },
     },
     include: {
@@ -42,6 +60,7 @@ export async function getRevisionGroups() {
       },
     },
     orderBy: [{ dueDate: 'asc' }, { createdAt: 'desc' }],
+    take: REVISION_CAP,
   })
 }
 

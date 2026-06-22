@@ -111,6 +111,15 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
             <p className="mt-1 text-sm text-gray-500">
               {query ? '다른 이름으로 검색해 보세요.' : '첫 고객을 등록하고 프로젝트 흐름을 시작하세요.'}
             </p>
+            {!query && (
+              <Link
+                href="/customers/new"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+              >
+                <Plus className="h-4 w-4" />
+                고객 등록
+              </Link>
+            )}
           </div>
         )}
       </section>

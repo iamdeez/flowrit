@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight, FileText, Paperclip } from 'lucide-react'
+import { ArrowUpRight, FileText, FolderOpen, Paperclip } from 'lucide-react'
 import { getRevisionGroups } from '@/lib/actions/revision'
 import {
   revisionPriorityLabels,
@@ -121,6 +121,13 @@ export default async function RevisionsPage() {
           <p className="mt-1 text-sm text-gray-500">
             프로젝트 상세에서 등록한 미완료 요청이 이곳에 표시됩니다.
           </p>
+          <Link
+            href="/projects"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          >
+            <ArrowUpRight className="h-4 w-4" />
+            프로젝트 목록 보기
+          </Link>
         </div>
       )}
     </div>

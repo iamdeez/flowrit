@@ -4,6 +4,7 @@ import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import type { RevisionFormState } from '@/lib/actions/revision'
 import { createRevisionRequest } from '@/lib/actions/revision'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 type RevisionFormProps = {
   projectId: string
@@ -32,6 +33,7 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
     createRevisionRequest,
     {}
   )
+  useFormToast(state)
 
   return (
     <form action={formAction} className="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
@@ -94,10 +96,6 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
         <SubmitButton />
       </div>
 
-      {state.error && <p className="text-sm font-medium text-red-600">{state.error}</p>}
-      {state.success && (
-        <p className="text-sm font-medium text-emerald-600">{state.success}</p>
-      )}
     </form>
   )
 }

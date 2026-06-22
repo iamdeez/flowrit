@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import { createProject, type ProjectFormState } from '@/lib/actions/project'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 type ProjectFormProps = {
   customers: { id: string; name: string }[]
@@ -14,6 +15,7 @@ const initialState: ProjectFormState = {}
 
 export function ProjectForm({ customers, templates, members, defaultCustomerId }: ProjectFormProps) {
   const [state, action, pending] = useActionState(createProject, initialState)
+  useFormToast(state)
 
   return (
     <form action={action} className="space-y-5">
@@ -132,8 +134,6 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
           프로젝트를 만들려면 먼저 고객을 등록해 주세요.
         </p>
       )}
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
-
       <button
         type="submit"
         disabled={pending || customers.length === 0 || templates.length === 0}

@@ -9,23 +9,32 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const session = await auth()
-  const unreadCount = session?.user?.id
-    ? await prisma.notification.count({
-        where: { userId: session.user.id, isRead: false },
-      })
-    : 0
+  const [unreadCount, workspace] = await Promise.all([
+    session?.user?.id
+      ? prisma.notification.count({
+          where: { userId: session.user.id, isRead: false },
+        })
+      : Promise.resolve(0),
+    session?.user?.workspaceId
+      ? prisma.workspace.findUnique({
+          where: { id: session.user.workspaceId },
+          select: { name: true },
+        })
+      : Promise.resolve(null),
+  ])
 
   return (
     <div className="flex h-screen bg-gray-50">
       <aside className="w-60 shrink-0 bg-white border-r border-gray-200 flex flex-col">
         <div className="px-6 py-5 border-b border-gray-200">
           <p className="text-lg font-bold text-indigo-600">Flowrit</p>
-          <p className="text-xs text-gray-400 mt-0.5">나의 작업실</p>
+          <p className="text-xs text-gray-400 mt-0.5">{workspace?.name ?? '나의 작업실'}</p>
         </div>
-        <SidebarNav />
+        <SidebarNav userName={session?.user?.name ?? ''} userRole={session?.user?.role ?? 'MEMBER'} />
       </aside>
       <main className="flex-1 overflow-y-auto">
-        <div className="sticky top-0 z-40 flex h-14 items-center justify-end border-b border-gray-200 bg-gray-50/95 px-8 backdrop-blur">
+        <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-gray-50/95 px-8 backdrop-blur">
+          <p className="text-sm font-medium text-gray-600">{workspace?.name}</p>
           {session?.user?.id && (
             <NotificationBell
               userId={session.user.id}

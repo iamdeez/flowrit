@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import { leaveWorkspace, deleteWorkspace, type DangerState } from '@/lib/actions/settings'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 const initialState: DangerState = {}
 
@@ -18,6 +19,8 @@ export function DangerZone({
 
   const [leaveState, leaveAction, leavePending] = useActionState(leaveWorkspace, initialState)
   const [deleteState, deleteAction, deletePending] = useActionState(deleteWorkspace, initialState)
+  useFormToast(leaveState)
+  useFormToast(deleteState)
 
   return (
     <div className="space-y-6">

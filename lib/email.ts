@@ -120,6 +120,34 @@ export async function sendStageChangedEmail(
   })
 }
 
+export async function sendRevisionCommentReplyEmail(
+  to: string,
+  payload: {
+    authorName: string
+    revisionContent: string
+    replyContent: string
+    portalUrl: string
+  }
+): Promise<void> {
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: '[Flowrit] 수정 요청에 답글이 달렸습니다',
+    html: emailWrapper(`
+      <h1 style="margin:0 0 12px;font-size:20px;color:#111827">수정 요청에 답글이 달렸습니다</h1>
+      <p style="margin:0 0 8px;font-size:14px;color:#4b5563"><strong>작성자</strong> ${escapeHtml(payload.authorName)}</p>
+      <div style="border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;padding:12px;font-size:13px;line-height:1.6;color:#6b7280;margin-bottom:12px">
+        <p style="margin:0 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af">원 수정 요청</p>
+        ${escapeHtml(payload.revisionContent)}
+      </div>
+      <div style="border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;padding:12px;font-size:14px;line-height:1.6;color:#374151">
+        ${escapeHtml(payload.replyContent)}
+      </div>
+      ${actionLink(payload.portalUrl, '포털에서 확인하기')}
+    `),
+  })
+}
+
 export async function sendDeadlineReminderEmail(
   to: string,
   payload: {

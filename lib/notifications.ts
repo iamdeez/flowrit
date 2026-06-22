@@ -5,6 +5,7 @@ export type NotificationType =
   | 'REVISION_SUBMITTED'
   | 'STAGE_CHANGED'
   | 'DEADLINE_SOON'
+  | 'REVISION_COMMENT'
 
 type NotificationSettings = Record<string, boolean>
 
@@ -23,6 +24,7 @@ const settingKeys: Record<NotificationType, string> = {
   REVISION_SUBMITTED: 'notify_revision_submitted',
   STAGE_CHANGED: 'notify_stage_changed',
   DEADLINE_SOON: 'notify_deadline_soon',
+  REVISION_COMMENT: 'notify_revision_comment',
 }
 
 function settingsEnabled(settings: unknown, type: NotificationType): boolean {

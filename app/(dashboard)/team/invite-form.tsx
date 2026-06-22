@@ -2,11 +2,13 @@
 
 import { useActionState } from 'react'
 import { inviteTeamMember, type InviteState } from '@/lib/actions/team'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 const initialState: InviteState = {}
 
 export function InviteForm() {
   const [state, action, pending] = useActionState(inviteTeamMember, initialState)
+  useFormToast(state)
 
   return (
     <form action={action} className="space-y-4">
@@ -40,14 +42,9 @@ export function InviteForm() {
         </div>
       </div>
 
-      {state?.error && (
-        <p className="text-sm text-red-600">{state.error}</p>
-      )}
-      {state?.success && (
+      {state?.inviteUrl && (
         <div className="space-y-1">
-          <p className="text-sm text-green-600 whitespace-pre-line">{state.success}</p>
-          {state.inviteUrl && (
-            <div className="flex items-center gap-2 mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex items-center gap-2 mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
               <input
                 readOnly
                 value={state.inviteUrl}
@@ -60,8 +57,7 @@ export function InviteForm() {
               >
                 복사
               </button>
-            </div>
-          )}
+          </div>
           {state.emailError && (
             <p className="text-xs text-gray-400">발송 실패 원인: {state.emailError}</p>
           )}

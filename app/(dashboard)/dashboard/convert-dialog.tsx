@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react'
 import { X } from 'lucide-react'
 import { convertInquiryToProject, type ConvertFormState } from '@/lib/actions/inquiry'
+import { useFormToast } from '@/hooks/use-form-toast'
 
 type Props = {
   inquiry: {
@@ -27,6 +28,7 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
     },
     {}
   )
+  useFormToast(state)
 
   return (
     <>
@@ -135,10 +137,6 @@ export function ConvertDialog({ inquiry, customers, templates }: Props) {
                   </select>
                 )}
               </div>
-
-              {state?.error && (
-                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
-              )}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button

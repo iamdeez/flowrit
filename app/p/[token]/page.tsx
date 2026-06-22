@@ -3,6 +3,7 @@ import { ExternalLink } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { getCurrentStage } from '@/lib/project-utils'
+import { RevisionCommentForm } from './revision-comment-form'
 
 type Props = {
   params: Promise<{ token: string }>
@@ -21,7 +22,34 @@ export default async function PublicProjectPage({ params }: Props) {
             where: { status: 'SHARED' },
             orderBy: { createdAt: 'desc' },
           },
-          revisions: { orderBy: { createdAt: 'desc' } },
+          revisions: {
+            orderBy: { createdAt: 'desc' },
+            include: {
+              comments: {
+                where: { parentId: null },
+                select: {
+                  id: true,
+                  authorType: true,
+                  authorName: true,
+                  content: true,
+                  createdAt: true,
+                  parentId: true,
+                  replies: {
+                    orderBy: { createdAt: 'asc' },
+                    select: {
+                      id: true,
+                      authorType: true,
+                      authorName: true,
+                      content: true,
+                      createdAt: true,
+                      parentId: true,
+                    },
+                  },
+                },
+                orderBy: { createdAt: 'asc' },
+              },
+            },
+          },
         },
       },
     },
@@ -98,6 +126,23 @@ export default async function PublicProjectPage({ params }: Props) {
             </div>
           </div>
         )}
+
+        {/* 수정 요청별 댓글 스레드 */}
+        {project.revisions.map((revision) => (
+          <div key={revision.id} className="mb-4 rounded-xl border border-gray-200 bg-white p-6">
+            <p className="mb-2 whitespace-pre-wrap text-sm font-medium text-gray-900">
+              {revision.content}
+            </p>
+            <p className="mb-3 text-xs text-gray-400">
+              {new Date(revision.createdAt).toLocaleDateString('ko-KR')} 등록
+            </p>
+            <RevisionCommentForm
+              token={token}
+              revisionId={revision.id}
+              comments={revision.comments}
+            />
+          </div>
+        ))}
 
         {/* 공유된 파일·링크 */}
         {project.assets.length > 0 && (
