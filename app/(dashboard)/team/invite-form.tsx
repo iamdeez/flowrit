@@ -35,7 +35,7 @@ export function InviteForm() {
             className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
             <option value="MEMBER">멤버</option>
-            <option value="OWNER">오너</option>
+            <option value="ADMIN">어드민</option>
           </select>
         </div>
       </div>

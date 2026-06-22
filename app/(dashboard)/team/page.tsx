@@ -1,9 +1,29 @@
 import { getTeamData } from '@/lib/actions/team'
 import { InviteForm } from './invite-form'
 import { CancelInviteButton } from './cancel-invite-button'
+import { RoleChangeSelect } from './role-change-select'
+import { RemoveMemberButton } from './remove-member-button'
+import { TransferOwnershipButton } from './transfer-ownership-button'
+import type { WorkspaceRole } from '@/lib/types'
+
+const roleLabel: Record<WorkspaceRole, string> = {
+  OWNER: '오너',
+  ADMIN: '어드민',
+  MEMBER: '멤버',
+}
+
+const roleBadgeClass: Record<WorkspaceRole, string> = {
+  OWNER: 'bg-indigo-50 text-indigo-700',
+  ADMIN: 'bg-blue-50 text-blue-700',
+  MEMBER: 'bg-gray-100 text-gray-600',
+}
 
 export default async function TeamPage() {
-  const { members, invites } = await getTeamData()
+  const { members, invites, currentMember } = await getTeamData()
+  const myRole = (currentMember?.role as WorkspaceRole) ?? 'MEMBER'
+  const myId = currentMember?.userId ?? ''
+
+  const canManage = myRole === 'OWNER' || myRole === 'ADMIN'
 
   return (
     <div className="p-8 max-w-2xl">
@@ -16,21 +36,54 @@ export default async function TeamPage() {
       <section className="mb-8">
         <h2 className="text-sm font-medium text-gray-700 mb-3">팀원 ({members.length}명)</h2>
         <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-          {members.map((m) => (
-            <div key={m.id} className="flex items-center justify-between px-5 py-4">
-              <div>
-                <p className="text-sm font-medium text-gray-900">{m.user.name}</p>
-                <p className="text-xs text-gray-500">{m.user.email}</p>
+          {members.map((m) => {
+            const memberRole = m.role as WorkspaceRole
+            const isSelf = m.userId === myId
+            const isTargetOwner = memberRole === 'OWNER'
+
+            const canChangeRole = myRole === 'OWNER' && !isSelf && !isTargetOwner
+            const canRemove =
+              canManage &&
+              !isSelf &&
+              !isTargetOwner &&
+              !(myRole === 'ADMIN' && memberRole === 'ADMIN')
+            const canTransfer = myRole === 'OWNER' && !isSelf && !isTargetOwner
+
+            return (
+              <div key={m.id} className="flex items-center justify-between px-5 py-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {m.user.name}
+                    {isSelf && <span className="ml-1 text-xs text-gray-400">(나)</span>}
+                  </p>
+                  <p className="text-xs text-gray-500">{m.user.email}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {canChangeRole ? (
+                    <RoleChangeSelect memberId={m.id} currentRole={memberRole} />
+                  ) : (
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleBadgeClass[memberRole]}`}>
+                      {roleLabel[memberRole]}
+                    </span>
+                  )}
+                  {canTransfer && (
+                    <TransferOwnershipButton
+                      memberId={m.id}
+                      memberName={m.user.name}
+                      memberEmail={m.user.email}
+                    />
+                  )}
+                  {canRemove && (
+                    <RemoveMemberButton
+                      memberId={m.id}
+                      memberName={m.user.name}
+                      memberEmail={m.user.email}
+                    />
+                  )}
+                </div>
               </div>
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                m.role === 'OWNER'
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
-                {m.role === 'OWNER' ? '오너' : '멤버'}
-              </span>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </section>
 
@@ -48,7 +101,7 @@ export default async function TeamPage() {
                   <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-medium">
                     초대 대기
                   </span>
-                  <CancelInviteButton inviteId={invite.id} email={invite.email} />
+                  {canManage && <CancelInviteButton inviteId={invite.id} email={invite.email} />}
                 </div>
               </div>
             ))}
@@ -56,13 +109,15 @@ export default async function TeamPage() {
         </section>
       )}
 
-      {/* 초대 폼 */}
-      <section>
-        <h2 className="text-sm font-medium text-gray-700 mb-3">팀원 초대</h2>
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <InviteForm />
-        </div>
-      </section>
+      {/* 초대 폼 — OWNER/ADMIN만 표시 */}
+      {canManage && (
+        <section>
+          <h2 className="text-sm font-medium text-gray-700 mb-3">팀원 초대</h2>
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <InviteForm />
+          </div>
+        </section>
+      )}
     </div>
   )
 }

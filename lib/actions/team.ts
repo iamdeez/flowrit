@@ -4,6 +4,22 @@ import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { sendInviteEmail } from '@/lib/email'
+import type { WorkspaceRole } from '@/lib/types'
+
+async function getMemberRole(userId: string, workspaceId: string): Promise<WorkspaceRole | null> {
+  const member = await prisma.workspaceMember.findFirst({
+    where: { userId, workspaceId },
+    select: { role: true },
+  })
+  return (member?.role as WorkspaceRole) ?? null
+}
+
+function requireRole(current: WorkspaceRole, minimum: WorkspaceRole): void {
+  const hierarchy: Record<WorkspaceRole, number> = { OWNER: 3, ADMIN: 2, MEMBER: 1 }
+  if (hierarchy[current] < hierarchy[minimum]) {
+    throw new Error('권한이 없습니다.')
+  }
+}
 
 export type InviteState = {
   error?: string
@@ -21,8 +37,17 @@ export async function inviteTeamMember(
     return { error: '로그인이 필요합니다.' }
   }
 
+  const currentRole = await getMemberRole(session.user.id, session.user.workspaceId)
+  if (!currentRole) return { error: '팀 멤버 정보를 찾을 수 없습니다.' }
+  try {
+    requireRole(currentRole, 'ADMIN')
+  } catch {
+    return { error: '권한이 없습니다.' }
+  }
+
   const email = (formData.get('email') as string)?.trim().toLowerCase()
-  const role = (formData.get('role') as string) || 'MEMBER'
+  const rawRole = (formData.get('role') as string) || 'MEMBER'
+  const role = rawRole === 'OWNER' ? 'MEMBER' : rawRole
 
   if (!email) {
     return { error: '이메일을 입력해 주세요.' }
@@ -81,6 +106,14 @@ export async function cancelInvite(inviteId: string): Promise<void> {
   const session = await auth()
   if (!session?.user?.workspaceId) return
 
+  const currentRole = await getMemberRole(session.user.id, session.user.workspaceId)
+  if (!currentRole) return
+  try {
+    requireRole(currentRole, 'ADMIN')
+  } catch {
+    return
+  }
+
   await prisma.workspaceInvite.updateMany({
     where: { id: inviteId, workspaceId: session.user.workspaceId, status: 'PENDING' },
     data: { status: 'CANCELLED' },
@@ -89,11 +122,103 @@ export async function cancelInvite(inviteId: string): Promise<void> {
   revalidatePath('/team')
 }
 
+export async function changeMemberRole(targetMemberId: string, newRole: WorkspaceRole): Promise<void> {
+  const session = await auth()
+  if (!session?.user?.workspaceId) return
+
+  const currentRole = await getMemberRole(session.user.id, session.user.workspaceId)
+  if (!currentRole) return
+  requireRole(currentRole, 'OWNER')
+
+  if (newRole === 'OWNER') {
+    await transferOwnership(targetMemberId)
+    return
+  }
+
+  const targetMember = await prisma.workspaceMember.findFirst({
+    where: { id: targetMemberId, workspaceId: session.user.workspaceId },
+  })
+  if (!targetMember) throw new Error('멤버를 찾을 수 없습니다.')
+  if (targetMember.userId === session.user.id) throw new Error('자신의 역할은 변경할 수 없습니다.')
+
+  await prisma.workspaceMember.update({
+    where: { id: targetMemberId },
+    data: { role: newRole },
+  })
+
+  revalidatePath('/team')
+}
+
+export async function removeMember(targetMemberId: string): Promise<void> {
+  const session = await auth()
+  if (!session?.user?.workspaceId) return
+
+  const currentRole = await getMemberRole(session.user.id, session.user.workspaceId)
+  if (!currentRole) return
+  requireRole(currentRole, 'ADMIN')
+
+  const targetMember = await prisma.workspaceMember.findFirst({
+    where: { id: targetMemberId, workspaceId: session.user.workspaceId },
+    select: { id: true, userId: true, role: true },
+  })
+  if (!targetMember) throw new Error('멤버를 찾을 수 없습니다.')
+  if (targetMember.userId === session.user.id) throw new Error('자기 자신은 제거할 수 없습니다.')
+  if (targetMember.role === 'OWNER') throw new Error('오너는 제거할 수 없습니다.')
+  if (currentRole === 'ADMIN' && targetMember.role === 'ADMIN') {
+    throw new Error('어드민은 다른 어드민을 제거할 수 없습니다.')
+  }
+
+  await prisma.$transaction([
+    prisma.workspaceMember.delete({ where: { id: targetMemberId } }),
+    prisma.project.updateMany({
+      where: { workspaceId: session.user.workspaceId, assigneeId: targetMember.userId },
+      data: { assigneeId: null },
+    }),
+    prisma.revisionRequest.updateMany({
+      where: {
+        project: { workspaceId: session.user.workspaceId },
+        assigneeId: targetMember.userId,
+      },
+      data: { assigneeId: null },
+    }),
+  ])
+
+  revalidatePath('/team')
+}
+
+export async function transferOwnership(targetMemberId: string): Promise<void> {
+  const session = await auth()
+  if (!session?.user?.workspaceId) return
+
+  const currentRole = await getMemberRole(session.user.id, session.user.workspaceId)
+  if (!currentRole) return
+  requireRole(currentRole, 'OWNER')
+
+  const currentMember = await prisma.workspaceMember.findFirst({
+    where: { userId: session.user.id, workspaceId: session.user.workspaceId },
+    select: { id: true },
+  })
+  if (!currentMember) return
+
+  const targetMember = await prisma.workspaceMember.findFirst({
+    where: { id: targetMemberId, workspaceId: session.user.workspaceId },
+  })
+  if (!targetMember) throw new Error('멤버를 찾을 수 없습니다.')
+  if (targetMember.userId === session.user.id) throw new Error('자기 자신에게 소유권을 이전할 수 없습니다.')
+
+  await prisma.$transaction([
+    prisma.workspaceMember.update({ where: { id: currentMember.id }, data: { role: 'ADMIN' } }),
+    prisma.workspaceMember.update({ where: { id: targetMemberId }, data: { role: 'OWNER' } }),
+  ])
+
+  revalidatePath('/team')
+}
+
 export async function getTeamData() {
   const session = await auth()
-  if (!session?.user?.workspaceId) return { members: [], invites: [] }
+  if (!session?.user?.workspaceId) return { members: [], invites: [], currentMember: null }
 
-  const [members, invites] = await Promise.all([
+  const [members, invites, currentMember] = await Promise.all([
     prisma.workspaceMember.findMany({
       where: { workspaceId: session.user.workspaceId },
       include: { user: true },
@@ -103,7 +228,11 @@ export async function getTeamData() {
       where: { workspaceId: session.user.workspaceId, status: 'PENDING' },
       orderBy: { createdAt: 'desc' },
     }),
+    prisma.workspaceMember.findFirst({
+      where: { userId: session.user.id, workspaceId: session.user.workspaceId },
+      select: { id: true, role: true, userId: true },
+    }),
   ])
 
-  return { members, invites }
+  return { members, invites, currentMember }
 }

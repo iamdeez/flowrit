@@ -51,7 +51,12 @@ export async function registerAndAcceptInvite(
   })
 
   try {
-    await signIn('credentials', { email: invite.email, password, redirectTo: '/dashboard' })
+    await signIn('credentials', {
+      email: invite.email,
+      password,
+      workspaceId: invite.workspaceId,
+      redirectTo: '/dashboard',
+    })
   } catch (err) {
     if (err instanceof AuthError) {
       return { error: '가입 후 로그인 중 오류가 발생했습니다. 로그인 페이지에서 다시 시도해 주세요.' }
@@ -106,7 +111,12 @@ export async function loginAndAcceptInvite(
   }
 
   try {
-    await signIn('credentials', { email: invite.email, password, redirectTo: '/dashboard' })
+    await signIn('credentials', {
+      email: invite.email,
+      password,
+      workspaceId: invite.workspaceId,
+      redirectTo: '/dashboard',
+    })
   } catch (err) {
     if (err instanceof AuthError) {
       return { error: '로그인 중 오류가 발생했습니다.' }
