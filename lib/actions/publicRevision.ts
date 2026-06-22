@@ -1,6 +1,8 @@
 'use server'
 
 import { prisma } from '@/lib/db'
+import { sendRevisionSubmittedEmail } from '@/lib/email'
+import { sendNotification } from '@/lib/notifications'
 
 export type CustomerRevisionState = {
   success?: boolean
@@ -20,10 +22,11 @@ export async function submitCustomerRevision(
 
   const page = await prisma.publicProjectPage.findUnique({
     where: { token, isActive: true },
+    include: { project: true },
   })
   if (!page) return { error: '유효하지 않은 공유 링크입니다.' }
 
-  await prisma.revisionRequest.create({
+  const revision = await prisma.revisionRequest.create({
     data: {
       projectId: page.projectId,
       content,
@@ -31,6 +34,38 @@ export async function submitCustomerRevision(
       source: 'CUSTOMER_PORTAL',
     },
   })
+
+  try {
+    const owners = await prisma.workspaceMember.findMany({
+      where: { workspaceId: page.project.workspaceId, role: 'OWNER' },
+      select: { userId: true },
+    })
+    const userIds = page.project.assigneeId
+      ? [page.project.assigneeId, ...owners.map((owner) => owner.userId)]
+      : owners.map((owner) => owner.userId)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
+    await sendNotification({
+      userIds,
+      workspaceId: page.project.workspaceId,
+      type: 'REVISION_SUBMITTED',
+      title: '수정 요청이 접수되었습니다',
+      body: content,
+      href: `/projects/${page.projectId}?tab=revisions`,
+      emailFn: (to) =>
+        sendRevisionSubmittedEmail(to, {
+          projectTitle: page.project.title,
+          content,
+          fileCount: fileUrl ? 1 : 0,
+          projectUrl: `${appUrl}/projects/${page.projectId}?tab=revisions`,
+        }),
+    })
+  } catch (error) {
+    console.error('[notification] submitCustomerRevision failed', {
+      revisionId: revision.id,
+      error,
+    })
+  }
 
   return { success: true }
 }

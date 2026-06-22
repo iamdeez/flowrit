@@ -31,6 +31,7 @@ export async function getRevisionGroups() {
   return prisma.project.findMany({
     where: {
       workspaceId,
+      archivedAt: null,
       revisions: { some: { status: { in: incompleteStatuses } } },
     },
     include: {

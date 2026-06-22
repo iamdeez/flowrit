@@ -1,6 +1,6 @@
 import Form from 'next/form'
 import Link from 'next/link'
-import { Plus, Search, UserRound } from 'lucide-react'
+import { Download, Plus, Search, UserRound } from 'lucide-react'
 import { getCustomers } from '@/lib/actions/customer'
 
 type CustomersPageProps = {
@@ -22,13 +22,23 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
             고객 정보를 등록하고 이름으로 빠르게 찾습니다.
           </p>
         </div>
-        <Link
-          href="/customers/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
-        >
-          <Plus className="h-4 w-4" />
-          고객 등록
-        </Link>
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/customers"
+            download
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+          >
+            <Download className="h-4 w-4" />
+            CSV 내보내기
+          </a>
+          <Link
+            href="/customers/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+          >
+            <Plus className="h-4 w-4" />
+            고객 등록
+          </Link>
+        </div>
       </div>
 
       <div className="mb-5 rounded-xl border border-gray-200 bg-white p-4">

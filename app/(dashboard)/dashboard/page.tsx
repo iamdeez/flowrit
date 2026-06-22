@@ -17,7 +17,7 @@ async function getDashboardData(workspaceId: string) {
       orderBy: { createdAt: 'desc' },
     }),
     prisma.project.findMany({
-      where: { workspaceId },
+      where: { workspaceId, archivedAt: null },
       include: {
         stages: { orderBy: { order: 'asc' } },
         revisions: { where: { status: { in: ['OPEN', 'IN_PROGRESS'] } } },
@@ -26,6 +26,7 @@ async function getDashboardData(workspaceId: string) {
     prisma.project.findMany({
       where: {
         workspaceId,
+        archivedAt: null,
         dueDate: { lte: twoDaysFromNow },
       },
       include: {
@@ -38,7 +39,7 @@ async function getDashboardData(workspaceId: string) {
     prisma.revisionRequest.findMany({
       where: {
         status: { in: ['OPEN', 'IN_PROGRESS'] },
-        project: { workspaceId },
+        project: { workspaceId, archivedAt: null },
       },
       include: { project: { include: { customer: true } } },
       orderBy: { createdAt: 'desc' },

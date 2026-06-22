@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  BarChart2,
   LayoutDashboard,
   Users,
   FolderOpen,
@@ -18,6 +19,7 @@ const navItems = [
   { href: '/customers', label: '고객', icon: Users },
   { href: '/projects', label: '프로젝트', icon: FolderOpen },
   { href: '/revisions', label: '수정 요청', icon: FilePen },
+  { href: '/analytics', label: '통계', icon: BarChart2 },
   { href: '/templates', label: '템플릿', icon: Layers },
   { href: '/messages', label: '메시지', icon: MessageSquare },
   { href: '/team', label: '팀', icon: UserPlus },

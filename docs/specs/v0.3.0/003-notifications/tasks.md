@@ -12,8 +12,8 @@
 
 - [x] spec.md의 모든 `[NEEDS CLARIFICATION]` 항목이 해소되었는가?
 - [x] plan.md의 Constitution Gates가 모두 통과(또는 예외 기재)되었는가?
-- [ ] 001-settings의 `User.notificationSettings` 필드가 마이그레이션 완료되었는가? (T001 선행 필요)
-- [ ] CHANGES.md에서 이전 작업의 "후속 작업 시 주의사항"을 확인했는가?
+- [x] 001-settings의 `User.notificationSettings` 필드가 마이그레이션 완료되었는가? (T001 선행 필요)
+- [x] CHANGES.md에서 이전 작업의 "후속 작업 시 주의사항"을 확인했는가? (파일 없음)
 
 ---
 
@@ -21,7 +21,7 @@
 
 ### Phase 1. 스키마 마이그레이션
 
-- [ ] **T001** — `Notification` 모델 추가 + 마이그레이션
+- [x] **T001** — `Notification` 모델 추가 + 마이그레이션
   - 구현 파일: `prisma/schema.prisma`
   - 관련 요구사항: `FR-410`
   - 상세:
@@ -32,7 +32,7 @@
 
 ### Phase 2. 이메일 함수 추가
 
-- [ ] **T002** — `lib/email.ts` 이메일 함수 4개 + 공통 래퍼 추가 (T001 완료 후)
+- [x] **T002** — `lib/email.ts` 이메일 함수 4개 + 공통 래퍼 추가 (T001 완료 후)
   - 구현 파일: `lib/email.ts`
   - 관련 요구사항: `FR-401`, `FR-402`, `FR-403`, `FR-404`
   - 상세:
@@ -46,7 +46,7 @@
 
 ### Phase 3. 알림 유틸리티
 
-- [ ] **T003** — `lib/notifications.ts` 신규 (T001, T002 완료 후)
+- [x] **T003** — `lib/notifications.ts` 신규 (T001, T002 완료 후)
   - 구현 파일: `lib/notifications.ts`
   - 관련 요구사항: `FR-401`~`FR-411`
   - 상세:
@@ -58,7 +58,7 @@
 
 ### Phase 4. 훅 삽입
 
-- [ ] **T004** — `lib/actions/inquiry.ts` — `submitInquiry` 훅 삽입 (T003 완료 후)
+- [x] **T004** — `lib/actions/inquiry.ts` — `submitInquiry` 훅 삽입 (T003 완료 후)
   - 구현 파일: `lib/actions/inquiry.ts`
   - 관련 요구사항: `FR-401`
   - 상세:
@@ -66,7 +66,7 @@
     - 대상: Owner + `notify_new_inquiry` 활성 멤버
   - 완료 기준: 의뢰 접수 시 이메일 발송 (Resend 로그 확인)
 
-- [ ] **T005** `[P]` — 수정 요청 제출 훅 삽입 (T003 완료 후)
+- [x] **T005** `[P]` — 수정 요청 제출 훅 삽입 (T003 완료 후)
   - 구현 파일: 고객 포털 수정 요청 Server Action 또는 Route Handler (코드 탐색 후 결정)
   - 관련 요구사항: `FR-402`
   - 상세:
@@ -74,7 +74,7 @@
     - `sendNotification()` + `sendRevisionSubmittedEmail`
   - 완료 기준: 고객 포털 수정 제출 시 이메일 발송
 
-- [ ] **T006** `[P]` — 단계 변경 훅 삽입 (T003 완료 후)
+- [x] **T006** `[P]` — 단계 변경 훅 삽입 (T003 완료 후)
   - 구현 파일: `lib/actions/project.ts` (단계 변경 액션)
   - 관련 요구사항: `FR-403`
   - 상세:
@@ -84,7 +84,7 @@
 
 ### Phase 5. 마감일 리마인더 Cron
 
-- [ ] **T007** — `app/api/cron/deadline-reminder/route.ts` 신규 (T002 완료 후)
+- [x] **T007** — `app/api/cron/deadline-reminder/route.ts` 신규 (T002 완료 후)
   - 구현 파일: `app/api/cron/deadline-reminder/route.ts`
   - 관련 요구사항: `FR-404`, `FR-405`, `FR-406`
   - 상세:
@@ -95,7 +95,7 @@
     - `{ processed: N }` 반환
   - 완료 기준: CRON_SECRET 없이 401, 올바른 요청 시 해당 프로젝트 이메일 발송
 
-- [ ] **T008** `[P]` — `vercel.json` Cron 설정 추가/생성
+- [x] **T008** `[P]` — `vercel.json` Cron 설정 추가/생성
   - 구현 파일: `vercel.json`
   - 관련 요구사항: `FR-405`
   - 상세: `{ "crons": [{ "path": "/api/cron/deadline-reminder", "schedule": "0 * * * *" }] }` 추가
@@ -103,7 +103,7 @@
 
 ### Phase 6. 인앱 알림 벨
 
-- [ ] **T009** — `lib/actions/notifications.ts` 신규 (T001 완료 후)
+- [x] **T009** — `lib/actions/notifications.ts` 신규 (T001 완료 후)
   - 구현 파일: `lib/actions/notifications.ts`
   - 관련 요구사항: `FR-407`, `FR-408`, `FR-409`
   - 상세:
@@ -111,7 +111,7 @@
     - `markNotificationsRead(userId)`: `isRead: true` 일괄 업데이트
   - 완료 기준: 쿼리 타입 오류 없음
 
-- [ ] **T010** `[P]` — `components/notification-bell.tsx` 신규 (T009 완료 후)
+- [x] **T010** `[P]` — `components/notification-bell.tsx` 신규 (T009 완료 후)
   - 구현 파일: `components/notification-bell.tsx`
   - 관련 요구사항: `FR-407`, `FR-408`, `FR-409`
   - 상세:
@@ -121,7 +121,7 @@
     - 읽음 처리 후 뱃지 숨김
   - 완료 기준: 미읽음 뱃지 표시, 패널 열기·닫기 동작
 
-- [ ] **T011** — `app/(dashboard)/layout.tsx` 수정 — 알림 벨 추가 (T009, T010 완료 후)
+- [x] **T011** — `app/(dashboard)/layout.tsx` 수정 — 알림 벨 추가 (T009, T010 완료 후)
   - 구현 파일: `app/(dashboard)/layout.tsx`
   - 상세:
     - RSC에서 `prisma.notification.count({ where: { userId, isRead: false } })` 조회
@@ -141,6 +141,6 @@
 - [ ] 모든 태스크 체크박스가 완료 처리되었다.
 - [ ] 의뢰 접수, 수정 요청, 단계 변경 각각에서 이메일이 발송된다.
 - [ ] 이메일 발송 실패가 핵심 기능 실패를 유발하지 않는다.
-- [ ] Cron Route Handler가 CRON_SECRET 없이 401을 반환한다.
-- [ ] 알림 벨에 미읽음 카운트가 표시되고, 패널을 열면 읽음 처리된다.
+- [x] Cron Route Handler가 CRON_SECRET 없이 401을 반환한다.
+- [x] 알림 벨에 미읽음 카운트가 표시되고, 패널을 열면 읽음 처리된다.
 - [ ] `git status`에 의도치 않은 파일이 없다.

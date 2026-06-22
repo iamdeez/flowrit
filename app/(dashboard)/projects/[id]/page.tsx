@@ -3,18 +3,27 @@ import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import {
   ArrowLeft,
+  Archive,
   CalendarDays,
   Copy,
   ExternalLink,
   FileText,
   MessageSquare,
   Paperclip,
+  WalletCards,
   UserRound,
 } from 'lucide-react'
 import { assetStatusLabels, assetTypeLabels } from '@/lib/asset-labels'
-import { getProjectDetail, createTimelineMemo } from '@/lib/actions/project'
+import {
+  getProjectDetail,
+  createTimelineMemo,
+  updateProjectBudget,
+  archiveProject,
+  unarchiveProject,
+} from '@/lib/actions/project'
 import { getMessageTemplates } from '@/lib/actions/message'
 import { getCurrentStage } from '@/lib/project-utils'
+import { formatKRW } from '@/lib/utils/analytics'
 import {
   revisionPriorityLabels,
   revisionSourceLabels,
@@ -22,6 +31,7 @@ import {
 } from '@/lib/revision-labels'
 import { AssetForm } from './asset-form'
 import { AssetStatusForm } from './asset-status-form'
+import { DuplicateProjectDialog } from '../duplicate-project-dialog'
 import { MessagePanel } from './message-panel'
 import { PublicPageForm } from './public-page-form'
 import { RevisionForm } from './revision-form'
@@ -54,7 +64,7 @@ export default async function ProjectDetailPage({
 
   if (!data) notFound()
 
-  const { project, assignee, members } = data
+  const { project, assignee, members, customers } = data
   const currentStage = getCurrentStage(project)
 
   const hdrs = await headers()
@@ -90,12 +100,40 @@ export default async function ProjectDetailPage({
                   : '마감일 없음'}
               </span>
               <span>담당자 {assignee?.user.name ?? '미지정'}</span>
+              <span className="inline-flex items-center gap-1.5">
+                <WalletCards className="h-4 w-4" />
+                {project.budget ? formatKRW(project.budget) : '예산 미입력'}
+              </span>
+              {project.archivedAt && (
+                <span className="inline-flex items-center gap-1.5 text-gray-500">
+                  <Archive className="h-4 w-4" />
+                  {project.archivedAt.toLocaleDateString('ko-KR')} 아카이브됨
+                </span>
+              )}
             </div>
           </div>
-          <PublicPageForm projectId={project.id} publicPage={project.publicPage ?? null} />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <form action={project.archivedAt ? unarchiveProject : archiveProject}>
+              <input type="hidden" name="projectId" value={project.id} />
+              <button
+                type="submit"
+                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+              >
+                <Archive className="h-3.5 w-3.5" />
+                {project.archivedAt ? '아카이브 해제' : '아카이브'}
+              </button>
+            </form>
+            <DuplicateProjectDialog
+              sourceId={project.id}
+              sourceTitle={project.title}
+              sourceCustomerId={project.customerId}
+              customers={customers}
+            />
+            <PublicPageForm projectId={project.id} publicPage={project.publicPage ?? null} />
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 rounded-lg bg-gray-50 p-4">
+        <div className="grid gap-4 rounded-lg bg-gray-50 p-4 lg:grid-cols-[1fr_auto]">
           <div>
             <p className="text-sm font-medium text-gray-900">
               현재 단계: {currentStage?.internalName ?? '대기'}
@@ -104,11 +142,35 @@ export default async function ProjectDetailPage({
               고객 표시명: {currentStage?.customerName ?? '대기'}
             </p>
           </div>
-          <StageForm
-            projectId={project.id}
-            currentStageId={project.currentStageId}
-            stages={project.stages}
-          />
+          <div className="flex flex-wrap items-end gap-3 lg:justify-end">
+            <form action={updateProjectBudget} className="flex items-end gap-2">
+              <input type="hidden" name="projectId" value={project.id} />
+              <label className="grid gap-1 text-xs font-medium text-gray-500">
+                예상 단가
+                <input
+                  name="budget"
+                  type="number"
+                  min="0"
+                  step="10000"
+                  inputMode="numeric"
+                  defaultValue={project.budget ?? ''}
+                  placeholder="미입력"
+                  className="h-9 w-36 rounded-lg border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              </label>
+              <button
+                type="submit"
+                className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
+              >
+                저장
+              </button>
+            </form>
+            <StageForm
+              projectId={project.id}
+              currentStageId={project.currentStageId}
+              stages={project.stages}
+            />
+          </div>
         </div>
       </div>
 

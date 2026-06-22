@@ -85,6 +85,27 @@ export function ProjectForm({ customers, templates, members, defaultCustomerId }
       </div>
 
       <div>
+        <label htmlFor="budget" className="mb-1 block text-sm font-medium text-gray-700">
+          예상 단가
+        </label>
+        <div className="relative">
+          <input
+            id="budget"
+            name="budget"
+            type="number"
+            min="0"
+            step="10000"
+            inputMode="numeric"
+            placeholder="예: 500000"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+            원
+          </span>
+        </div>
+      </div>
+
+      <div>
         <label htmlFor="templateId" className="mb-1 block text-sm font-medium text-gray-700">
           워크플로우 템플릿
         </label>

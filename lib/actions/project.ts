@@ -5,9 +5,15 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { seedDefaultWorkflowTemplates } from '@/lib/default-workflow-templates'
+import { sendStageChangedEmail } from '@/lib/email'
+import { sendNotification } from '@/lib/notifications'
 import { isProjectDone } from '@/lib/project-utils'
 
 export type ProjectFormState = {
+  error?: string
+}
+
+export type DuplicateProjectState = {
   error?: string
 }
 
@@ -27,6 +33,13 @@ function parseDueDate(value: string): Date | null {
   if (!value) return null
   const date = new Date(`${value}T00:00:00`)
   return Number.isNaN(date.getTime()) ? null : date
+}
+
+function parseBudget(value: string): number | null {
+  if (!value) return null
+  const budget = Number(value)
+  if (!Number.isInteger(budget) || budget < 0) return null
+  return budget
 }
 
 export async function getProjectFormData() {
@@ -53,7 +66,7 @@ export async function getProjectFormData() {
   return { customers, templates, members }
 }
 
-export async function getProjects(status?: string, q?: string) {
+export async function getProjects(status?: string, q?: string, archived?: string) {
   const workspaceId = await requireWorkspaceId()
 
   const searchFilter = q
@@ -66,7 +79,11 @@ export async function getProjects(status?: string, q?: string) {
     : {}
 
   const projects = await prisma.project.findMany({
-    where: { workspaceId, ...searchFilter },
+    where: {
+      workspaceId,
+      archivedAt: archived === 'true' ? { not: null } : null,
+      ...searchFilter,
+    },
     include: {
       customer: true,
       stages: { orderBy: { order: 'asc' } },
@@ -123,7 +140,7 @@ export async function getProjectDetail(projectId: string) {
 
   if (!project) return null
 
-  const [assignee, members] = await Promise.all([
+  const [assignee, members, customers] = await Promise.all([
     project.assigneeId
       ? prisma.workspaceMember.findFirst({
           where: { workspaceId, userId: project.assigneeId },
@@ -135,9 +152,13 @@ export async function getProjectDetail(projectId: string) {
       include: { user: true },
       orderBy: { createdAt: 'asc' },
     }),
+    prisma.customer.findMany({
+      where: { workspaceId },
+      orderBy: { name: 'asc' },
+    }),
   ])
 
-  return { project, assignee, members }
+  return { project, assignee, members, customers }
 }
 
 export async function createProject(
@@ -148,6 +169,7 @@ export async function createProject(
   const customerId = stringValue(formData, 'customerId')
   const title = stringValue(formData, 'title')
   const dueDate = parseDueDate(stringValue(formData, 'dueDate'))
+  const budget = parseBudget(stringValue(formData, 'budget'))
   const assigneeId = stringValue(formData, 'assigneeId') || null
   const templateId = stringValue(formData, 'templateId')
 
@@ -178,6 +200,7 @@ export async function createProject(
         customerId,
         title,
         dueDate,
+        budget,
         assigneeId,
       },
     })
@@ -216,8 +239,158 @@ export async function createProject(
   redirect(`/projects/${project.id}`)
 }
 
-export async function updateProjectStage(formData: FormData): Promise<void> {
+export async function updateProjectBudget(formData: FormData): Promise<void> {
   const workspaceId = await requireWorkspaceId()
+  const projectId = stringValue(formData, 'projectId')
+  const budget = parseBudget(stringValue(formData, 'budget'))
+
+  if (!projectId) return
+
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, workspaceId },
+    select: { id: true },
+  })
+  if (!project) return
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: { budget },
+  })
+
+  revalidatePath('/analytics')
+  revalidatePath('/projects')
+  revalidatePath(`/projects/${projectId}`)
+}
+
+export async function archiveProject(formData: FormData): Promise<void> {
+  const workspaceId = await requireWorkspaceId()
+  const projectId = stringValue(formData, 'projectId')
+  if (!projectId) return
+
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, workspaceId },
+    select: { id: true, archivedAt: true },
+  })
+  if (!project || project.archivedAt) return
+
+  await prisma.$transaction([
+    prisma.project.update({
+      where: { id: projectId },
+      data: { archivedAt: new Date() },
+    }),
+    prisma.timelineEvent.create({
+      data: {
+        projectId,
+        title: '프로젝트 아카이브',
+        eventType: 'ARCHIVED',
+      },
+    }),
+  ])
+
+  revalidatePath('/dashboard')
+  revalidatePath('/analytics')
+  revalidatePath('/projects')
+  revalidatePath(`/projects/${projectId}`)
+}
+
+export async function unarchiveProject(formData: FormData): Promise<void> {
+  const workspaceId = await requireWorkspaceId()
+  const projectId = stringValue(formData, 'projectId')
+  if (!projectId) return
+
+  const project = await prisma.project.findFirst({
+    where: { id: projectId, workspaceId },
+    select: { id: true, archivedAt: true },
+  })
+  if (!project || !project.archivedAt) return
+
+  await prisma.$transaction([
+    prisma.project.update({
+      where: { id: projectId },
+      data: { archivedAt: null },
+    }),
+    prisma.timelineEvent.create({
+      data: {
+        projectId,
+        title: '아카이브 해제',
+        eventType: 'UNARCHIVED',
+      },
+    }),
+  ])
+
+  revalidatePath('/dashboard')
+  revalidatePath('/analytics')
+  revalidatePath('/projects')
+  revalidatePath(`/projects/${projectId}`)
+}
+
+export async function duplicateProject(
+  _prevState: DuplicateProjectState,
+  formData: FormData
+): Promise<DuplicateProjectState> {
+  const workspaceId = await requireWorkspaceId()
+  const sourceId = stringValue(formData, 'sourceId')
+  const title = stringValue(formData, 'title')
+  const customerId = stringValue(formData, 'customerId')
+  const dueDate = parseDueDate(stringValue(formData, 'dueDate'))
+
+  if (!sourceId) return { error: '복제할 프로젝트를 찾을 수 없습니다.' }
+  if (!title) return { error: '새 프로젝트 제목을 입력해 주세요.' }
+
+  const source = await prisma.project.findFirst({
+    where: { id: sourceId, workspaceId },
+    include: { stages: { orderBy: { order: 'asc' } } },
+  })
+  if (!source) return { error: '복제할 프로젝트를 찾을 수 없습니다.' }
+
+  const nextCustomerId = customerId || source.customerId
+  const customer = await prisma.customer.findFirst({
+    where: { id: nextCustomerId, workspaceId },
+    select: { id: true },
+  })
+  if (!customer) return { error: '선택한 고객을 찾을 수 없습니다.' }
+
+  const newProject = await prisma.$transaction(async (tx) => {
+    const createdProject = await tx.project.create({
+      data: {
+        workspaceId,
+        customerId: nextCustomerId,
+        title,
+        dueDate,
+        budget: source.budget,
+      },
+    })
+
+    let firstStageId: string | null = null
+    for (const stage of source.stages) {
+      const createdStage = await tx.workflowStage.create({
+        data: {
+          projectId: createdProject.id,
+          internalName: stage.internalName,
+          customerName: stage.customerName,
+          order: stage.order,
+          completedAt: null,
+        },
+      })
+      firstStageId ??= createdStage.id
+    }
+
+    await tx.project.update({
+      where: { id: createdProject.id },
+      data: { currentStageId: firstStageId },
+    })
+
+    return createdProject
+  })
+
+  revalidatePath('/projects')
+  redirect(`/projects/${newProject.id}`)
+}
+
+export async function updateProjectStage(formData: FormData): Promise<void> {
+  const session = await auth()
+  const workspaceId = session?.user?.workspaceId
+  if (!workspaceId) throw new Error('로그인이 필요합니다.')
   const projectId = stringValue(formData, 'projectId')
   const stageId = stringValue(formData, 'stageId')
 
@@ -255,6 +428,30 @@ export async function updateProjectStage(formData: FormData): Promise<void> {
       },
     }),
   ])
+
+  if (project.assigneeId && project.assigneeId !== session.user.id) {
+    try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+      await sendNotification({
+        userIds: [project.assigneeId],
+        workspaceId,
+        type: 'STAGE_CHANGED',
+        title: '프로젝트 단계가 변경되었습니다',
+        body: `${previousStage?.internalName ?? '단계 없음'} → ${nextStage.internalName}`,
+        href: `/projects/${projectId}`,
+        emailFn: (to) =>
+          sendStageChangedEmail(to, {
+            projectTitle: project.title,
+            fromStage: previousStage?.internalName ?? '단계 없음',
+            toStage: nextStage.internalName,
+            changedBy: session.user.name ?? session.user.email ?? '팀원',
+            projectUrl: `${appUrl}/projects/${projectId}`,
+          }),
+      })
+    } catch (error) {
+      console.error('[notification] updateProjectStage failed', { projectId, error })
+    }
+  }
 
   revalidatePath('/projects')
   revalidatePath(`/projects/${projectId}`)

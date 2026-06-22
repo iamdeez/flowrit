@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
+import { sendNewInquiryEmail } from '@/lib/email'
+import { sendNotification } from '@/lib/notifications'
 
 export type InquiryFormState = {
   error?: string
@@ -43,7 +45,7 @@ export async function submitInquiry(
   if (!name) return { error: '이름을 입력해 주세요.' }
   if (!content) return { error: '의뢰 내용을 입력해 주세요.' }
 
-  await prisma.inquiry.create({
+  const inquiry = await prisma.inquiry.create({
     data: {
       workspaceId: workspace.id,
       name,
@@ -52,6 +54,33 @@ export async function submitInquiry(
       fileUrls,
     },
   })
+
+  try {
+    const members = await prisma.workspaceMember.findMany({
+      where: { workspaceId: workspace.id },
+      select: { userId: true },
+    })
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+    const excerpt = content.length > 100 ? `${content.slice(0, 100)}...` : content
+
+    await sendNotification({
+      userIds: members.map((member) => member.userId),
+      workspaceId: workspace.id,
+      type: 'NEW_INQUIRY',
+      title: '새 의뢰가 접수되었습니다',
+      body: `${name}: ${excerpt}`,
+      href: '/dashboard',
+      emailFn: (to) =>
+        sendNewInquiryEmail(to, {
+          submitterName: name,
+          contact,
+          excerpt,
+          dashboardUrl: `${appUrl}/dashboard`,
+        }),
+    })
+  } catch (error) {
+    console.error('[notification] submitInquiry failed', { inquiryId: inquiry.id, error })
+  }
 
   return { success: true }
 }
