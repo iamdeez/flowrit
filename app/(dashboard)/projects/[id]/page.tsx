@@ -5,9 +5,11 @@ import {
   ArrowLeft,
   Archive,
   CalendarDays,
+  CheckCircle2,
   Copy,
   ExternalLink,
   FileText,
+  Link2,
   MessageSquare,
   Paperclip,
   WalletCards,
@@ -46,10 +48,10 @@ type ProjectDetailPageProps = {
 }
 
 const tabs = [
-  { key: 'revisions', label: '수정 요청' },
-  { key: 'assets', label: '파일·링크' },
-  { key: 'timeline', label: '타임라인' },
-  { key: 'messages', label: '메시지' },
+  { key: 'revisions', label: '수정 요청', description: '고객 피드백과 내부 수정 항목' },
+  { key: 'assets', label: '납품물', description: '고객에게 공유할 파일과 링크' },
+  { key: 'timeline', label: '타임라인', description: '단계 변경과 내부 메모' },
+  { key: 'messages', label: '메시지', description: '고객에게 보낼 안내문' },
 ]
 
 export default async function ProjectDetailPage({
@@ -76,6 +78,10 @@ export default async function ProjectDetailPage({
   const shareLink = project.publicPage?.token
     ? `${appUrl}/p/${project.publicPage.token}`
     : '(공유 링크 없음)'
+  const openRevisionCount = project.revisions.filter((revision) =>
+    ['OPEN', 'IN_PROGRESS'].includes(revision.status)
+  ).length
+  const sharedAssetCount = project.assets.filter((asset) => asset.status === 'SHARED').length
 
   return (
     <div className="flowrit-page">
@@ -87,7 +93,7 @@ export default async function ProjectDetailPage({
         프로젝트 목록
       </Link>
 
-      <div className="flowrit-panel-padded mb-6">
+      <div className="flowrit-panel-padded mb-4">
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">{project.title}</h1>
@@ -132,7 +138,6 @@ export default async function ProjectDetailPage({
               sourceCustomerId={project.customerId}
               customers={customers}
             />
-            <PublicPageForm projectId={project.id} publicPage={project.publicPage ?? null} />
           </div>
         </div>
 
@@ -177,18 +182,71 @@ export default async function ProjectDetailPage({
         </div>
       </div>
 
-      <div className="mb-5 flex gap-2 border-b border-gray-200">
+      <section className="mb-6 grid gap-3 md:grid-cols-3">
+        <div className="flowrit-panel-padded">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="flowrit-empty-icon h-9 w-9">
+              <Link2 className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">고객 공유 링크</p>
+              <p className="text-xs text-[var(--flowrit-text-muted)]">
+                {project.publicPage?.isActive ? '고객 확인 가능' : '공유 전'}
+              </p>
+            </div>
+          </div>
+          <p className="mb-3 min-w-0 truncate rounded-lg bg-[var(--flowrit-panel-subtle)] px-3 py-2 text-xs text-[var(--flowrit-text-muted)]">
+            {shareLink}
+          </p>
+          <PublicPageForm projectId={project.id} publicPage={project.publicPage ?? null} />
+        </div>
+
+        <div className="flowrit-panel-padded">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="flowrit-empty-icon h-9 w-9">
+              <FileText className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">수정 요청</p>
+              <p className="text-xs text-[var(--flowrit-text-muted)]">열린 요청 {openRevisionCount}건</p>
+            </div>
+          </div>
+          <Link href={`/projects/${project.id}?tab=revisions`} className="flowrit-button-secondary min-h-9 px-3 text-xs">
+            요청 관리
+          </Link>
+        </div>
+
+        <div className="flowrit-panel-padded">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="flowrit-empty-icon h-9 w-9">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">납품물</p>
+              <p className="text-xs text-[var(--flowrit-text-muted)]">공유됨 {sharedAssetCount}개 / 전체 {project.assets.length}개</p>
+            </div>
+          </div>
+          <Link href={`/projects/${project.id}?tab=assets`} className="flowrit-button-secondary min-h-9 px-3 text-xs">
+            파일·링크 관리
+          </Link>
+        </div>
+      </section>
+
+      <div className="mb-5 grid gap-2 border-b border-gray-200 md:grid-cols-4">
         {tabs.map((item) => (
           <Link
             key={item.key}
             href={`/projects/${project.id}?tab=${item.key}`}
-            className={`border-b-2 px-3 py-2 text-sm font-medium ${
+            className={`border-b-2 px-3 py-3 text-sm font-medium ${
               tab === item.key
                 ? 'border-indigo-600 text-indigo-700'
                 : 'border-transparent text-gray-500 hover:text-gray-900'
             }`}
           >
-            {item.label}
+            <span className="block">{item.label}</span>
+            <span className="mt-0.5 hidden text-xs font-normal text-[var(--flowrit-text-muted)] lg:block">
+              {item.description}
+            </span>
           </Link>
         ))}
       </div>
@@ -451,12 +509,12 @@ function EmptyPanel({
   description: string
 }) {
   return (
-    <div className="px-5 py-16 text-center">
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
+    <div className="flowrit-empty-state border-0">
+      <div className="flowrit-empty-icon">
         {icon}
       </div>
-      <p className="text-sm font-medium text-gray-900">{title}</p>
-      <p className="mt-1 text-sm text-gray-500">{description}</p>
+      <p className="flowrit-empty-title">{title}</p>
+      <p className="flowrit-empty-description">{description}</p>
     </div>
   )
 }

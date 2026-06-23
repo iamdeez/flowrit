@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
+import { Check, Copy } from 'lucide-react'
 import { completeOnboarding, type OnboardingState } from './actions'
 import { useFormToast } from '@/hooks/use-form-toast'
 
@@ -19,9 +20,11 @@ function toSlug(name: string) {
 export function OnboardingForm({
   defaultName,
   defaultSlug,
+  appUrl,
 }: {
   defaultName: string
   defaultSlug: string
+  appUrl: string
 }) {
   const [state, action, pending] = useActionState(completeOnboarding, initialState)
   useFormToast(state)
@@ -29,6 +32,8 @@ export function OnboardingForm({
   const [name, setName] = useState(defaultName)
   const [slug, setSlug] = useState(defaultSlug)
   const [slugTouched, setSlugTouched] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const orderUrl = `${appUrl}/order/${slug || defaultSlug}`
 
   function handleNameChange(v: string) {
     setName(v)
@@ -38,6 +43,12 @@ export function OnboardingForm({
   function handleSlugChange(v: string) {
     setSlugTouched(true)
     setSlug(v.toLowerCase().replace(/[^a-z0-9-]/g, ''))
+    setCopied(false)
+  }
+
+  async function copyOrderUrl() {
+    await navigator.clipboard.writeText(orderUrl)
+    setCopied(true)
   }
 
   return (
@@ -58,7 +69,7 @@ export function OnboardingForm({
           maxLength={50}
           required
         />
-        <p className="mt-1 text-xs text-[var(--flowrit-text-muted)]">
+        <p className="flowrit-form-help">
           고객·팀원에게 표시되는 이름입니다.
         </p>
       </div>
@@ -81,13 +92,29 @@ export function OnboardingForm({
             required
           />
         </div>
-        <p className="mt-1 text-xs text-[var(--flowrit-text-muted)]">
+        <p className="flowrit-form-help">
           의뢰 접수 폼 주소로 사용됩니다. 영소문자·숫자·하이픈만 가능.
         </p>
       </div>
 
+      <div className="rounded-lg border border-[var(--flowrit-border)] bg-[var(--flowrit-panel-subtle)] p-3">
+        <p className="text-xs font-semibold text-[var(--flowrit-text-secondary)]">첫 주문서 링크</p>
+        <div className="mt-2 flex items-center gap-2">
+          <p className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--flowrit-text)]">{orderUrl}</p>
+          <button
+            type="button"
+            onClick={copyOrderUrl}
+            className="flowrit-icon-button"
+            aria-label="주문서 링크 복사"
+          >
+            {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+          </button>
+        </div>
+        <p className="flowrit-form-help">설정 후 대시보드에서도 언제든지 복사할 수 있습니다.</p>
+      </div>
+
       {state?.error && (
-        <p className="rounded-lg bg-[var(--flowrit-danger-soft)] px-3 py-2 text-sm text-[var(--flowrit-danger-text)]">
+        <p className="flowrit-form-error">
           {state.error}
         </p>
       )}
@@ -95,7 +122,7 @@ export function OnboardingForm({
       <button
         type="submit"
         disabled={pending || !name.trim() || !slug.trim()}
-        className="flowrit-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
+        className="flowrit-button-primary w-full"
       >
         {pending ? '설정 중...' : 'Flowrit 시작하기 →'}
       </button>

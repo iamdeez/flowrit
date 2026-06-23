@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "specs/v0.6.0/CHANGES.md",
+                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "CHANGES"
+              "title": "tasks"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "specs/v0.6.0/CHANGES.md",
+                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "CHANGES 의 백링크"
+              "title": "tasks 의 백링크"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "specs/v0.6.0/CHANGES.md",
+                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "CHANGES 의 나가는 링크"
+              "title": "tasks 의 나가는 링크"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "specs/v0.6.0/CHANGES.md",
+                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "CHANGES 의 개요"
+              "title": "tasks 의 개요"
             }
           }
         ]
@@ -185,6 +185,23 @@
   },
   "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
+    "specs/v1.0.0/001-launch-readiness/checklist.md",
+    "specs/v1.0.0/001-launch-readiness/plan.md",
+    "specs/v0.7.0/001-tosspayments/tasks.md",
+    "specs/v1.0.0/001-launch-readiness/tasks.md",
+    "specs/v1.0.0/001-launch-readiness/research.md",
+    "specs/v1.0.0/001-launch-readiness/spec.md",
+    "specs/v1.0.0/001-launch-readiness",
+    "specs/v1.0.0",
+    "specs/v0.7.0/001-nicepayments/tasks.md",
+    "specs/v0.7.0/001-nicepayments/spec.md",
+    "specs/v0.7.0/001-nicepayments/plan.md",
+    "specs/v0.7.0/001-nicepayments",
+    "specs/v0.7.0/001-tosspayments/spec.md",
+    "specs/v0.7.0/001-tosspayments/plan.md",
+    "specs/v0.6.0/CHANGES.md",
+    "specs/v0.7.0/001-tosspayments",
+    "specs/v0.7.0",
     "specs/pre-launch/002-launch-infra/tasks.md",
     "specs/pre-launch/001-password-reset/tasks.md",
     "specs/pre-launch/001-password-reset/spec.md",
@@ -197,29 +214,12 @@
     "specs/v0.5.0/CHANGES.md",
     "specs/pre-launch/CHECKLIST.md",
     "specs/pre-launch",
-    "specs/v0.6.0/CHANGES.md",
     "specs/v0.6.0/002-order-form-management/plan.md",
     "specs/v0.6.0/002-order-form-management/spec.md",
     "specs/v0.6.0/002-order-form-management",
     "specs/v0.6.0/001-webhook-platform-integration",
-    "specs/v0.6.0",
     "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-database-design-agent.md",
     "specs/v0.5.0/001-revision-comment-threads/spec.md",
-    "specs/v0.5.0/001-revision-comment-threads/planning/plan.md",
-    "specs/v0.5.0/001-revision-comment-threads/security",
-    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-security-agent.md",
-    "specs/v0.5.0/DIFF-001-revision-comment-threads.md",
-    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-docs-agent.md",
-    "specs/v0.5.0/_ai-workspace/runs",
-    "specs/v0.5.0/_ai-workspace",
-    "specs/v0.5.0/001-revision-comment-threads/test/coverage-gap.md",
-    "specs/v0.5.0/001-revision-comment-threads/test/coverage.md",
-    "specs/v0.5.0/001-revision-comment-threads/test/test-report.md",
-    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-003-test-agent-execution.md",
-    "specs/v0.5.0/001-revision-comment-threads/test/test-cases.md",
-    "specs/v0.5.0/001-revision-comment-threads/test",
-    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-development-agent.md",
-    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-002-test-agent-authoring.md",
-    "specs/v0.5.0/001-revision-comment-threads/db-design/data-model.md"
+    "specs/v0.5.0/001-revision-comment-threads/planning/plan.md"
   ]
 }

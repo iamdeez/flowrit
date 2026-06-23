@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { sendDeadlineReminderEmail } from '@/lib/email'
 import { sendNotification } from '@/lib/notifications'
+import { sendOpsAlert } from '@/lib/ops-alert'
 import { isProjectDone } from '@/lib/project-utils'
 
 export async function GET(request: Request) {
@@ -71,6 +72,18 @@ export async function GET(request: Request) {
       processed += 1
     } catch (error) {
       console.error('[cron] deadline reminder failed', { projectId: project.id, error })
+      await sendOpsAlert({
+        level: 'warning',
+        title: 'Deadline reminder failed',
+        message: '마감 리마인더 발송 또는 타임라인 기록에 실패했습니다.',
+        source: 'cron.deadlineReminder',
+        context: {
+          workspaceId: project.workspaceId,
+          projectId: project.id,
+          dueDate: project.dueDate,
+          error,
+        },
+      })
     }
   }
 

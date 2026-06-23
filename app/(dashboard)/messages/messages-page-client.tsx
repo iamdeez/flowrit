@@ -21,12 +21,12 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
           템플릿 목록 ({templates.length})
         </h2>
         {templates.length === 0 ? (
-          <div className="flowrit-panel px-5 py-16 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
-              <MessageSquare className="h-5 w-5" />
+          <div className="flowrit-empty-state">
+            <div className="flowrit-empty-icon">
+              <MessageSquare className="h-5 w-5" aria-hidden="true" />
             </div>
-            <p className="text-sm font-medium text-gray-900">등록된 메시지 템플릿이 없습니다.</p>
-            <p className="mt-1 text-sm text-gray-500">오른쪽에서 첫 템플릿을 만들어 보세요.</p>
+            <p className="flowrit-empty-title">등록된 메시지 템플릿이 없습니다.</p>
+            <p className="flowrit-empty-description">오른쪽에서 자주 쓰는 안내 문구를 첫 템플릿으로 저장하세요.</p>
           </div>
         ) : (
           <div className="space-y-3">

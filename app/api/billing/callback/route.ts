@@ -8,6 +8,7 @@ import {
   PLAN_PRICES,
   type BillingCycle,
 } from '@/lib/billing'
+import { sendOpsAlert } from '@/lib/ops-alert'
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -55,6 +56,13 @@ export async function POST(request: Request) {
       owner?.user.name ?? '',
     )
   } catch (err) {
+    await sendOpsAlert({
+      level: 'warning',
+      title: 'Billing key registration failed',
+      message: '나이스페이먼츠 빌링키 발급에 실패했습니다.',
+      source: 'billing.callback.registerBillingKey',
+      context: { workspaceId, orderId, billingCycle, error: err },
+    })
     return NextResponse.json(
       { error: '카드 등록에 실패했습니다.', detail: String(err) },
       { status: 502 },
@@ -126,6 +134,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, plan: 'pro' })
   } catch (err) {
+    await sendOpsAlert({
+      level: 'critical',
+      title: 'Initial subscription payment failed',
+      message: 'Pro 업그레이드 첫 결제에 실패했습니다.',
+      source: 'billing.callback.chargeBillingKey',
+      context: { workspaceId, orderId: paymentOrderId, billingCycle, amount, error: err },
+    })
     return NextResponse.json(
       { error: '결제에 실패했습니다.', detail: String(err) },
       { status: 402 },

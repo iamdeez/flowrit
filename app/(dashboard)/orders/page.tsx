@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ClipboardList, ExternalLink, Inbox } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ClipboardList, ExternalLink, Inbox, SearchCheck } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
@@ -49,6 +49,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
   const orderFormUrl = workspace ? `${appUrl}/order/${workspace.slug}` : null
   const intakeFormUrl = workspace ? `${appUrl}/intake/${workspace.slug}` : null
+  const pendingCount = statusFilter === 'PENDING' ? inquiries.length : 0
 
   function tabHref(t: string) {
     const p = new URLSearchParams()
@@ -66,11 +67,10 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
 
   return (
     <div className="flowrit-page">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="flowrit-page-header mb-5">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--flowrit-text)] md:text-2xl">주문서 관리</h1>
-          <p className="mt-0.5 hidden text-sm text-[var(--flowrit-text-muted)] md:block">
+          <h1 className="flowrit-page-title">주문서 관리</h1>
+          <p className="flowrit-page-description">
             고객 문의·주문서를 확인하고 프로젝트로 전환합니다.
           </p>
         </div>
@@ -89,6 +89,42 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
           {orderFormUrl && <CopyLinkButton url={orderFormUrl} label="주문서 링크" />}
         </div>
       </div>
+
+      <section className="mb-5 grid gap-3 md:grid-cols-3">
+        <div className="flowrit-panel-padded">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="flowrit-empty-icon h-9 w-9">
+              <Inbox className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <p className="text-sm font-semibold text-[var(--flowrit-text)]">접수</p>
+          </div>
+          <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
+            주문서 링크로 들어온 의뢰가 대기 목록에 쌓입니다.
+          </p>
+        </div>
+        <div className="flowrit-panel-padded">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="flowrit-empty-icon h-9 w-9">
+              <SearchCheck className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <p className="text-sm font-semibold text-[var(--flowrit-text)]">검토</p>
+          </div>
+          <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
+            내용, 고객 정보, 일정이 충분한지 확인합니다.
+          </p>
+        </div>
+        <div className="flowrit-panel-padded">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="flowrit-empty-icon h-9 w-9">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <p className="text-sm font-semibold text-[var(--flowrit-text)]">전환</p>
+          </div>
+          <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
+            템플릿과 고객을 선택해 프로젝트를 생성합니다.
+          </p>
+        </div>
+      </section>
 
       {/* 폼 링크 안내 */}
       {(orderFormUrl || intakeFormUrl) && (
@@ -155,25 +191,45 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
       </div>
 
       {/* 건수 */}
-      <p className="mb-3 text-xs text-[var(--flowrit-text-muted)]">
-        <span className="font-medium text-[var(--flowrit-text-secondary)]">{inquiries.length}</span>건
-      </p>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-[var(--flowrit-text-muted)]">
+          <span className="font-medium text-[var(--flowrit-text-secondary)]">{inquiries.length}</span>건
+        </p>
+        {statusFilter === 'PENDING' && pendingCount > 0 && (
+          <p className="text-xs font-medium text-[var(--flowrit-primary-soft-text)]">
+            프로젝트 전환 대기 {pendingCount}건
+          </p>
+        )}
+      </div>
 
       {/* 목록 */}
       {inquiries.length === 0 ? (
-        <div className="flowrit-panel px-5 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-400">
-            {tab === 'order' ? <ClipboardList className="h-5 w-5" /> : <Inbox className="h-5 w-5" />}
+        <div className="flowrit-empty-state">
+          <div className="flowrit-empty-icon">
+            {tab === 'order' ? (
+              <ClipboardList className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Inbox className="h-5 w-5" aria-hidden="true" />
+            )}
           </div>
-          <p className="text-sm font-medium text-gray-900">
+          <p className="flowrit-empty-title">
             {statusFilter === 'CONVERTED' ? '전환 완료된 건이 없습니다.' : '접수된 건이 없습니다.'}
           </p>
           {statusFilter === 'PENDING' && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="flowrit-empty-description">
               {tab === 'order'
                 ? '주문서 링크를 공유하면 접수된 주문서가 여기에 표시됩니다.'
                 : '의뢰 링크를 공유하면 접수된 문의가 여기에 표시됩니다.'}
             </p>
+          )}
+          {statusFilter === 'PENDING' && orderFormUrl && (
+            <div className="flowrit-empty-actions">
+              <CopyLinkButton url={orderFormUrl} label="주문서 링크" />
+              <a href={orderFormUrl} target="_blank" rel="noreferrer" className="flowrit-button-secondary">
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                주문서 열기
+              </a>
+            </div>
           )}
         </div>
       ) : (
@@ -221,13 +277,20 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
               </p>
 
               {inquiry.status === 'PENDING' && (
-                <div className="mt-3 flex justify-end gap-2">
-                  <DismissInquiryButton inquiryId={inquiry.id} />
-                  <ConvertDialog inquiry={inquiry} customers={customers} templates={templates} />
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--flowrit-border)] pt-3">
+                  <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
+                    접수 내용 확인 후
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                    프로젝트로 전환
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <DismissInquiryButton inquiryId={inquiry.id} />
+                    <ConvertDialog inquiry={inquiry} customers={customers} templates={templates} />
+                  </div>
                 </div>
               )}
               {inquiry.status === 'CONVERTED' && (
-                <div className="mt-3 flex justify-end">
+                <div className="mt-4 flex justify-end border-t border-[var(--flowrit-border)] pt-3">
                   {inquiry.projectId ? (
                     <Link
                       href={`/projects/${inquiry.projectId}`}

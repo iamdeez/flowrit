@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { sendOpsAlert } from '@/lib/ops-alert'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'
@@ -34,6 +35,28 @@ function actionLink(url: string, label: string): string {
   return `<a href="${escapeHtml(url)}" style="display:inline-block;margin-top:16px;border-radius:8px;background:#4f46e5;padding:10px 14px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600">${escapeHtml(label)}</a>`
 }
 
+async function sendEmail(
+  source: string,
+  payload: Parameters<typeof resend.emails.send>[0],
+): Promise<void> {
+  try {
+    await resend.emails.send(payload)
+  } catch (error) {
+    await sendOpsAlert({
+      level: 'warning',
+      title: 'Email delivery failed',
+      message: `이메일 발송에 실패했습니다: ${source}`,
+      source,
+      context: {
+        to: payload.to,
+        subject: payload.subject,
+        error,
+      },
+    })
+    throw error
+  }
+}
+
 export async function sendInviteEmail({
   to,
   inviterName,
@@ -47,7 +70,7 @@ export async function sendInviteEmail({
 }) {
   const inviteUrl = `${APP_URL}/invite/${inviteToken}`
 
-  await resend.emails.send({
+  await sendEmail('email.invite', {
     from: FROM,
     to,
     subject: `[Flowrit] ${workspaceName}에 초대되었습니다`,
@@ -64,7 +87,7 @@ export async function sendNewInquiryEmail(
   to: string,
   payload: { submitterName: string; contact: string; excerpt: string; dashboardUrl: string }
 ): Promise<void> {
-  await resend.emails.send({
+  await sendEmail('email.newInquiry', {
     from: FROM,
     to,
     subject: '[Flowrit] 새 의뢰가 접수되었습니다',
@@ -82,7 +105,7 @@ export async function sendRevisionSubmittedEmail(
   to: string,
   payload: { projectTitle: string; content: string; fileCount: number; projectUrl: string }
 ): Promise<void> {
-  await resend.emails.send({
+  await sendEmail('email.revisionSubmitted', {
     from: FROM,
     to,
     subject: `[Flowrit] ${payload.projectTitle} 수정 요청이 접수되었습니다`,
@@ -106,7 +129,7 @@ export async function sendStageChangedEmail(
     projectUrl: string
   }
 ): Promise<void> {
-  await resend.emails.send({
+  await sendEmail('email.stageChanged', {
     from: FROM,
     to,
     subject: `[Flowrit] ${payload.projectTitle} 단계가 변경되었습니다`,
@@ -129,7 +152,7 @@ export async function sendRevisionCommentReplyEmail(
     portalUrl: string
   }
 ): Promise<void> {
-  await resend.emails.send({
+  await sendEmail('email.revisionCommentReply', {
     from: FROM,
     to,
     subject: '[Flowrit] 수정 요청에 답글이 달렸습니다',
@@ -154,7 +177,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   const resetUrl = `${APP_URL}/reset-password/${resetToken}`
 
-  await resend.emails.send({
+  await sendEmail('email.passwordReset', {
     from: FROM,
     to,
     subject: '[Flowrit] 비밀번호 재설정 안내',
@@ -181,7 +204,7 @@ export async function sendDeadlineReminderEmail(
     projectUrl: string
   }
 ): Promise<void> {
-  await resend.emails.send({
+  await sendEmail('email.deadlineReminder', {
     from: FROM,
     to,
     subject: `[Flowrit] ${payload.projectTitle} 마감일이 다가옵니다`,
@@ -229,7 +252,7 @@ export async function sendPaymentFailEmail(
       ${actionLink(`${APP_URL}/settings?tab=billing`, '결제 정보 확인하기')}
     `
 
-  await resend.emails.send({
+  await sendEmail('email.paymentFail', {
     from: FROM,
     to: toEmail,
     subject,

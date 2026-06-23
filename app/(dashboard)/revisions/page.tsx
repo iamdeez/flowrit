@@ -196,19 +196,21 @@ export default async function RevisionsPage() {
           })}
         </div>
       ) : (
-        <div className="flowrit-panel px-5 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--flowrit-panel-subtle)] text-[var(--flowrit-text-muted)]">
-            <FileText className="h-5 w-5" />
+        <div className="flowrit-empty-state">
+          <div className="flowrit-empty-icon">
+            <FileText className="h-5 w-5" aria-hidden="true" />
           </div>
-          <p className="text-sm font-medium text-[var(--flowrit-text)]">
+          <p className="flowrit-empty-title">
             처리할 수정 요청이 없습니다.
           </p>
-          <p className="mt-1 text-sm text-[var(--flowrit-text-muted)]">
+          <p className="flowrit-empty-description">
             프로젝트 상세에서 등록한 미완료 요청이 이곳에 표시됩니다.
           </p>
-          <Link href="/projects" className="flowrit-button-secondary mt-4">
-            프로젝트 목록 보기
-          </Link>
+          <div className="flowrit-empty-actions">
+            <Link href="/projects" className="flowrit-button-secondary">
+              프로젝트 목록 보기
+            </Link>
+          </div>
         </div>
       )}
     </div>

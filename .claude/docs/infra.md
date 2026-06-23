@@ -34,8 +34,9 @@ Server Actions / API Routes
       ├── Cloudflare R2 (파일 업로드 — presigned URL)
       └── Resend (이메일 발송)
 
-Vercel Cron (매시간 0분)
+Vercel Cron (매일 자정 UTC)
       → GET /api/cron/deadline-reminder
+      → GET /api/cron/billing
       → Neon PostgreSQL + Resend
 ```
 
@@ -65,8 +66,10 @@ git push → Vercel 자동 빌드 (next build) → 자동 배포
 ### Vercel Cron
 
 - 경로: `vercel.json` 참조
-- 스케줄: 매시간 0분 (`0 * * * *`)
-- 보호: `CRON_SECRET` 환경변수로 Bearer 토큰 인증 (`.env.example` 미포함 — Vercel 대시보드에서 직접 설정 필요)
+- Cron 목록:
+  - `/api/cron/deadline-reminder` — `0 0 * * *` (매일 자정 UTC)
+  - `/api/cron/billing` — `0 0 * * *` (매일 자정 UTC)
+- 보호: `CRON_SECRET` 환경변수로 Bearer 토큰 인증 (`.env.example`에 포함)
 
 ### 롤백 방법
 

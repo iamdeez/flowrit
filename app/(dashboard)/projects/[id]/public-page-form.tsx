@@ -55,7 +55,7 @@ export function PublicPageForm({
         type="button"
         onClick={handleCreate}
         disabled={pending}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+        className="flowrit-button-secondary min-h-9 px-3 text-xs"
       >
         <Share2 className="h-4 w-4" />
         {pending ? '생성 중...' : '공유 링크 생성'}
@@ -78,7 +78,7 @@ export function PublicPageForm({
         type="button"
         onClick={handleCopy}
         disabled={!publicPage.isActive}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+        className="flowrit-button-secondary min-h-9 px-3 text-xs"
       >
         {copied ? (
           <Check className="h-4 w-4 text-emerald-500" />
@@ -91,7 +91,7 @@ export function PublicPageForm({
         type="button"
         onClick={handleToggle}
         disabled={pending}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+        className="flowrit-button-secondary min-h-9 px-3 text-xs"
       >
         {pending ? '처리 중...' : publicPage.isActive ? '비활성화' : '활성화'}
       </button>

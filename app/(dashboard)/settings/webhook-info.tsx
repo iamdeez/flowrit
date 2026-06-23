@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useActionState } from 'react'
-import { Check, ChevronDown, ChevronUp, Copy, ExternalLink, FlaskConical, Loader2 } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, Copy, ExternalLink, FlaskConical, Loader2, MapPin, MessageCircle, Search } from 'lucide-react'
 import { sendTestInquiry } from '@/lib/actions/testWebhook'
 
 // ─── 플랫폼 정보 ──────────────────────────────────────────────────────────────
@@ -9,7 +9,6 @@ import { sendTestInquiry } from '@/lib/actions/testWebhook'
 type Platform = {
   id: string
   name: string
-  emoji: string
   settingsPath: string
   steps: string[]
 }
@@ -18,7 +17,6 @@ const PLATFORMS: Platform[] = [
   {
     id: 'instagram',
     name: '인스타그램',
-    emoji: '📸',
     settingsPath: 'Meta Business Suite → 인박스 → 자동화 도구 → 키워드 자동 응답',
     steps: [
       'Meta Business Suite(business.facebook.com)에 접속합니다.',
@@ -31,7 +29,6 @@ const PLATFORMS: Platform[] = [
   {
     id: 'kakao',
     name: '카카오 채널',
-    emoji: '💬',
     settingsPath: '카카오 비즈니스 → 채널 관리자센터 → 스마트채팅',
     steps: [
       '카카오 비즈니스(business.kakao.com)에 접속합니다.',
@@ -44,7 +41,6 @@ const PLATFORMS: Platform[] = [
   {
     id: 'naver',
     name: '네이버 톡톡',
-    emoji: '🟢',
     settingsPath: '네이버 스마트플레이스 → 채널 관리 → 자동응답',
     steps: [
       '네이버 스마트플레이스(smartplace.naver.com)에 접속합니다.',
@@ -89,13 +85,13 @@ function CopyButton({ text, label = '복사' }: { text: string; label?: string }
 // ─── 서브 컴포넌트: 플랫폼 가이드 ────────────────────────────────────────────
 
 function PlatformGuide({ platform, intakeUrl }: { platform: Platform; intakeUrl: string }) {
-  const messageTemplate = `안녕하세요! 문의해 주셔서 감사합니다 😊\n\n아래 링크에서 의뢰 내용을 작성해 주시면\n빠르게 확인 후 연락드리겠습니다.\n\n👉 ${intakeUrl}\n\n감사합니다!`
+  const messageTemplate = `안녕하세요! 문의해 주셔서 감사합니다.\n\n아래 링크에서 의뢰 내용을 작성해 주시면\n빠르게 확인 후 연락드리겠습니다.\n\n${intakeUrl}\n\n감사합니다.`
 
   return (
     <div className="space-y-4">
       {/* 설정 위치 안내 */}
       <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5">
-        <span className="mt-0.5 text-sm">📍</span>
+        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" aria-hidden="true" />
         <div>
           <p className="text-xs font-semibold text-amber-800">설정 위치</p>
           <p className="mt-0.5 text-xs text-amber-700">{platform.settingsPath}</p>
@@ -273,7 +269,11 @@ export function WebhookInfo({ slug }: { slug: string }) {
                 : 'border-transparent text-[var(--flowrit-text-muted)] hover:text-[var(--flowrit-text-secondary)]'
             }`}
           >
-            <span>{p.emoji}</span>
+            {p.id === 'instagram' ? (
+              <Search className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
             {p.name}
           </button>
         ))}

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { prisma } from '@/lib/db'
 import { CustomerRevisionForm } from './revision-form'
 
@@ -26,10 +27,13 @@ export default async function CustomerRevisionPage({ params }: Props) {
             href={`/p/${token}`}
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900"
           >
-            ← 진행상황으로 돌아가기
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            진행상황으로 돌아가기
           </a>
           <h1 className="mt-4 text-2xl font-bold text-gray-900">수정 요청</h1>
-          <p className="mt-1 text-sm text-gray-500">{page.project.title}</p>
+          <p className="mt-1 text-sm text-gray-500">
+            {page.project.title}에 필요한 변경 사항을 구체적으로 남겨주세요.
+          </p>
         </div>
 
         <div className="flowrit-panel-padded">

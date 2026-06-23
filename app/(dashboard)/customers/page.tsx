@@ -121,23 +121,25 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
           </div>
         </section>
       ) : (
-        <section className="flowrit-panel px-5 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--flowrit-panel-subtle)] text-[var(--flowrit-text-muted)]">
-            <UserRound className="h-5 w-5" />
+        <section className="flowrit-empty-state">
+          <div className="flowrit-empty-icon">
+            <UserRound className="h-5 w-5" aria-hidden="true" />
           </div>
-          <p className="text-sm font-medium text-[var(--flowrit-text)]">
+          <p className="flowrit-empty-title">
             {query ? '검색 결과가 없습니다.' : '등록된 고객이 없습니다.'}
           </p>
-          <p className="mt-1 text-sm text-[var(--flowrit-text-muted)]">
+          <p className="flowrit-empty-description">
             {query
               ? '다른 이름으로 검색해 보세요.'
               : '첫 고객을 등록하고 프로젝트 흐름을 시작하세요.'}
           </p>
           {!query && (
-            <Link href="/customers/new" className="flowrit-button-primary mt-4">
-              <Plus className="h-4 w-4" />
-              고객 등록
-            </Link>
+            <div className="flowrit-empty-actions">
+              <Link href="/customers/new" className="flowrit-button-primary">
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                고객 등록
+              </Link>
+            </div>
           )}
         </section>
       )}

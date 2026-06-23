@@ -77,6 +77,7 @@ a {
 
   .flowrit-button-primary {
     display: inline-flex;
+    max-width: 100%;
     min-height: 2.5rem;
     align-items: center;
     justify-content: center;
@@ -84,9 +85,11 @@ a {
     border-radius: var(--flowrit-radius-control);
     background: var(--flowrit-primary);
     padding: 0.5rem 1rem;
+    text-align: center;
     color: white;
     font-size: 0.875rem;
     font-weight: 500;
+    line-height: 1.25;
     transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
   }
 
@@ -94,8 +97,14 @@ a {
     background: var(--flowrit-primary-hover);
   }
 
+  .flowrit-button-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
   .flowrit-button-secondary {
     display: inline-flex;
+    max-width: 100%;
     min-height: 2.5rem;
     align-items: center;
     justify-content: center;
@@ -104,15 +113,47 @@ a {
     border-radius: var(--flowrit-radius-control);
     background: var(--flowrit-panel);
     padding: 0.5rem 1rem;
+    text-align: center;
     color: var(--flowrit-text-secondary);
     font-size: 0.875rem;
     font-weight: 500;
+    line-height: 1.25;
     transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
   }
 
   .flowrit-button-secondary:hover {
     background: var(--flowrit-panel-subtle);
     color: var(--flowrit-text);
+  }
+
+  .flowrit-button-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .flowrit-icon-button {
+    display: inline-flex;
+    height: 2.25rem;
+    width: 2.25rem;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--flowrit-border);
+    border-radius: var(--flowrit-radius-control);
+    background: var(--flowrit-panel);
+    color: var(--flowrit-text-muted);
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .flowrit-icon-button:hover {
+    background: var(--flowrit-panel-subtle);
+    color: var(--flowrit-text);
+  }
+
+  .flowrit-icon-button-danger:hover {
+    border-color: #fecaca;
+    background: var(--flowrit-danger-soft);
+    color: var(--flowrit-danger-text);
   }
 
   .flowrit-input {
@@ -129,6 +170,164 @@ a {
     border-color: transparent;
     outline: 2px solid var(--flowrit-primary);
     outline-offset: 0;
+  }
+
+  .flowrit-input:disabled {
+    cursor: not-allowed;
+    background: var(--flowrit-panel-subtle);
+    color: var(--flowrit-text-muted);
+  }
+
+  .flowrit-form-help {
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: var(--flowrit-text-muted);
+  }
+
+  .flowrit-form-error {
+    margin-top: 0.5rem;
+    border-radius: var(--flowrit-radius-control);
+    background: var(--flowrit-danger-soft);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--flowrit-danger-text);
+  }
+
+  .flowrit-form-success {
+    margin-top: 0.5rem;
+    border-radius: var(--flowrit-radius-control);
+    background: var(--flowrit-success-soft);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--flowrit-success-text);
+  }
+
+  .flowrit-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .flowrit-page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--flowrit-text);
+  }
+
+  .flowrit-page-description {
+    margin-top: 0.375rem;
+    max-width: 42rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--flowrit-text-muted);
+  }
+
+  .flowrit-empty-state {
+    display: flex;
+    min-height: 11rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    border: 1px dashed var(--flowrit-border-strong);
+    border-radius: var(--flowrit-radius-panel);
+    background: var(--flowrit-panel);
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .flowrit-empty-icon {
+    display: flex;
+    height: 2.75rem;
+    width: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--flowrit-radius-panel);
+    background: var(--flowrit-panel-subtle);
+    color: var(--flowrit-text-muted);
+  }
+
+  .flowrit-empty-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--flowrit-text);
+  }
+
+  .flowrit-empty-description {
+    max-width: 28rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--flowrit-text-muted);
+  }
+
+  .flowrit-empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .flowrit-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--flowrit-border);
+    border-radius: var(--flowrit-radius-panel);
+    background: var(--flowrit-panel);
+  }
+
+  .flowrit-table {
+    width: 100%;
+    min-width: 44rem;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .flowrit-table th {
+    border-bottom: 1px solid var(--flowrit-border);
+    background: var(--flowrit-panel-subtle);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--flowrit-text-muted);
+  }
+
+  .flowrit-table td {
+    border-bottom: 1px solid var(--flowrit-border);
+    padding: 0.875rem 1rem;
+    color: var(--flowrit-text-secondary);
+    vertical-align: middle;
+  }
+
+  .flowrit-table tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .flowrit-skeleton {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--flowrit-radius-control);
+    background: var(--flowrit-panel-subtle);
+  }
+
+  .flowrit-skeleton::after {
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+    animation: flowrit-shimmer 1.5s infinite;
+    content: "";
+  }
+
+  .flowrit-skeleton-line {
+    height: 0.75rem;
+    border-radius: 9999px;
   }
 }
 
@@ -224,9 +423,44 @@ a {
     color: #c2410c;
   }
 
+  .flowrit-badge-warning {
+    background: var(--flowrit-warning-soft);
+    color: var(--flowrit-warning-text);
+  }
+
+  .flowrit-badge-danger {
+    background: var(--flowrit-danger-soft);
+    color: var(--flowrit-danger-text);
+  }
+
   .flowrit-badge-archived {
     background: var(--flowrit-panel-subtle);
     color: var(--flowrit-text-muted);
+  }
+
+  .flowrit-status-dot {
+    display: inline-block;
+    height: 0.5rem;
+    width: 0.5rem;
+    flex: none;
+    border-radius: 9999px;
+    background: var(--flowrit-text-muted);
+  }
+
+  .flowrit-status-dot-active {
+    background: var(--flowrit-primary);
+  }
+
+  .flowrit-status-dot-done {
+    background: var(--flowrit-success-text);
+  }
+
+  .flowrit-status-dot-warning {
+    background: var(--flowrit-warning-text);
+  }
+
+  .flowrit-status-dot-danger {
+    background: var(--flowrit-danger-text);
   }
 
   /* Stat card with colored icon tile */
@@ -241,10 +475,31 @@ a {
   }
 }
 
+@keyframes flowrit-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flowrit-skeleton::after {
+    animation: none;
+  }
+}
+
 /* Mobile: compact spacing */
 @media (max-width: 767px) {
   :root {
     --flowrit-page-padding: 1rem;
     --flowrit-panel-padding: 1rem;
+  }
+
+  .flowrit-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .flowrit-page-title {
+    font-size: 1.25rem;
   }
 }

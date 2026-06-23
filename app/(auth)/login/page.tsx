@@ -44,22 +44,24 @@ export default function LoginPage() {
           />
         </div>
 
+        {state.error && <p className="flowrit-form-error">{state.error}</p>}
+
         <button
           type="submit"
           disabled={pending}
-          className="flowrit-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
+          className="flowrit-button-primary w-full"
         >
           {pending ? '로그인 중...' : '로그인'}
         </button>
       </form>
 
-      <div className="mt-4 flex flex-col items-center gap-2 text-sm text-gray-600">
-        <Link href="/forgot-password" className="text-gray-500 hover:text-indigo-600 hover:underline">
+      <div className="mt-5 flex flex-col items-center gap-2 text-sm text-[var(--flowrit-text-secondary)]">
+        <Link href="/forgot-password" className="text-[var(--flowrit-text-muted)] hover:text-[var(--flowrit-primary)] hover:underline">
           비밀번호를 잊으셨나요?
         </Link>
         <span>
           아직 계정이 없으신가요?{' '}
-          <Link href="/register" className="text-indigo-600 hover:underline">
+          <Link href="/register" className="font-medium text-[var(--flowrit-primary-soft-text)] hover:underline">
             가입하기
           </Link>
         </span>

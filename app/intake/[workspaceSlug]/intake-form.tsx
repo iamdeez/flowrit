@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useRef, useState } from 'react'
-import { Loader2, Paperclip, X } from 'lucide-react'
+import { CheckCircle2, Loader2, Paperclip, X } from 'lucide-react'
 import { submitInquiry, type InquiryFormState } from '@/lib/actions/inquiry'
 
 type UploadedFile = {
@@ -80,10 +80,13 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
 
   if (state.success) {
     return (
-      <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
-        <p className="text-lg font-semibold text-green-800">의뢰가 접수되었습니다</p>
-        <p className="mt-2 text-sm text-green-700">
-          담당자가 확인 후 연락드리겠습니다. 감사합니다.
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm">
+          <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <p className="text-lg font-semibold text-emerald-900">의뢰가 접수되었습니다</p>
+        <p className="mt-2 text-sm leading-6 text-emerald-700">
+          담당자가 내용을 확인한 뒤 필요한 정보와 다음 단계를 안내드리겠습니다.
         </p>
       </div>
     )

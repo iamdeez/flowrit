@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CalendarDays, ChevronLeft, ChevronRight, Download, FilePen, FolderOpen, Plus } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, Clock3, Download, FilePen, FolderOpen, Plus, UserRound } from 'lucide-react'
 import { getProjects, getWorkspaceMembers } from '@/lib/actions/project'
 import { getCurrentStage, isProjectDone } from '@/lib/project-utils'
 import { ProjectsFilter } from '@/components/projects-filter'
@@ -61,6 +61,18 @@ function getDueInfo(dueDate: Date | null, done: boolean, archived: boolean): Due
   }
 }
 
+function formatCreatedAt(date: Date): string {
+  const now = new Date()
+  const value = new Date(date)
+  const diffMs = now.getTime() - value.getTime()
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffDays <= 0) return '오늘 등록'
+  if (diffDays === 1) return '어제 등록'
+  if (diffDays < 7) return `${diffDays}일 전 등록`
+  return `${value.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })} 등록`
+}
+
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const { status, q, archived, page: pageParam, assigneeId } = await searchParams
   const isArchivedFilter = archived === 'true' || status === 'archived'
@@ -97,11 +109,10 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
 
   return (
     <div className="flowrit-page">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="flowrit-page-header mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--flowrit-text)] md:text-2xl">프로젝트</h1>
-          <p className="mt-0.5 hidden text-sm text-[var(--flowrit-text-muted)] md:block">
+          <h1 className="flowrit-page-title">프로젝트</h1>
+          <p className="flowrit-page-description">
             {role === 'MEMBER'
               ? '내가 담당하는 프로젝트를 확인합니다.'
               : '진행 중인 작업을 마감일 순서로 확인합니다.'}
@@ -127,16 +138,20 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         <ProjectsFilter isAdmin={isAdmin} members={members} />
       </div>
 
-      {/* Count */}
-      <p className="mb-3 text-xs text-[var(--flowrit-text-muted)]">
-        총 <span className="font-medium text-[var(--flowrit-text-secondary)]">{totalCount}</span>건
-        {q && (
-          <>
-            {' '}
-            · <span className="text-[var(--flowrit-primary-soft-text)]">&ldquo;{q}&rdquo;</span> 검색 결과
-          </>
-        )}
-      </p>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-[var(--flowrit-text-muted)]">
+          총 <span className="font-medium text-[var(--flowrit-text-secondary)]">{totalCount}</span>건
+          {q && (
+            <>
+              {' '}
+              · <span className="text-[var(--flowrit-primary-soft-text)]">&ldquo;{q}&rdquo;</span> 검색 결과
+            </>
+          )}
+        </p>
+        <p className="hidden text-xs text-[var(--flowrit-text-muted)] md:block">
+          마감 임박, 수정 요청, 담당자, 등록일을 함께 표시합니다.
+        </p>
+      </div>
 
       {/* Project list */}
       {projects.length > 0 ? (
@@ -150,6 +165,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
               const openRevisions = project.revisions.length
               const dueInfo = getDueInfo(project.dueDate, done, !!project.archivedAt)
               const color = avatarColor(project.customer.name)
+              const createdLabel = formatCreatedAt(project.createdAt)
 
               const statusBadgeCls = project.archivedAt
                 ? 'flowrit-badge-archived'
@@ -166,26 +182,27 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                 <Link
                   key={project.id}
                   href={`/projects/${project.id}`}
-                  className={`group flex items-center gap-3 rounded-xl border bg-white px-4 py-3.5 transition-all hover:shadow-sm md:gap-4 md:px-5 ${
+                  className={`group grid gap-3 rounded-xl border bg-white px-4 py-3.5 transition-all hover:shadow-sm sm:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-4 md:px-5 ${
                     dueInfo?.urgent
                       ? 'border-orange-200 hover:border-orange-300'
                       : 'border-[var(--flowrit-border)] hover:border-indigo-200'
                   }`}
                 >
                   {/* Customer avatar */}
-                  <div
-                    className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold sm:flex ${color}`}
-                  >
+                  <div className={`hidden h-10 w-10 items-center justify-center rounded-full text-sm font-bold sm:flex ${color}`}>
                     {project.customer.name.slice(0, 1)}
                   </div>
 
                   {/* Main content */}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[15px] font-semibold text-[var(--flowrit-text)] transition-colors group-hover:text-[var(--flowrit-primary)]">
-                      {project.title}
-                    </p>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--flowrit-text-muted)]">
-                      <span className="text-[var(--flowrit-text-secondary)]">{project.customer.name}</span>
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <p className="min-w-0 truncate text-[15px] font-semibold text-[var(--flowrit-text)] transition-colors group-hover:text-[var(--flowrit-primary)]">
+                        {project.title}
+                      </p>
+                      <span className={`flowrit-badge shrink-0 ${statusBadgeCls}`}>{statusLabel}</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--flowrit-text-muted)]">
+                      <span className="font-medium text-[var(--flowrit-text-secondary)]">{project.customer.name}</span>
                       {totalStages > 0 && (
                         <>
                           <span className="text-gray-200">·</span>
@@ -205,14 +222,17 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                       {project.assigneeName && (
                         <>
                           <span className="text-gray-200">·</span>
-                          <span>{project.assigneeName}</span>
+                          <span className="inline-flex items-center gap-1">
+                            <UserRound className="h-3.5 w-3.5" aria-hidden="true" />
+                            {project.assigneeName}
+                          </span>
                         </>
                       )}
                     </div>
                   </div>
 
                   {/* Right meta */}
-                  <div className="flex shrink-0 items-center gap-2.5 text-xs md:gap-3">
+                  <div className="flex flex-wrap items-center gap-2.5 text-xs sm:justify-end md:gap-3">
                     {openRevisions > 0 && (
                       <span className="flex items-center gap-1 font-medium text-rose-500">
                         <FilePen className="h-3.5 w-3.5" />
@@ -220,13 +240,14 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                       </span>
                     )}
                     {dueInfo && (
-                      <span className={`hidden items-center gap-1 sm:flex ${dueInfo.cls}`}>
+                      <span className={`inline-flex items-center gap-1 ${dueInfo.cls}`}>
                         <CalendarDays className="h-3.5 w-3.5 shrink-0" />
                         {dueInfo.text}
                       </span>
                     )}
-                    <span className={`flowrit-badge shrink-0 ${statusBadgeCls}`}>
-                      {statusLabel}
+                    <span className="inline-flex items-center gap-1 text-[var(--flowrit-text-muted)]">
+                      <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      {createdLabel}
                     </span>
                   </div>
                 </Link>
@@ -267,21 +288,23 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           )}
         </>
       ) : (
-        <section className="flowrit-panel px-5 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
-            <FolderOpen className="h-5 w-5" />
+        <section className="flowrit-empty-state">
+          <div className="flowrit-empty-icon">
+            <FolderOpen className="h-5 w-5" aria-hidden="true" />
           </div>
-          <p className="text-sm font-medium text-gray-900">표시할 프로젝트가 없습니다.</p>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="flowrit-empty-title">표시할 프로젝트가 없습니다.</p>
+          <p className="flowrit-empty-description">
             {role === 'MEMBER'
               ? '담당자로 지정된 프로젝트가 없습니다.'
               : '새 프로젝트를 만들어 작업 흐름을 시작하세요.'}
           </p>
           {!q && !isArchivedFilter && role !== 'MEMBER' && (
-            <Link href="/projects/new" className="flowrit-button-primary mt-4">
-              <Plus className="h-4 w-4" />
-              새 프로젝트
-            </Link>
+            <div className="flowrit-empty-actions">
+              <Link href="/projects/new" className="flowrit-button-primary">
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                새 프로젝트
+              </Link>
+            </div>
           )}
         </section>
       )}

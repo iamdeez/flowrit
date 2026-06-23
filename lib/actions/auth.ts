@@ -2,11 +2,13 @@
 
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
+import { headers } from 'next/headers'
 import { signIn, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { AuthError } from 'next-auth'
 import { seedDefaultWorkflowTemplates } from '@/lib/default-workflow-templates'
 import { sendPasswordResetEmail } from '@/lib/email'
+import { checkLoginRateLimit } from '@/lib/ratelimit'
 
 function generateSlug(name: string): string {
   const base = name
@@ -24,6 +26,12 @@ export type RegisterState = {
 
 export type LoginState = {
   error?: string
+}
+
+function getTrustedClientIp(headerList: Headers): string {
+  const forwardedFor = headerList.get('x-forwarded-for')?.split(',')[0]?.trim()
+  if (forwardedFor) return forwardedFor
+  return headerList.get('x-real-ip')?.trim() || 'unknown'
 }
 
 export async function register(
@@ -89,6 +97,12 @@ export async function login(
 
   if (!email?.trim() || !password) {
     return { error: '이메일과 비밀번호를 입력해 주세요.' }
+  }
+
+  const headerList = await headers()
+  const rateLimit = await checkLoginRateLimit(getTrustedClientIp(headerList))
+  if (rateLimit.limited) {
+    return { error: '시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.' }
   }
 
   try {

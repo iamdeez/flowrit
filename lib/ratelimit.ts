@@ -23,6 +23,9 @@ const intakeLimiter = buildLimiter(5, '10 m', 'intake')
 // 웹훅 인테이크 API: 1분에 60회
 const webhookLimiter = buildLimiter(60, '1 m', 'webhook')
 
+// 로그인: 5분에 10회
+const loginLimiter = buildLimiter(10, '5 m', 'login')
+
 type RateLimitResult = { limited: true; retryAfter: number } | { limited: false }
 
 async function check(limiter: Ratelimit | null, identifier: string): Promise<RateLimitResult> {
@@ -38,4 +41,8 @@ export async function checkIntakeRateLimit(ip: string): Promise<RateLimitResult>
 
 export async function checkWebhookRateLimit(ip: string): Promise<RateLimitResult> {
   return check(webhookLimiter, ip)
+}
+
+export async function checkLoginRateLimit(ip: string): Promise<RateLimitResult> {
+  return check(loginLimiter, ip)
 }

@@ -83,10 +83,12 @@ export default async function SettingsPage({
   ])
 
   return (
-    <div className="flowrit-page max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">설정</h1>
-        <p className="text-sm text-gray-500 mt-1">계정 및 워크스페이스 설정을 관리합니다.</p>
+    <div className="flowrit-page max-w-3xl">
+      <div className="flowrit-page-header mb-8">
+        <div>
+          <h1 className="flowrit-page-title">설정</h1>
+          <p className="flowrit-page-description">계정, 워크스페이스, 주문서, 결제 설정을 관리합니다.</p>
+        </div>
       </div>
 
       {/* 탭 네비게이션 */}

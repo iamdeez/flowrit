@@ -57,7 +57,6 @@
 | `app/(dashboard)/settings/page.tsx` | 수정 | 빌링 탭 추가 |
 | `app/(dashboard)/settings/billing-tab.tsx` | 신규 | 결제 정보 / 내역 UI 컴포넌트 |
 | `app/(dashboard)/settings/upgrade-modal.tsx` | 신규 | 업그레이드 유도 모달 |
-| `app/billing/callback/page.tsx` | 신규 | 나이스페이먼츠 카드 등록 완료 콜백 페이지 |
 | `app/api/billing/callback/route.ts` | 신규 | 빌링키 발급 + 첫 결제 실행 API Route |
 | `app/api/cron/billing/route.ts` | 신규 | 자동결제 Cron 핸들러 |
 | `vercel.json` | 수정 또는 신규 | Cron 스케줄 추가 (`/api/cron/billing` 매일 09:00 KST) |
@@ -88,7 +87,7 @@
           → 첫 결제 즉시 실행: POST /v1/subscribe/{bid}/payments
           → 성공: Workspace.plan = "pro", Subscription.status = "active"
           → 실패: 오류 메시지 반환 (구독 미생성)
-    → 결과 페이지 표시
+    → 성공 시 빌링 탭 갱신, 실패 시 모달에 오류 표시
 ```
 
 ### 2. 카드 등록 orderId 설계

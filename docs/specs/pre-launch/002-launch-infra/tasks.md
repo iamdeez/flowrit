@@ -59,5 +59,5 @@
 | Sentry 에러 트래킹 | Sentry.io 계정 | 개발자 직접 |
 | 커스텀 도메인 + Resend DNS | 도메인 레지스트라 + Resend | 개발자 직접 |
 | Vercel 환경변수 전체 점검 | Vercel 대시보드 | 개발자 직접 |
-| 결제/구독 시스템 | Stripe | 별도 spec 작성 필요 |
+| 결제/구독 시스템 | 나이스페이먼츠 | `docs/specs/v0.7.0/001-nicepayments` 참조 |
 | 진짜 Rate Limiting | Upstash Redis + @upstash/ratelimit | 별도 spec 작성 필요 |

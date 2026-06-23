@@ -54,7 +54,7 @@ Flowrit은 SaaS로 상용화하기 위해 결제 및 구독 관리 기능이 필
 
 **FR-002**: 사용자는 나이스페이먼츠 `AUTHNICE` 카드 인증 UI를 통해 카드를 등록할 수 있다.
 
-- 카드 등록 페이지: `/settings/billing/upgrade`
+- 카드 등록 UI: `/settings?tab=billing`의 업그레이드 모달
 - 카드 인증 완료 후 클라이언트는 `authToken`과 카드 등록용 `orderId`를 서버에 전달한다.
 - 서버는 나이스페이먼츠 `/v1/subscribe/regist` API를 호출하여 `bid`(빌링키)를 발급받는다.
 - 발급된 빌링키는 워크스페이스의 Subscription 레코드에 저장된다.

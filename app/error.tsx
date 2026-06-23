@@ -3,6 +3,7 @@
 import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
 import Link from 'next/link'
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react'
 
 export default function Error({
   error,
@@ -16,24 +17,29 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="text-center">
-        <p className="mb-2 text-sm font-medium text-indigo-600">오류 발생</p>
-        <h1 className="mb-3 text-2xl font-semibold text-gray-900">문제가 발생했습니다</h1>
-        <p className="mb-8 text-sm text-gray-500">
-          예기치 않은 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--flowrit-panel-subtle)] px-4 py-12">
+      <div className="flowrit-panel-padded w-full max-w-md text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--flowrit-danger-soft)] text-[var(--flowrit-danger-text)]">
+          <AlertTriangle className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <p className="mb-2 text-sm font-medium text-[var(--flowrit-danger-text)]">오류 발생</p>
+        <h1 className="mb-3 text-2xl font-semibold text-[var(--flowrit-text)]">문제가 발생했습니다</h1>
+        <p className="mx-auto mb-8 max-w-sm text-sm leading-6 text-[var(--flowrit-text-muted)]">
+          요청을 처리하는 중 문제가 생겼습니다. 다시 시도하거나 대시보드에서 작업을 이어가세요.
         </p>
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           <button
             onClick={reset}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            className="flowrit-button-primary"
           >
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
             다시 시도
           </button>
           <Link
             href="/dashboard"
-            className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="flowrit-button-secondary"
           >
+            <Home className="h-4 w-4" aria-hidden="true" />
             대시보드로
           </Link>
         </div>

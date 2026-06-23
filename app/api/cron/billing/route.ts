@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { chargeBillingKey, getNextPeriodEnd, PLAN_PRICES, type BillingCycle } from '@/lib/billing'
 import { sendPaymentFailEmail } from '@/lib/email'
+import { sendOpsAlert } from '@/lib/ops-alert'
 
 const MAX_RETRIES = 3
 
@@ -145,6 +146,23 @@ export async function GET(request: Request) {
       if (ownerEmail) {
         await sendPaymentFailEmail(ownerEmail, workspaceName, isFinal).catch(() => {})
       }
+      await sendOpsAlert({
+        level: isFinal ? 'critical' : 'warning',
+        title: isFinal ? 'Subscription payment finally failed' : 'Subscription payment failed',
+        message: isFinal
+          ? '정기 결제가 최대 재시도 횟수까지 실패하여 past_due 처리되었습니다.'
+          : '정기 결제에 실패했고 재시도 카운트가 증가했습니다.',
+        source: 'cron.billing',
+        context: {
+          workspaceId: sub.workspaceId,
+          subscriptionId: sub.id,
+          orderId,
+          amount,
+          retryCount: newRetryCount,
+          isFinal,
+          error: err,
+        },
+      })
       failed += 1
     }
   }

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ExternalLink } from 'lucide-react'
+import { CheckCircle2, ExternalLink, FileText, MessageSquareText } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { getCurrentStage } from '@/lib/project-utils'
@@ -68,7 +68,7 @@ export default async function PublicProjectPage({ params }: Props) {
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="mb-8 text-center">
           <p className="text-xs font-medium uppercase tracking-widest text-gray-400">
-            진행상황
+            Flowrit project portal
           </p>
           <h1 className="mt-2 text-2xl font-bold text-gray-900">{project.title}</h1>
           {project.dueDate && (
@@ -76,6 +76,21 @@ export default async function PublicProjectPage({ params }: Props) {
               마감일 {project.dueDate.toLocaleDateString('ko-KR')}
             </p>
           )}
+        </div>
+
+        <div className="mb-4 grid gap-3 sm:grid-cols-3">
+          <div className="flowrit-panel-padded">
+            <CheckCircle2 className="mb-2 h-4 w-4 text-[var(--flowrit-primary)]" />
+            <p className="text-xs font-semibold text-gray-900">진행 단계 확인</p>
+          </div>
+          <div className="flowrit-panel-padded">
+            <FileText className="mb-2 h-4 w-4 text-[var(--flowrit-primary)]" />
+            <p className="text-xs font-semibold text-gray-900">공유 파일 열람</p>
+          </div>
+          <div className="flowrit-panel-padded">
+            <MessageSquareText className="mb-2 h-4 w-4 text-[var(--flowrit-primary)]" />
+            <p className="text-xs font-semibold text-gray-900">수정 요청 전달</p>
+          </div>
         </div>
 
         {/* 현재 단계 */}
@@ -192,7 +207,7 @@ export default async function PublicProjectPage({ params }: Props) {
         {/* 수정 요청 버튼 */}
         <Link
           href={`/p/${token}/revision`}
-          className="flowrit-button-secondary w-full py-4"
+          className="flowrit-button-primary w-full py-4"
         >
           수정 요청하기
         </Link>

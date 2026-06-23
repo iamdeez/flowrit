@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { sendOpsAlert } from '@/lib/ops-alert'
 
 export type NotificationType =
   | 'NEW_INQUIRY'
@@ -53,16 +54,32 @@ export async function sendNotification({
   const recipients = users.filter((user) => settingsEnabled(user.notificationSettings, type))
   if (recipients.length === 0) return
 
-  await prisma.notification.createMany({
-    data: recipients.map((user) => ({
-      userId: user.id,
-      workspaceId,
-      type,
-      title,
-      body,
-      href,
-    })),
-  })
+  try {
+    await prisma.notification.createMany({
+      data: recipients.map((user) => ({
+        userId: user.id,
+        workspaceId,
+        type,
+        title,
+        body,
+        href,
+      })),
+    })
+  } catch (error) {
+    await sendOpsAlert({
+      level: 'warning',
+      title: 'Notification creation failed',
+      message: '인앱 알림 생성에 실패했습니다.',
+      source: 'notifications.createMany',
+      context: {
+        workspaceId,
+        type,
+        recipientCount: recipients.length,
+        error,
+      },
+    })
+    throw error
+  }
 
   if (!emailFn) return
 

@@ -1,4 +1,4 @@
-# Tasks: NicePayments 결제 · 구독 시스템
+# Tasks: 나이스페이먼츠 결제 · 구독 시스템
 
 > Branch: 001-nicepayments | Date: 2026-06-23 | Plan: [plan.md](plan.md)
 
@@ -14,7 +14,7 @@
 
 - [x] spec.md의 모든 `[NEEDS CLARIFICATION]` 항목이 해소되었는가? — 예 (없음)
 - [x] plan.md의 Constitution Gates가 모두 통과(또는 예외 기재)되었는가? — 예
-- [ ] NicePayments 개발자 계정 및 테스트 키 발급 완료 (`NEXT_PUBLIC_NICEPAY_CLIENT_ID`, `NICEPAY_SECRET_KEY`)
+- [ ] 나이스페이먼츠 개발자 계정 및 테스트 키 발급 완료 (`NEXT_PUBLIC_NICEPAY_CLIENT_ID`, `NICEPAY_SECRET_KEY`)
 
 ---
 
@@ -43,25 +43,26 @@
     - `checkMemberLimit(workspaceId)` — 초과 시 `throw new Error('PLAN_LIMIT_EXCEEDED:MEMBER')`
   - 완료 기준: 함수 작성 완료, TypeScript 컴파일 에러 없음
 
-- [ ] **T003** `[P]` — NicePayments API 래퍼 작성
+- [ ] **T003** `[P]` — 나이스페이먼츠 API 래퍼 작성
   - 구현 파일: `lib/billing.ts` (신규)
   - 관련 요구사항: `FR-002`, `FR-003`, `FR-004`
   - 상세:
     - `PLAN_PRICES = { monthly: 29900, yearly: 298000 }` 상수
-    - `issueBillingKey(authKey, customerKey)` — NicePayments `/v1/billing/authorizations/issue` 호출
-    - `chargeBillingKey(billingKey, orderId, amount, customerKey)` — `/v1/billing/{billingKey}` 호출
+    - `registerBillingKey(authToken, orderId, buyerEmail, buyerName)` — 나이스페이먼츠 `/v1/subscribe/regist` 호출 후 `bid` 반환
+    - `chargeBillingKey({ bid, orderId, amount, goodsName, buyerName, buyerEmail })` — `/v1/subscribe/{bid}/payments` 호출 후 `tid` 반환
     - `getNextPeriodEnd(billingCycle, from)` — 월/연 기준 다음 결제일 계산
     - 모든 함수는 실패 시 throw, Sentry captureException 호출
   - 완료 기준: 함수 작성 완료, TypeScript 컴파일 에러 없음
 
-- [ ] **T004** `[P]` — 패키지 설치 및 환경변수 설정
+- [ ] **T004** `[P]` — 나이스페이먼츠 환경변수 및 스크립트 로딩 준비
   - 구현 파일: `.env.local`, `.env.example`
   - 관련 요구사항: `FR-002`
   - 상세:
-    - `npm install @tosspayments나이스페이먼츠 AUTHNICE 스크립트` 실행
-    - `.env.local`에 `NEXT_PUBLIC_NICEPAY_CLIENT_ID`, `NICEPAY_SECRET_KEY` 추가 (NicePayments 대시보드에서 발급)
+    - 클라이언트 UI에서 `https://pay.nicepay.co.kr/v1/js/` 스크립트 로딩
+    - `AUTHNICE.requestPay` 호출에 필요한 `clientId`, `orderId`, `amount`, `goodsName`, `returnUrl`, `fn_success`, `fn_error` 설정
+    - `.env.local`에 `NEXT_PUBLIC_NICEPAY_CLIENT_ID`, `NICEPAY_SECRET_KEY` 추가 (나이스페이먼츠 대시보드에서 발급)
     - `.env.example`에 동일 키 추가 (placeholder 값)
-  - 완료 기준: `@tosspayments나이스페이먼츠 AUTHNICE 스크립트` package.json에 등록, env 파일 업데이트
+  - 완료 기준: env 파일 업데이트, UI에서 AUTHNICE 스크립트가 정상 로드됨
 
 ### Phase 2. 핵심 비즈니스 로직
 
@@ -69,14 +70,14 @@
   - 구현 파일: `app/api/billing/callback/route.ts` (신규)
   - 관련 요구사항: `FR-002`, `FR-003`
   - 상세:
-    - POST handler: `{ authKey, customerKey, billingCycle }` 수신
+    - POST handler: `{ authToken, orderId, billingCycle }` 수신
     - 세션 검증: `auth()` 호출, OWNER 권한 확인
-    - `issueBillingKey(authKey, customerKey)` 호출 → billingKey 획득
-    - orderId 생성: `billing-${workspaceId}-${Date.now()}`
-    - `chargeBillingKey(billingKey, orderId, PLAN_PRICES[billingCycle], customerKey)` 호출
-    - 성공 시: Subscription 생성 (plan=pro, status=active, billingKey, currentPeriodEnd), Workspace.plan = "pro", Payment 생성 (status=done)
+    - `registerBillingKey(authToken, orderId, buyerEmail, buyerName)` 호출 → `bid` 획득
+    - 결제용 orderId 생성: `billing-${workspaceId}-${Date.now()}`
+    - `chargeBillingKey({ bid, orderId: paymentOrderId, amount: PLAN_PRICES[billingCycle], goodsName, buyerName, buyerEmail })` 호출
+    - 성공 시: Subscription 생성 (plan=pro, status=active, billingKey=bid, currentPeriodEnd), Workspace.plan = "pro", Payment 생성 (status=done, paymentKey=tid)
     - 실패 시: Payment 생성 (status=failed), 400 반환
-  - 완료 기준: NicePayments 테스트 환경에서 정상 동작
+  - 완료 기준: 나이스페이먼츠 테스트 환경에서 정상 동작
 
 - [ ] **T006** — 자동결제 Cron API Route
   - 구현 파일: `app/api/cron/billing/route.ts` (신규)
@@ -84,7 +85,7 @@
   - 상세:
     - GET handler: `Authorization: Bearer {CRON_SECRET}` 검증 (기존 cron 패턴 참고)
     - 당일 만료 Subscription 조회 (status=active, cancelAtPeriodEnd=false)
-    - 각 구독 처리: `chargeBillingKey` 호출
+    - 각 구독 처리: 저장된 `Subscription.billingKey`(`bid`)로 `chargeBillingKey` 호출
     - 성공: currentPeriodEnd 갱신, Payment 생성 (status=done), retryCount=0 초기화
     - 실패: Payment 생성 (status=failed), retryCount 증가
     - retryCount >= 3: status="past_due", Workspace.plan="free", `sendPaymentFailEmail` 이메일 발송
@@ -139,18 +140,20 @@
     - PRO일 경우: 등록 카드 마지막 4자리, "구독 취소" 버튼
     - FREE일 경우: "Pro 업그레이드" 버튼 → 업그레이드 모달
     - 결제 내역 테이블 (날짜, 금액, 상태)
-    - 업그레이드 모달: 월/연 선택, NicePayments 카드 등록 위젯 렌더링
+    - 업그레이드 모달: 월/연 선택, 나이스페이먼츠 AUTHNICE 카드 인증 UI 렌더링
   - 완료 기준: 빌링 탭 렌더링, 업그레이드 플로우 UI 확인
 
-- [ ] **T012** — NicePayments 카드 등록 콜백 페이지
-  - 구현 파일: `app/billing/callback/page.tsx` (신규)
+- [ ] **T012** — 나이스페이먼츠 카드 인증 콜백 처리
+  - 구현 파일:
+    - `app/(dashboard)/settings/upgrade-modal.tsx`
+    - `app/api/billing/callback/route.ts`
   - 관련 요구사항: `FR-002`, `FR-003`
   - 상세:
-    - `searchParams`에서 `authKey`, `customerKey` 추출
-    - `billingCycle`은 query param으로 전달받음 (successUrl에 포함)
-    - `/api/billing/callback` POST 후 결과에 따라 성공/실패 화면 표시
-    - 성공 시 `/settings?tab=billing` 으로 redirect
-  - 완료 기준: 카드 등록 성공/실패 시 적절한 화면 표시
+    - `AUTHNICE.requestPay`의 `fn_success(data)`에서 `authToken`, `orderId` 추출
+    - 선택된 `billingCycle`과 함께 `/api/billing/callback` POST
+    - 성공 시 `/settings?tab=billing` 갱신 또는 이동
+    - `fn_error` 또는 API 실패 시 사용자에게 실패 메시지 표시
+  - 완료 기준: 카드 인증 성공/실패 시 적절한 UI 상태 표시
 
 - [ ] **T013** — 플랜 제한 업그레이드 유도 모달 통합
   - 구현 파일: 프로젝트 생성 UI, 팀원 초대 UI (해당 컴포넌트)
@@ -185,7 +188,7 @@
   - 테스트 파일: `tests/billing.test.ts` (신규)
   - 검증 대상: `SC-006`, `SC-007`, `SC-008`, `SC-010`
   - 시나리오:
-    - NicePayments API mock 실패 → Payment.status=failed, failReason 저장
+    - 나이스페이먼츠 API mock 실패 → Payment.status=failed, failReason 저장
     - retryCount=2 + 실패 → status=past_due, Workspace.plan=free
     - `cancelSubscription()` OWNER → cancelAtPeriodEnd=true
     - 연간 결제 → amount=298000, currentPeriodEnd=+365일
@@ -199,4 +202,4 @@
 - [ ] `npm run typecheck` 에러 없음
 - [ ] `npm run lint` 에러 없음
 - [ ] `git status`에 의도치 않은 파일 없음
-- [ ] NicePayments 테스트 환경에서 카드 등록 → 결제 → 구독 활성화 플로우 수동 확인
+- [ ] 나이스페이먼츠 테스트 환경에서 카드 등록 → 결제 → 구독 활성화 플로우 수동 확인

@@ -20,8 +20,8 @@ export function ChartContainer({ children, className = '' }: ChartContainerProps
 
 export function EmptyChart({ message }: { message: string }) {
   return (
-    <div className="flex h-72 w-full items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 text-sm text-gray-400">
-      {message}
+    <div className="flowrit-empty-state h-72 w-full">
+      <p className="flowrit-empty-description">{message}</p>
     </div>
   )
 }

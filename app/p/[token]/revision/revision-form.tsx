@@ -2,7 +2,7 @@
 
 import { useActionState, useRef, useState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { Image, Paperclip, Plus, X } from 'lucide-react'
+import { CheckCircle2, Image as ImageIcon, Paperclip, Plus, X } from 'lucide-react'
 import {
   submitCustomerRevision,
   type CustomerRevisionState,
@@ -98,17 +98,12 @@ export function CustomerRevisionForm({ token }: { token: string }) {
     return (
       <div className="py-10 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
-          <svg
-            className="h-7 w-7 text-emerald-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+          <CheckCircle2 className="h-7 w-7 text-emerald-600" aria-hidden="true" />
         </div>
         <h2 className="text-lg font-semibold text-gray-900">수정 요청이 접수되었습니다</h2>
-        <p className="mt-2 text-sm text-gray-500">담당자가 확인 후 처리해 드리겠습니다.</p>
+        <p className="mt-2 text-sm text-gray-500">
+          담당자가 내용을 확인한 뒤 처리 상태를 업데이트합니다.
+        </p>
       </div>
     )
   }
@@ -204,7 +199,7 @@ export function CustomerRevisionForm({ token }: { token: string }) {
               </>
             ) : (
               <>
-                <Image className="h-4 w-4 text-gray-400" />
+                <ImageIcon className="h-4 w-4 text-gray-400" />
                 <span className="text-sm text-gray-500">사진·파일 선택 (여러 개 가능)</span>
               </>
             )}

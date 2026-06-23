@@ -376,62 +376,70 @@ export default async function DashboardPage({
         </div>
       </div>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="flowrit-panel p-4">
-          <div className="flowrit-stat-icon bg-[var(--flowrit-primary-soft)]">
-            <Zap className="h-5 w-5 text-[var(--flowrit-primary)]" />
-          </div>
-          <p className="text-2xl font-bold tracking-tight text-[var(--flowrit-text)]">
-            {activeCount}
-          </p>
-          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
-            진행 중
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-base font-semibold text-gray-900">업무 파이프라인</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            접수, 진행, 수정, 마감 임박 상태를 빠르게 확인합니다.
           </p>
         </div>
-        <div className="flowrit-panel p-4">
-          <div className="flowrit-stat-icon bg-orange-50">
-            <Clock
-              className={`h-5 w-5 ${urgentCount > 0 ? "text-orange-600" : "text-orange-300"}`}
-            />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="flowrit-panel p-4">
+            <div className="flowrit-stat-icon bg-[var(--flowrit-primary-soft)]">
+              <Zap className="h-5 w-5 text-[var(--flowrit-primary)]" />
+            </div>
+            <p className="text-2xl font-bold tracking-tight text-[var(--flowrit-text)]">
+              {activeCount}
+            </p>
+            <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
+              진행 중
+            </p>
           </div>
-          <p
-            className={`text-2xl font-bold tracking-tight ${urgentCount > 0 ? "text-orange-600" : "text-[var(--flowrit-text)]"}`}
-          >
-            {urgentCount}
-          </p>
-          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
-            마감 임박 (2일)
-          </p>
-        </div>
-        <div className="flowrit-panel p-4">
-          <div className="flowrit-stat-icon bg-rose-50">
-            <FilePen
-              className={`h-5 w-5 ${openRevisionCount > 0 ? "text-rose-600" : "text-rose-300"}`}
-            />
+          <div className="flowrit-panel p-4">
+            <div className="flowrit-stat-icon bg-orange-50">
+              <Clock
+                className={`h-5 w-5 ${urgentCount > 0 ? "text-orange-600" : "text-orange-300"}`}
+              />
+            </div>
+            <p
+              className={`text-2xl font-bold tracking-tight ${urgentCount > 0 ? "text-orange-600" : "text-[var(--flowrit-text)]"}`}
+            >
+              {urgentCount}
+            </p>
+            <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
+              마감 임박 (2일)
+            </p>
           </div>
-          <p
-            className={`text-2xl font-bold tracking-tight ${openRevisionCount > 0 ? "text-rose-600" : "text-[var(--flowrit-text)]"}`}
-          >
-            {openRevisionCount}
-          </p>
-          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
-            미완료 수정
-          </p>
-        </div>
-        <div className="flowrit-panel p-4">
-          <div className="flowrit-stat-icon bg-sky-50">
-            <Inbox
-              className={`h-5 w-5 ${pendingInquiryCount > 0 ? "text-sky-600" : "text-sky-300"}`}
-            />
+          <div className="flowrit-panel p-4">
+            <div className="flowrit-stat-icon bg-rose-50">
+              <FilePen
+                className={`h-5 w-5 ${openRevisionCount > 0 ? "text-rose-600" : "text-rose-300"}`}
+              />
+            </div>
+            <p
+              className={`text-2xl font-bold tracking-tight ${openRevisionCount > 0 ? "text-rose-600" : "text-[var(--flowrit-text)]"}`}
+            >
+              {openRevisionCount}
+            </p>
+            <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
+              미완료 수정
+            </p>
           </div>
-          <p
-            className={`text-2xl font-bold tracking-tight ${pendingInquiryCount > 0 ? "text-sky-700" : "text-[var(--flowrit-text)]"}`}
-          >
-            {pendingInquiryCount}
-          </p>
-          <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
-            미확인 주문
-          </p>
+          <div className="flowrit-panel p-4">
+            <div className="flowrit-stat-icon bg-sky-50">
+              <Inbox
+                className={`h-5 w-5 ${pendingInquiryCount > 0 ? "text-sky-600" : "text-sky-300"}`}
+              />
+            </div>
+            <p
+              className={`text-2xl font-bold tracking-tight ${pendingInquiryCount > 0 ? "text-sky-700" : "text-[var(--flowrit-text)]"}`}
+            >
+              {pendingInquiryCount}
+            </p>
+            <p className="mt-0.5 text-xs font-medium text-[var(--flowrit-text-muted)]">
+              미확인 주문
+            </p>
+          </div>
         </div>
       </section>
 
@@ -461,7 +469,7 @@ export default async function DashboardPage({
               <div className="flex flex-col flex-1 min-h-0">
                 <div className="mb-3 px-6 pt-6">
                   <h2 className="text-sm font-semibold text-gray-900">
-                    오늘 처리할 작업
+                    오늘의 우선순위
                   </h2>
                   <p className="mt-1 text-xs text-gray-400">
                     마감 임박 프로젝트와 아직 열려 있는 수정 요청입니다.
@@ -469,13 +477,14 @@ export default async function DashboardPage({
                 </div>
                 <div className="flex-1 flex flex-col px-6 pb-4">
                   {workItems.length === 0 ? (
-                    <p className="rounded-xl border border-dashed border-gray-200 bg-white px-5 py-8 text-center text-sm text-gray-400 flex-1 flex items-center justify-center min-h-[100px]">
-                      급하게 처리할 작업이 없습니다.
-                    </p>
+                    <div className="flowrit-empty-state min-h-[140px] flex-1">
+                      <p className="flowrit-empty-title">급하게 처리할 작업이 없습니다.</p>
+                      <p className="flowrit-empty-description">마감 임박 프로젝트와 열린 수정 요청이 생기면 이곳에 표시됩니다.</p>
+                    </div>
                   ) : (
                     <div className="flex flex-col flex-1">
                       <div className="space-y-2 flex-1">
-                        {showItems.map((item, idx) =>
+                        {showItems.map((item) =>
                           item.type === "project" ? (
                             <Link
                               key={item.data.id}
@@ -567,7 +576,7 @@ export default async function DashboardPage({
                 <div className="mb-3 flex items-center justify-between px-6 pt-6">
                   <div>
                     <h2 className="text-sm font-semibold text-gray-900">
-                      접수 대기
+                      최근 접수
                     </h2>
                     <p className="mt-1 text-xs text-gray-400">
                       프로젝트로 전환할 고객 의뢰입니다.
@@ -584,9 +593,10 @@ export default async function DashboardPage({
                 </div>
                 <div className="flex-1 flex flex-col px-6 pb-4">
                   {inquiries.length === 0 ? (
-                    <p className="rounded-xl border border-dashed border-[var(--flowrit-border)] bg-white px-5 py-8 text-center text-sm text-[var(--flowrit-text-muted)] flex-1 flex items-center justify-center min-h-[100px]">
-                      대기 중인 의뢰가 없습니다.
-                    </p>
+                    <div className="flowrit-empty-state min-h-[140px] flex-1">
+                      <p className="flowrit-empty-title">대기 중인 의뢰가 없습니다.</p>
+                      <p className="flowrit-empty-description">주문서나 문의 폼으로 새 요청이 들어오면 이곳에서 프로젝트로 전환할 수 있습니다.</p>
+                    </div>
                   ) : (
                     <div className="space-y-2 flex-1 flex flex-col">
                       {visibleInquiries.map((inquiry) => (

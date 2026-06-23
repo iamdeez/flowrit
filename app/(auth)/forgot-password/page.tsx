@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react'
 import Link from 'next/link'
+import { MailCheck } from 'lucide-react'
 import { forgotPassword, type ForgotPasswordState } from '@/lib/actions/auth'
 
 const initialState: ForgotPasswordState = {}
@@ -12,14 +13,16 @@ export default function ForgotPasswordPage() {
   if (state.success) {
     return (
       <div className="flowrit-panel-padded text-center">
-        <div className="mb-4 text-4xl">📬</div>
-        <h2 className="mb-2 text-xl font-semibold text-gray-900">이메일을 확인해 주세요</h2>
-        <p className="mb-6 text-sm text-gray-500">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--flowrit-success-soft)] text-[var(--flowrit-success-text)]">
+          <MailCheck className="h-6 w-6" aria-hidden="true" />
+        </div>
+        <h2 className="mb-2 text-xl font-semibold text-[var(--flowrit-text)]">이메일을 확인해 주세요</h2>
+        <p className="mb-6 text-sm leading-6 text-[var(--flowrit-text-muted)]">
           입력하신 이메일 주소로 비밀번호 재설정 링크를 발송했습니다.
           <br />
           링크는 1시간 후 만료됩니다.
         </p>
-        <Link href="/login" className="text-sm text-indigo-600 hover:underline">
+        <Link href="/login" className="flowrit-button-secondary">
           로그인으로 돌아가기
         </Link>
       </div>
@@ -28,8 +31,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flowrit-panel-padded">
-      <h2 className="mb-2 text-xl font-semibold text-gray-900">비밀번호 찾기</h2>
-      <p className="mb-6 text-sm text-gray-500">
+      <h2 className="mb-2 text-xl font-semibold text-[var(--flowrit-text)]">비밀번호 찾기</h2>
+      <p className="mb-6 text-sm leading-6 text-[var(--flowrit-text-muted)]">
         가입 시 사용한 이메일 주소를 입력하면 재설정 링크를 보내드립니다.
       </p>
 
@@ -49,20 +52,20 @@ export default function ForgotPasswordPage() {
         </div>
 
         {state.error && (
-          <p className="text-sm text-red-600">{state.error}</p>
+          <p className="flowrit-form-error">{state.error}</p>
         )}
 
         <button
           type="submit"
           disabled={pending}
-          className="flowrit-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
+          className="flowrit-button-primary w-full"
         >
           {pending ? '발송 중...' : '재설정 링크 받기'}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
-        <Link href="/login" className="text-indigo-600 hover:underline">
+      <p className="mt-4 text-center text-sm text-[var(--flowrit-text-secondary)]">
+        <Link href="/login" className="font-medium text-[var(--flowrit-primary-soft-text)] hover:underline">
           로그인으로 돌아가기
         </Link>
       </p>

@@ -105,12 +105,12 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
               ))}
             </div>
           ) : (
-            <div className="px-5 py-16 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-gray-500">
-                <FolderOpen className="h-5 w-5" />
+            <div className="flowrit-empty-state border-0">
+              <div className="flowrit-empty-icon">
+                <FolderOpen className="h-5 w-5" aria-hidden="true" />
               </div>
-              <p className="text-sm font-medium text-gray-900">연결된 프로젝트가 없습니다.</p>
-              <p className="mt-1 text-sm text-gray-500">T015에서 프로젝트 생성 흐름이 연결됩니다.</p>
+              <p className="flowrit-empty-title">연결된 프로젝트가 없습니다.</p>
+              <p className="flowrit-empty-description">새 프로젝트를 만들 때 이 고객을 선택하면 이곳에 연결됩니다.</p>
             </div>
           )}
         </div>

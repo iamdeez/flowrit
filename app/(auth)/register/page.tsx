@@ -57,27 +57,30 @@ export default function RegisterPage() {
             placeholder="8자 이상"
             className="flowrit-input"
           />
+          <p className="flowrit-form-help">8자 이상으로 입력해 주세요.</p>
         </div>
+
+        {state.error && <p className="flowrit-form-error">{state.error}</p>}
 
         <button
           type="submit"
           disabled={pending}
-          className="flowrit-button-primary w-full disabled:cursor-not-allowed disabled:opacity-50"
+          className="flowrit-button-primary w-full"
         >
           {pending ? '가입 중...' : '가입하기'}
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-500">
+      <p className="mt-4 text-center text-sm text-[var(--flowrit-text-muted)]">
         가입 시{' '}
-        <Link href="/terms" className="hover:underline text-gray-600">이용약관</Link>
+        <Link href="/terms" className="text-[var(--flowrit-text-secondary)] hover:underline">이용약관</Link>
         {' '}및{' '}
-        <Link href="/privacy" className="hover:underline text-gray-600">개인정보처리방침</Link>
+        <Link href="/privacy" className="text-[var(--flowrit-text-secondary)] hover:underline">개인정보처리방침</Link>
         에 동의하게 됩니다.
       </p>
-      <p className="mt-2 text-center text-sm text-gray-600">
+      <p className="mt-2 text-center text-sm text-[var(--flowrit-text-secondary)]">
         이미 계정이 있으신가요?{' '}
-        <Link href="/login" className="text-indigo-600 hover:underline">
+        <Link href="/login" className="font-medium text-[var(--flowrit-primary-soft-text)] hover:underline">
           로그인
         </Link>
       </p>

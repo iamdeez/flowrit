@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { sendNewInquiryEmail } from '@/lib/email'
 import { sendNotification } from '@/lib/notifications'
+import { sendOpsAlert } from '@/lib/ops-alert'
 import { checkWebhookRateLimit } from '@/lib/ratelimit'
 
 // 외부 플랫폼 소스 레이블
@@ -38,6 +39,13 @@ export async function POST(
   // 2. WEBHOOK_SECRET 설정 여부 확인
   const secret = process.env.WEBHOOK_SECRET
   if (!secret) {
+    await sendOpsAlert({
+      level: 'critical',
+      title: 'Webhook secret missing',
+      message: 'WEBHOOK_SECRET이 없어 외부 의뢰 웹훅을 처리할 수 없습니다.',
+      source: 'webhook.intake.config',
+      context: { workspaceSlug: (await params).workspaceSlug },
+    })
     return NextResponse.json(
       { ok: false, error: 'WEBHOOK_SECRET 환경변수가 설정되지 않았습니다.' },
       { status: 503 }
@@ -125,6 +133,18 @@ export async function POST(
     })
   } catch (error) {
     console.error('[webhook] notification failed', { inquiryId: inquiry.id, error })
+    await sendOpsAlert({
+      level: 'warning',
+      title: 'Webhook notification failed',
+      message: '외부 의뢰는 생성되었지만 담당자 알림 발송에 실패했습니다.',
+      source: 'webhook.intake.notification',
+      context: {
+        workspaceId: workspace.id,
+        inquiryId: inquiry.id,
+        source: sourceRaw,
+        error,
+      },
+    })
   }
 
   return NextResponse.json({ ok: true, inquiryId: inquiry.id }, { status: 201 })
