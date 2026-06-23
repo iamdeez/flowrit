@@ -13,13 +13,12 @@ export async function GET(request: Request) {
   }
 
   const now = new Date()
-  const from = new Date(now.getTime() + 23 * 60 * 60 * 1000)
-  const to = new Date(now.getTime() + 25 * 60 * 60 * 1000)
+  const to = new Date(now.getTime() + 48 * 60 * 60 * 1000)
 
   const candidates = await prisma.project.findMany({
     where: {
       archivedAt: null,
-      dueDate: { gte: from, lte: to },
+      dueDate: { gte: now, lte: to },
     },
     include: {
       customer: true,
