@@ -8,6 +8,7 @@ import { seedDefaultWorkflowTemplates } from '@/lib/default-workflow-templates'
 import { sendStageChangedEmail } from '@/lib/email'
 import { sendNotification } from '@/lib/notifications'
 import { isProjectDone } from '@/lib/project-utils'
+import { checkProjectLimit } from '@/lib/plan'
 import type { WorkspaceRole } from '@/lib/types'
 
 export type ProjectFormState = {
@@ -270,6 +271,16 @@ export async function createProject(
   formData: FormData
 ): Promise<ProjectFormState> {
   const workspaceId = await requireWorkspaceId()
+
+  try {
+    await checkProjectLimit(workspaceId)
+  } catch (err) {
+    if (err instanceof Error && err.message === 'PLAN_LIMIT_EXCEEDED:PROJECT') {
+      return { error: 'PLAN_LIMIT_EXCEEDED:PROJECT' }
+    }
+    throw err
+  }
+
   const customerId = stringValue(formData, 'customerId')
   const title = stringValue(formData, 'title')
   const dueDate = parseDueDate(stringValue(formData, 'dueDate'))

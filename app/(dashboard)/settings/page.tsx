@@ -9,6 +9,7 @@ import { DangerZone } from './danger-zone'
 import { IntakeLinkCopy } from './intake-link-copy'
 import { WebhookInfo } from './webhook-info'
 import { OrderFormBuilder } from './order-form-builder'
+import { BillingTab } from './billing-tab'
 import { getOrInitOrderFormFields } from '@/lib/actions/form-fields'
 
 const TABS = [
@@ -16,6 +17,7 @@ const TABS = [
   { key: 'password', label: '비밀번호' },
   { key: 'workspace', label: '워크스페이스' },
   { key: 'orderform', label: '주문서 폼' },
+  { key: 'billing', label: '결제' },
   { key: 'notifications', label: '알림' },
   { key: 'danger', label: '위험 구역' },
 ] as const
@@ -49,7 +51,7 @@ export default async function SettingsPage({
     }),
     prisma.workspace.findUnique({
       where: { id: session.user.workspaceId },
-      select: { id: true, name: true, slug: true },
+      select: { id: true, name: true, slug: true, plan: true },
     }),
   ])
 
@@ -57,10 +59,28 @@ export default async function SettingsPage({
 
   const isOwner = member.role === 'OWNER'
 
-  const orderFormFields =
+  const [orderFormFields, billingData] = await Promise.all([
     (tab === 'orderform' && isOwner)
-      ? await getOrInitOrderFormFields(session.user.workspaceId)
-      : []
+      ? getOrInitOrderFormFields(session.user.workspaceId)
+      : Promise.resolve([]),
+    tab === 'billing'
+      ? prisma.subscription.findUnique({
+          where: { workspaceId: session.user.workspaceId },
+          select: {
+            plan: true,
+            billingCycle: true,
+            status: true,
+            currentPeriodEnd: true,
+            cancelAtPeriodEnd: true,
+            payments: {
+              select: { amount: true, status: true, method: true, paidAt: true, createdAt: true },
+              orderBy: { createdAt: 'desc' },
+              take: 20,
+            },
+          },
+        })
+      : Promise.resolve(null),
+  ])
 
   return (
     <div className="flowrit-page max-w-2xl">
@@ -104,6 +124,13 @@ export default async function SettingsPage({
       )}
       {tab === 'orderform' && isOwner && (
         <OrderFormBuilder fields={orderFormFields} />
+      )}
+      {tab === 'billing' && (
+        <BillingTab
+          isOwner={isOwner}
+          workspacePlan={workspace.plan as string}
+          subscription={billingData}
+        />
       )}
       {tab === 'notifications' && (
         <NotificationForm

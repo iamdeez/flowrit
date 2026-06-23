@@ -33,7 +33,7 @@ model Workspace {
   id               String            @id @default(cuid())
   name             String
   slug             String            @unique
-  plan             String            @default("beta")
+  plan             String            @default("free")
   createdAt        DateTime          @default(now())
   members          WorkspaceMember[]
   notifications     Notification[]
@@ -44,6 +44,8 @@ model Workspace {
   messageTemplates MessageTemplate[]
   invites          WorkspaceInvite[]
   orderFormFields  OrderFormField[]
+  subscription     Subscription?
+  payments         Payment[]
 }
 
 model WorkspaceMember {
@@ -266,4 +268,40 @@ model Notification {
 
   @@index([userId, isRead])
   @@index([workspaceId])
+}
+
+model Subscription {
+  id                 String    @id @default(cuid())
+  workspaceId        String    @unique
+  workspace          Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan               String    @default("free") // "free" | "pro"
+  billingCycle       String?                    // "monthly" | "yearly" | null
+  status             String    @default("active") // "active" | "past_due"
+  billingKey         String?
+  customerKey        String?
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean   @default(false)
+  retryCount         Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  payments           Payment[]
+}
+
+model Payment {
+  id             String       @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace    @relation(fields: [workspaceId], references: [id])
+  subscriptionId String
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  paymentKey     String       @unique
+  orderId        String       @unique
+  amount         Int
+  status         String       // "pending" | "done" | "failed" | "canceled"
+  method         String?
+  failReason     String?
+  paidAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([workspaceId, createdAt])
 }

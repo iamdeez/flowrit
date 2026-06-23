@@ -195,3 +195,44 @@ export async function sendDeadlineReminderEmail(
     `),
   })
 }
+
+export async function sendPaymentFailEmail(
+  toEmail: string,
+  workspaceName: string,
+  isFinal: boolean,
+): Promise<void> {
+  const subject = isFinal
+    ? '[Flowrit] 구독이 중단되었습니다 — 결제 수단을 확인해 주세요'
+    : '[Flowrit] 결제에 실패했습니다 — 카드 정보를 확인해 주세요'
+
+  const body = isFinal
+    ? `
+      <h2 style="margin:0 0 16px;font-size:18px;color:#111827">구독이 중단되었습니다</h2>
+      <p style="margin:0 0 12px;font-size:14px;color:#4b5563">
+        <strong>${escapeHtml(workspaceName)}</strong> 워크스페이스의 Pro 구독 결제가 3회 연속 실패하여
+        무료 플랜으로 전환되었습니다.
+      </p>
+      <p style="margin:0 0 12px;font-size:14px;color:#4b5563">
+        결제 수단을 업데이트하고 다시 구독하시면 Pro 기능을 계속 사용하실 수 있습니다.
+      </p>
+      ${actionLink(`${APP_URL}/settings?tab=billing`, '결제 수단 업데이트')}
+    `
+    : `
+      <h2 style="margin:0 0 16px;font-size:18px;color:#111827">결제에 실패했습니다</h2>
+      <p style="margin:0 0 12px;font-size:14px;color:#4b5563">
+        <strong>${escapeHtml(workspaceName)}</strong> 워크스페이스의 Pro 구독 결제가 실패했습니다.
+        카드 정보를 확인해 주세요.
+      </p>
+      <p style="margin:0 0 12px;font-size:14px;color:#4b5563">
+        결제가 계속 실패할 경우 무료 플랜으로 전환됩니다.
+      </p>
+      ${actionLink(`${APP_URL}/settings?tab=billing`, '결제 정보 확인하기')}
+    `
+
+  await resend.emails.send({
+    from: FROM,
+    to: toEmail,
+    subject,
+    html: emailWrapper(body),
+  })
+}

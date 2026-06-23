@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { sendInviteEmail } from '@/lib/email'
+import { checkMemberLimit } from '@/lib/plan'
 import type { WorkspaceRole } from '@/lib/types'
 
 async function getMemberRole(userId: string, workspaceId: string): Promise<WorkspaceRole | null> {
@@ -43,6 +44,15 @@ export async function inviteTeamMember(
     requireRole(currentRole, 'ADMIN')
   } catch {
     return { error: '권한이 없습니다.' }
+  }
+
+  try {
+    await checkMemberLimit(session.user.workspaceId)
+  } catch (err) {
+    if (err instanceof Error && err.message === 'PLAN_LIMIT_EXCEEDED:MEMBER') {
+      return { error: 'PLAN_LIMIT_EXCEEDED:MEMBER' }
+    }
+    throw err
   }
 
   const email = (formData.get('email') as string)?.trim().toLowerCase()
