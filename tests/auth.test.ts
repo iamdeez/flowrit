@@ -21,6 +21,7 @@ vi.mock('@/lib/default-workflow-templates', () => ({
 }))
 vi.mock('@/lib/email', () => ({
   sendInviteEmail: vi.fn().mockResolvedValue(undefined),
+  sendPasswordResetEmail: vi.fn().mockResolvedValue(undefined),
 }))
 
 beforeEach(() => mockReset(prismaMock))
@@ -249,5 +250,66 @@ describe('registerAndAcceptInvite (SC-002)', () => {
     const result = await registerAndAcceptInvite({}, formData)
 
     expect(result.error).toBeDefined()
+  })
+})
+
+describe('password reset hardening', () => {
+  it('returns a neutral success state even when the email does not exist', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(null)
+
+    const formData = new FormData()
+    formData.set('email', 'missing@example.com')
+
+    const { forgotPassword } = await import('@/lib/actions/auth')
+    const result = await forgotPassword({}, formData)
+
+    expect(result).toEqual({ success: true })
+    expect(prismaMock.passwordResetToken.create).not.toHaveBeenCalled()
+  })
+
+  it('creates a reset token and still returns a neutral success state for an existing email', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({
+      id: 'u-reset',
+      email: 'reset@example.com',
+    } as never)
+    prismaMock.passwordResetToken.create.mockResolvedValue({ id: 'prt-1' } as never)
+
+    const formData = new FormData()
+    formData.set('email', 'reset@example.com')
+
+    const { forgotPassword } = await import('@/lib/actions/auth')
+    const result = await forgotPassword({}, formData)
+
+    expect(result).toEqual({ success: true })
+    expect(prismaMock.passwordResetToken.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          userId: 'u-reset',
+          token: expect.any(String),
+          expiresAt: expect.any(Date),
+        }),
+      }),
+    )
+  })
+
+  it('rejects expired reset tokens without changing the password', async () => {
+    prismaMock.passwordResetToken.findUnique.mockResolvedValue({
+      id: 'prt-expired',
+      token: 'expired-token',
+      userId: 'u-reset',
+      usedAt: null,
+      expiresAt: new Date(Date.now() - 1000),
+    } as never)
+
+    const formData = new FormData()
+    formData.set('token', 'expired-token')
+    formData.set('password', 'new-password-123')
+    formData.set('confirm', 'new-password-123')
+
+    const { resetPassword } = await import('@/lib/actions/auth')
+    const result = await resetPassword({}, formData)
+
+    expect(result.error).toBe('유효하지 않거나 만료된 링크입니다. 다시 요청해 주세요.')
+    expect(prismaMock.$transaction).not.toHaveBeenCalled()
   })
 })

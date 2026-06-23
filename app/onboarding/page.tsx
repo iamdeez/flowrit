@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { FileCheck2, Inbox, PanelsTopLeft } from 'lucide-react'
 import { auth } from '@/lib/auth'
@@ -20,10 +21,10 @@ export default async function OnboardingPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--flowrit-panel-subtle)] px-4 py-16">
       <div className="mb-10 text-center">
-        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--flowrit-primary)] text-sm font-bold text-white">
-          F
+        <div className="mb-3 flex items-center justify-center gap-2">
+          <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={36} height={36} />
+          <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={120} height={20} />
         </div>
-        <span className="text-2xl font-bold text-[var(--flowrit-text)]">Flowrit</span>
         <h1 className="mt-6 text-2xl font-bold text-[var(--flowrit-text)]">
           워크스페이스를 설정해 볼게요
         </h1>

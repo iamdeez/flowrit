@@ -1,7 +1,7 @@
 'use client'
 
 import { Cell, Legend, Pie, PieChart, Tooltip } from 'recharts'
-import { ChartContainer, EmptyChart } from '@/components/ui/chart'
+import { ChartContainer, EmptyChart, chartTooltipProps } from '@/components/ui/chart'
 
 type RevisionSourceChartProps = {
   data: { manual: number; portal: number }
@@ -38,7 +38,7 @@ export function RevisionSourceChart({ data }: RevisionSourceChartProps) {
             />
           ))}
         </Pie>
-        <Tooltip />
+        <Tooltip {...chartTooltipProps} />
         <Legend />
       </PieChart>
     </ChartContainer>

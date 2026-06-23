@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition, useActionState } from 'react'
 import { ChevronUp, ChevronDown, Pencil, Trash2, Plus, X, Lock, GripVertical } from 'lucide-react'
+import { Tooltip } from '@/components/tooltip'
 import {
   addOrderFormField,
   updateOrderFormField,
@@ -70,38 +71,42 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
                 )}
               </div>
               <div className="flex items-center gap-0.5 shrink-0">
-                <button
-                  onClick={() => handleMove(field.id, 'up')}
-                  disabled={index === 0 || pending}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-25 rounded"
-                  title="위로"
-                >
-                  <ChevronUp className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleMove(field.id, 'down')}
-                  disabled={index === fields.length - 1 || pending}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-25 rounded"
-                  title="아래로"
-                >
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => setEditingId(editingId === field.id ? null : field.id)}
-                  className="p-1.5 text-gray-400 hover:text-indigo-600 rounded"
-                  title="편집"
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </button>
-                {!field.isSystem && (
+                <Tooltip content="위로">
                   <button
-                    onClick={() => handleDelete(field.id)}
-                    disabled={pending}
-                    className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-25 rounded"
-                    title="삭제"
+                    onClick={() => handleMove(field.id, 'up')}
+                    disabled={index === 0 || pending}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-25 rounded"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <ChevronUp className="h-4 w-4" />
                   </button>
+                </Tooltip>
+                <Tooltip content="아래로">
+                  <button
+                    onClick={() => handleMove(field.id, 'down')}
+                    disabled={index === fields.length - 1 || pending}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-25 rounded"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                </Tooltip>
+                <Tooltip content="편집">
+                  <button
+                    onClick={() => setEditingId(editingId === field.id ? null : field.id)}
+                    className="p-1.5 text-gray-400 hover:text-indigo-600 rounded"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </Tooltip>
+                {!field.isSystem && (
+                  <Tooltip content="삭제">
+                    <button
+                      onClick={() => handleDelete(field.id)}
+                      disabled={pending}
+                      className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-25 rounded"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </Tooltip>
                 )}
               </div>
             </div>

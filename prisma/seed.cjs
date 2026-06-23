@@ -425,6 +425,20 @@ async function main() {
     )
   }
 
+  // ── 공개 주문서 접수 (ORDER formType) — E2E pending-order CTA 테스트용 ──
+  const orders = [
+    { name: '박서준', contact: 'seojun.park@brand.co.kr', content: '쇼핑몰 로고 및 상세 페이지 디자인 전반적으로 의뢰드립니다.' },
+    { name: '한미래', contact: '010-7744-2233', content: '스타트업 브랜드 아이덴티티 구축 프로젝트입니다. 전반적인 BI 작업을 요청드립니다.' },
+  ]
+
+  for (const ord of orders) {
+    await q(
+      `INSERT INTO "Inquiry" (id, "workspaceId", name, contact, content, status, "formType", "fileUrls", "createdAt")
+       VALUES ($1,$2,$3,$4,$5,'PENDING','ORDER','[]',NOW() - (random() * INTERVAL '2 days'))`,
+      [cuid(), wsId, ord.name, ord.contact, ord.content]
+    )
+  }
+
   // ── 퍼블릭 프로젝트 페이지 (일부) ─────────────────────
   for (const pid of [p1, p7, p9]) {
     await q(

@@ -8,7 +8,8 @@ type Props = {
 }
 
 export default async function IntakePage({ params }: Props) {
-  const { workspaceSlug } = await params
+  const { workspaceSlug: rawSlug } = await params
+  const workspaceSlug = decodeURIComponent(rawSlug)
 
   const workspace = await prisma.workspace.findUnique({
     where: { slug: workspaceSlug },

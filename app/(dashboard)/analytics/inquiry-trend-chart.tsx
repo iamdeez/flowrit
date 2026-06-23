@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { ChartContainer, EmptyChart } from '@/components/ui/chart'
+import { ChartContainer, EmptyChart, chartTooltipProps } from '@/components/ui/chart'
 
 type InquiryTrendChartProps = {
   data: { month: string; count: number }[]
@@ -24,7 +24,7 @@ export function InquiryTrendChart({ data }: InquiryTrendChartProps) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
         <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={12} />
         <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={12} />
-        <Tooltip />
+        <Tooltip {...chartTooltipProps} />
         <Line
           type="monotone"
           dataKey="count"

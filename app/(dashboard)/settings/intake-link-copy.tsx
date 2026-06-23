@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Check, Copy, ExternalLink } from 'lucide-react'
+import { Tooltip } from '@/components/tooltip'
 
 function LinkRow({ label, url }: { label: string; url: string }) {
   const [copied, setCopied] = useState(false)
@@ -18,15 +19,16 @@ function LinkRow({ label, url }: { label: string; url: string }) {
       <div className="flex items-center gap-2 rounded-lg border border-[var(--flowrit-border)] bg-[var(--flowrit-panel-subtle)] px-3 py-2.5">
         <span className="min-w-0 flex-1 truncate text-xs text-[var(--flowrit-text-secondary)]">{url}</span>
         <div className="flex shrink-0 items-center gap-1">
-          <a
-            href={url}
-            target="_blank"
-            rel="noreferrer"
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--flowrit-text-muted)] transition-colors hover:bg-white hover:text-[var(--flowrit-text)]"
-            title="미리보기"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-          </a>
+          <Tooltip content="미리보기">
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--flowrit-text-muted)] transition-colors hover:bg-white hover:text-[var(--flowrit-text)]"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </Tooltip>
           <button
             type="button"
             onClick={handleCopy}

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { getCurrentStage } from '@/lib/project-utils'
 import { ImageGallery } from '@/components/image-gallery'
+import { Tooltip } from '@/components/tooltip'
 import { RevisionCommentForm } from './revision-comment-form'
 
 type Props = {
@@ -110,15 +111,15 @@ export default async function PublicProjectPage({ params }: Props) {
           {project.stages.length > 0 && (
             <div className="mt-5 flex gap-1.5">
               {project.stages.map((stage) => (
-                <div
-                  key={stage.id}
-                  title={stage.customerName}
-                  className={`h-2 flex-1 rounded-full transition-colors ${
-                    stage.order <= (currentStage?.order ?? 0)
-                      ? 'bg-indigo-500'
-                      : 'bg-gray-200'
-                  }`}
-                />
+                <Tooltip key={stage.id} content={stage.customerName} className="flex-1">
+                  <div
+                    className={`h-2 w-full rounded-full transition-colors ${
+                      stage.order <= (currentStage?.order ?? 0)
+                        ? 'bg-indigo-500'
+                        : 'bg-gray-200'
+                    }`}
+                  />
+                </Tooltip>
               ))}
             </div>
           )}

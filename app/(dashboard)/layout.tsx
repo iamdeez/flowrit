@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { SidebarNav } from '@/components/sidebar-nav'
 import { NotificationBell } from '@/components/notification-bell'
 import { MobileNavWrapper } from '@/components/mobile-nav-wrapper'
@@ -49,12 +50,10 @@ export default async function DashboardLayout({
       <aside className="hidden md:flex w-[248px] shrink-0 flex-col border-r border-[var(--flowrit-border)] bg-white">
         <div className="border-b border-[var(--flowrit-border)] px-4 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--flowrit-primary)] text-sm font-bold text-white">
-              F
-            </div>
+            <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={32} height={32} className="shrink-0" />
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-[var(--flowrit-text)]">Flowrit</p>
-              <p className="truncate text-xs text-[var(--flowrit-text-muted)]">
+              <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={80} height={13} />
+              <p className="mt-0.5 truncate text-xs text-[var(--flowrit-text-muted)]">
                 {workspace?.name ?? '나의 작업실'}
               </p>
             </div>
@@ -69,7 +68,10 @@ export default async function DashboardLayout({
         <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b border-[var(--flowrit-border)] bg-[rgba(248,250,252,0.92)] px-4 backdrop-blur md:px-8">
           {/* Mobile: brand + workspace */}
           <div className="md:hidden">
-            <p className="text-sm font-bold leading-none text-[var(--flowrit-primary)]">Flowrit</p>
+            <div className="flex items-center gap-1.5">
+              <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={22} height={22} className="shrink-0" />
+              <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={72} height={12} />
+            </div>
             <p className="mt-0.5 text-[11px] leading-none text-[var(--flowrit-text-muted)]">
               {workspace?.name ?? '나의 작업실'}
             </p>

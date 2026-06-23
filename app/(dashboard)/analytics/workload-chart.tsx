@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { ChartContainer, EmptyChart } from '@/components/ui/chart'
+import { ChartContainer, EmptyChart, chartTooltipProps } from '@/components/ui/chart'
 
 type WorkloadChartProps = {
   data: { name: string; activeProjects: number; pendingRevisions: number }[]
@@ -38,7 +38,7 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
           axisLine={false}
           fontSize={12}
         />
-        <Tooltip />
+        <Tooltip {...chartTooltipProps} />
         <Legend />
         <Bar dataKey="activeProjects" name="진행 중" fill="#4f46e5" radius={[0, 4, 4, 0]} />
         <Bar dataKey="pendingRevisions" name="수정 요청" fill="#f59e0b" radius={[0, 4, 4, 0]} />

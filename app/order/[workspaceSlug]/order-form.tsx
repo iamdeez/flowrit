@@ -27,9 +27,11 @@ async function uploadFile(file: File): Promise<string> {
 
 function FieldInput({ field }: { field: FormFieldRow }) {
   const base = 'flowrit-input mt-1'
+  const id = `field-${field.fieldKey}`
   if (field.type === 'textarea') {
     return (
       <textarea
+        id={id}
         name={field.fieldKey}
         required={field.required}
         rows={field.fieldKey === 'content' ? 6 : 3}
@@ -39,11 +41,11 @@ function FieldInput({ field }: { field: FormFieldRow }) {
     )
   }
   if (field.type === 'date') {
-    return <input name={field.fieldKey} type="date" required={field.required} className={base} />
+    return <input id={id} name={field.fieldKey} type="date" required={field.required} className={base} />
   }
   if (field.type === 'select' && field.options && field.options.length > 0) {
     return (
-      <select name={field.fieldKey} required={field.required} className={base}>
+      <select id={id} name={field.fieldKey} required={field.required} className={base}>
         <option value="">선택해 주세요</option>
         {field.options.map((opt) => (
           <option key={opt} value={opt}>{opt}</option>
@@ -53,6 +55,7 @@ function FieldInput({ field }: { field: FormFieldRow }) {
   }
   return (
     <input
+      id={id}
       name={field.fieldKey}
       type="text"
       required={field.required}
@@ -141,7 +144,7 @@ export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fi
             <div key={row[0].id} className="grid gap-4 sm:grid-cols-2">
               {row.map((field) => (
                 <div key={field.id}>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label htmlFor={`field-${field.fieldKey}`} className="block text-sm font-medium text-gray-700">
                     {field.label}
                     {field.required && <span className="ml-0.5 text-red-500"> *</span>}
                   </label>
@@ -198,7 +201,7 @@ export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fi
 
         return (
           <div key={field.id}>
-            <label className="block text-sm font-medium text-gray-700">
+            <label htmlFor={`field-${field.fieldKey}`} className="block text-sm font-medium text-gray-700">
               {field.label}
               {field.required && <span className="ml-0.5 text-red-500"> *</span>}
             </label>

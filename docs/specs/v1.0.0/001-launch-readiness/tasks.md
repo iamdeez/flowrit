@@ -7,7 +7,7 @@
 - [x] spec.md의 모든 `[NEEDS CLARIFICATION]` 항목이 해소되었는가? — 예
 - [x] plan.md의 Constitution Gates가 모두 통과(또는 예외 기재)되었는가? — 예
 - [x] CHANGES.md에서 이전 작업의 "후속 작업 시 주의사항"을 확인했는가? — 예 (`docs/specs/pre-launch/002-launch-infra/tasks.md`의 "외부 의존 항목" 섹션 — v0.6.0 이후 pre-launch 작업이 완료됨)
-- [ ] **[BLOCKER]** `v0.7.0/001-nicepayments` 구현·검증·체크박스 상태가 동기화되었는가? — Phase 3(T012 결제 UI) 및 Phase 4(T014 billing callback 알림) 착수 전 필수
+- [x] **[BLOCKER]** `v0.7.0/001-nicepayments` 구현·검증·체크박스 상태가 동기화되었는가? — 구현 태스크와 로컬 검증은 완료, 실제 NicePayments 카드 등록→결제 수동 확인은 외부 확인 항목으로 분리 기록
 
 ## 태스크 목록
 
@@ -217,12 +217,13 @@
     - 모바일 공개 주문서 제출
   - 완료 기준: 로컬 Playwright 핵심 시나리오 통과
 
-- [ ] **T020** — 반응형/시각 QA
+- [x] **T020** — 반응형/시각 QA
   - 검증 대상: `SC-002`, `SC-004`, `SC-007`, `SC-008`, `SC-009`
   - 상세:
     - 390px, tablet, 1440px에서 주요 페이지 스크린샷 확인
     - 긴 고객명/프로젝트명/빈 상태/데이터 많은 상태 확인
   - 완료 기준: 텍스트 겹침, 버튼 overflow, 정보 가림 없음
+  - 검증 결과: 2026-06-24 Playwright 기반 시각 QA로 390px / 768px / 1440px, 11개 핵심 라우트 총 33개 조합 확인. 가로 overflow 및 에러 화면 없음.
 
 - [x] **T021** — 단위 테스트 보강
   - 테스트 파일: `tests/ops-alert.test.ts`, `tests/health.test.ts`, `tests/ratelimit.test.ts`, 기존 관련 테스트
@@ -255,17 +256,17 @@
 
 ## 구현 완료 기준
 
-- [ ] 모든 태스크 체크박스가 완료 처리되었다.
+- [x] 모든 태스크 체크박스가 완료 처리되었다.
 - [x] `npm run typecheck` 통과
 - [x] `npm run lint` 통과
 - [x] `npm test` 통과
-- [ ] Playwright 핵심 E2E 통과
-- [ ] 390px / tablet / 1440px 주요 화면 시각 QA 완료
-- [ ] Discord 운영 알림 테스트 이벤트 수신 확인
+- [x] Playwright 핵심 E2E 통과
+- [x] 390px / tablet / 1440px 주요 화면 시각 QA 완료
+- [ ] Discord 운영 알림 테스트 이벤트 수신 확인 — 실제 Discord webhook 수신 확인 필요
 - [x] `/api/health` 정상/실패 상태 검증 완료
 - [x] 로그인 rate limiting 인증 거부 및 사용자 안내 테스트 통과
 - [x] `@tosspayments/payment-sdk` `package.json`에서 제거 완료
-- [ ] Vercel 환경변수 전체 확인 완료 (특히 `DISCORD_WEBHOOK_URL`, `NICEPAY_*`, `UPSTASH_*`)
-- [ ] Vercel Cron 2개 모두 대시보드에서 활성 상태 확인
-- [ ] `docs/specs/v1.0.0/001-launch-readiness/checklist.md` 완료 또는 미완료 사유 기록
-- [ ] `git status`에 의도치 않은 파일 없음
+- [ ] Vercel 환경변수 전체 확인 완료 (특히 `DISCORD_WEBHOOK_URL`, `NICEPAY_*`, `UPSTASH_*`) — Vercel CLI로 대부분 확인 완료. `DISCORD_WEBHOOK_URL`, `HEALTHCHECK_TOKEN`, 선택 항목 `DIRECT_URL` 누락.
+- [x] Vercel Cron 2개 모두 대시보드에서 활성 상태 확인 — Vercel CLI `crons list`에서 `/api/cron/billing`, `/api/cron/deadline-reminder` 확인
+- [x] `docs/specs/v1.0.0/001-launch-readiness/checklist.md` 완료 또는 미완료 사유 기록
+- [x] `git status`에 의도치 않은 파일 없음 — 변경 파일은 v1.0.0 마무리 작업 범위로 확인

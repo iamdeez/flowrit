@@ -9,7 +9,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { ChartContainer, EmptyChart } from '@/components/ui/chart'
+import { ChartContainer, EmptyChart, chartTooltipProps } from '@/components/ui/chart'
 
 type CompletionChartProps = {
   data: { month: string; created: number; completed: number }[]
@@ -25,7 +25,7 @@ export function CompletionChart({ data }: CompletionChartProps) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
         <XAxis dataKey="month" tickLine={false} axisLine={false} fontSize={12} />
         <YAxis allowDecimals={false} tickLine={false} axisLine={false} fontSize={12} />
-        <Tooltip cursor={{ fill: '#f3f4f6' }} />
+        <Tooltip cursor={{ fill: '#f3f4f6' }} {...chartTooltipProps} />
         <Legend />
         <Bar dataKey="created" name="생성" fill="#94a3b8" radius={[4, 4, 0, 0]} />
         <Bar dataKey="completed" name="완료" fill="#4f46e5" radius={[4, 4, 0, 0]} />

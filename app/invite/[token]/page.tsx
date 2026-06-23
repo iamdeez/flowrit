@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { AcceptInviteForm } from './accept-forms'
@@ -34,8 +35,9 @@ export default async function InviteAcceptPage({ params }: Props) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[var(--flowrit-panel-subtle)]">
       <div className="w-full max-w-sm px-4">
-        <div className="text-center mb-8">
-          <span className="text-2xl font-bold text-[var(--flowrit-primary)]">Flowrit</span>
+        <div className="mb-8 flex items-center justify-center gap-2">
+          <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={36} height={36} />
+          <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={120} height={20} />
         </div>
 
         <div className="flowrit-panel-padded p-8">

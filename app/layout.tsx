@@ -5,6 +5,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Flowrit",
   description: "고객 의뢰·수정 요청·납품 링크를 한 곳에서 관리하세요",
+  icons: {
+    icon: '/FLOWRIT_icon_logo.svg',
+    shortcut: '/FLOWRIT_icon_logo.svg',
+    apple: '/FLOWRIT_icon_logo.svg',
+  },
 };
 
 export default function RootLayout({

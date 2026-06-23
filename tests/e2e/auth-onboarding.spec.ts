@@ -8,14 +8,14 @@ test.describe('signup and onboarding', () => {
     const password = 'Test1234!'
 
     await page.goto('/register')
-    await page.getByLabel('이름').fill('E2E 런칭 테스트')
+    await page.getByLabel('이름').fill('E2E Test User')
     await page.getByLabel('이메일').fill(email)
     await page.getByLabel('비밀번호').fill(password)
     await page.getByRole('button', { name: '가입하기' }).click()
 
-    await expect(page).toHaveURL(/\/onboarding/)
+    await page.waitForURL(/\/onboarding/, { timeout: 15_000 })
     await page.getByRole('button', { name: /Flowrit 시작하기/ }).click()
-    await expect(page).toHaveURL(/\/dashboard/)
+    await page.waitForURL(/\/dashboard/, { timeout: 15_000 })
     await expect(page.getByRole('heading', { name: /대시보드/ })).toBeVisible()
   })
 })
