@@ -28,6 +28,25 @@ type Props = {
   subscription: Subscription
 }
 
+export function getBillingPlanMessage({
+  isPro,
+  isPastDue,
+  isCancelScheduled,
+  cancelDone,
+  periodEnd,
+}: {
+  isPro: boolean
+  isPastDue: boolean
+  isCancelScheduled: boolean
+  cancelDone: boolean
+  periodEnd: string | null
+}): string {
+  if (!isPro) return '무료 플랜에서는 프로젝트 3개와 본인 계정만 사용할 수 있습니다.'
+  if (isPastDue) return '결제 확인이 필요합니다. 결제 수단을 확인하거나 다시 업그레이드를 진행해 주세요.'
+  if (isCancelScheduled || cancelDone) return `${periodEnd ?? '현재 결제 기간 종료일'}까지 Pro 기능을 사용할 수 있습니다.`
+  return `${periodEnd ? `${periodEnd}까지` : '현재'} Pro 기능이 활성화되어 있습니다.`
+}
+
 export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
   const [showUpgrade, setShowUpgrade] = useState(false)
   const [canceling, setCanceling] = useState(false)
@@ -40,13 +59,13 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
     : null
   const payments = subscription?.payments ?? []
   const isPastDue = subscription?.status === 'past_due'
-  const planMessage = !isPro
-    ? '무료 플랜에서는 프로젝트 3개와 본인 계정만 사용할 수 있습니다.'
-    : isPastDue
-      ? '결제 확인이 필요합니다. 결제 수단을 확인하거나 다시 업그레이드를 진행해 주세요.'
-      : isCancelScheduled || cancelDone
-        ? `${periodEnd ?? '현재 결제 기간 종료일'}까지 Pro 기능을 사용할 수 있습니다.`
-        : `${periodEnd ? `${periodEnd}까지` : '현재'} Pro 기능이 활성화되어 있습니다.`
+  const planMessage = getBillingPlanMessage({
+    isPro,
+    isPastDue,
+    isCancelScheduled,
+    cancelDone,
+    periodEnd,
+  })
 
   async function handleCancel() {
     if (!confirm('구독을 취소하시겠어요? 현재 결제 기간이 끝나면 무료 플랜으로 전환됩니다.')) return

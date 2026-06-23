@@ -205,7 +205,7 @@
     - CI에서는 `E2E_TEST_EMAIL/PASSWORD` 시크릿을 GitHub Actions Secrets으로 관리하고 Playwright 실행 단계를 별도 job으로 분리 (CI yml은 T017에서 처리)
   - 완료 기준: `npx playwright test --list` 성공
 
-- [ ] **T019** — 핵심 E2E 시나리오 작성
+- [x] **T019** — 핵심 E2E 시나리오 작성
   - 테스트 파일: `tests/e2e/*.spec.ts`
   - 검증 대상: `SC-001`, `SC-003`, `SC-005`, `SC-006`, `SC-013`
   - 시나리오:
@@ -224,7 +224,7 @@
     - 긴 고객명/프로젝트명/빈 상태/데이터 많은 상태 확인
   - 완료 기준: 텍스트 겹침, 버튼 overflow, 정보 가림 없음
 
-- [ ] **T021** — 단위 테스트 보강
+- [x] **T021** — 단위 테스트 보강
   - 테스트 파일: `tests/ops-alert.test.ts`, `tests/health.test.ts`, `tests/ratelimit.test.ts`, 기존 관련 테스트
   - 검증 대상: `SC-008`, `SC-010`, `SC-011`, `SC-015`
   - 상세:
@@ -237,7 +237,7 @@
 
 ### Phase 6. 문서 현행화 및 출시 준비
 
-- [ ] **T022** — context.md / infra.md 현행화
+- [x] **T022** — context.md / infra.md 현행화
   - 구현 파일: `.claude/docs/context.md`, `.claude/docs/infra.md`
   - 관련 요구사항: `FR-016`
   - 상세:
@@ -245,7 +245,7 @@
     - 실제 구현된 내용만 기록
   - 완료 기준: `SC-014` 충족
 
-- [ ] **T023** — 스펙 구현 이력 문서 작성
+- [x] **T023** — 스펙 구현 이력 문서 작성
   - 구현 파일: `docs/specs/v1.0.0/CHANGES.md`, `docs/specs/v1.0.0/DIFF-001-launch-readiness.md`
   - 관련 요구사항: `FR-014`, `FR-016`
   - 상세:
@@ -256,15 +256,15 @@
 ## 구현 완료 기준
 
 - [ ] 모든 태스크 체크박스가 완료 처리되었다.
-- [ ] `npm run typecheck` 통과
-- [ ] `npm run lint` 통과
-- [ ] `npm test` 통과
+- [x] `npm run typecheck` 통과
+- [x] `npm run lint` 통과
+- [x] `npm test` 통과
 - [ ] Playwright 핵심 E2E 통과
 - [ ] 390px / tablet / 1440px 주요 화면 시각 QA 완료
 - [ ] Discord 운영 알림 테스트 이벤트 수신 확인
-- [ ] `/api/health` 정상/실패 상태 검증 완료
-- [ ] 로그인 rate limiting 인증 거부 및 사용자 안내 테스트 통과
-- [ ] `@tosspayments/payment-sdk` `package.json`에서 제거 완료
+- [x] `/api/health` 정상/실패 상태 검증 완료
+- [x] 로그인 rate limiting 인증 거부 및 사용자 안내 테스트 통과
+- [x] `@tosspayments/payment-sdk` `package.json`에서 제거 완료
 - [ ] Vercel 환경변수 전체 확인 완료 (특히 `DISCORD_WEBHOOK_URL`, `NICEPAY_*`, `UPSTASH_*`)
 - [ ] Vercel Cron 2개 모두 대시보드에서 활성 상태 확인
 - [ ] `docs/specs/v1.0.0/001-launch-readiness/checklist.md` 완료 또는 미완료 사유 기록

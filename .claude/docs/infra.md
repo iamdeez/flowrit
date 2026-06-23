@@ -16,7 +16,7 @@
 | dev | 로컬 개발·테스트 | `http://localhost:3000` |
 | prod | 운영 | Vercel 배포, 커스텀 도메인 |
 
-staging 환경은 현재 미구성.
+staging 환경은 현재 미구성. Playwright E2E는 Vercel Preview 또는 별도 staging DB를 대상으로 실행하는 전략을 사용한다.
 
 ---
 
@@ -32,7 +32,8 @@ Vercel Edge (Next.js 16 App Router + proxy.ts)
 Server Actions / API Routes
       ├── Neon PostgreSQL (Prisma + PrismaPg adapter)
       ├── Cloudflare R2 (파일 업로드 — presigned URL)
-      └── Resend (이메일 발송)
+      ├── Resend (이메일 발송)
+      └── Discord Webhook (운영 알림)
 
 Vercel Cron (매일 자정 UTC)
       → GET /api/cron/deadline-reminder
@@ -71,6 +72,13 @@ git push → Vercel 자동 빌드 (next build) → 자동 배포
   - `/api/cron/billing` — `0 0 * * *` (매일 자정 UTC)
 - 보호: `CRON_SECRET` 환경변수로 Bearer 토큰 인증 (`.env.example`에 포함)
 
+### Health Check
+
+- 경로: `GET /api/health`
+- 공개 요청은 `status`, `service`, `timestamp`만 반환한다.
+- 상세 요청은 `Authorization: Bearer HEALTHCHECK_TOKEN` 또는 `?token=`으로 app/database/env 체크를 반환한다.
+- degraded 상태에서는 503을 반환하고, 상세 요청에서 Discord 운영 알림을 전송한다.
+
 ### 롤백 방법
 
 Vercel 대시보드 → Deployments → 이전 배포 → Promote to Production
@@ -79,10 +87,11 @@ Vercel 대시보드 → Deployments → 이전 배포 → Promote to Production
 
 ## 4. 모니터링·로깅
 
-- 현재 별도 모니터링 도구 미설정.
+- Sentry DSN은 `NEXT_PUBLIC_SENTRY_DSN`으로 설정한다.
+- Discord 운영 알림은 `DISCORD_WEBHOOK_URL`이 설정된 production 환경에서만 전송한다.
 - Vercel 빌드·함수 로그: Vercel 대시보드 → Functions 탭.
-- Cron 실패: `console.error('[cron] deadline reminder failed', ...)` 출력 — Vercel 로그에서 확인.
-- 알림 이메일 실패: `console.error('[notification] email failed', ...)` — 개별 실패가 전체 알림을 막지 않음 (fire-and-forget 패턴).
+- Cron 실패, 정기 결제 실패, billing callback 실패, 이메일 실패, webhook 알림 실패는 `sendOpsAlert()`로 sanitized Discord 알림을 보낸다.
+- `lib/ops-sanitize.ts`는 secret/token/password/authorization/cookie/key/dsn/database_url/direct_url/webhook 계열 키를 `[REDACTED]`로 마스킹한다.
 
 ---
 
@@ -93,6 +102,7 @@ Vercel 대시보드 → Deployments → 이전 배포 → Promote to Production
 | Neon PostgreSQL | PrismaPg 기본 연결 풀 | 연결 실패 시 Server Action 에러 반환 |
 | Resend | 재시도 없음 (단건 발송) | 이메일 발송 실패 시 `console.error` 후 계속 진행 |
 | Cloudflare R2 | 재시도 없음 | presigned URL 발급 실패 시 500 에러 반환 |
+| Discord Webhook | 재시도 없음 | 알림 전송 실패는 비즈니스 로직으로 전파하지 않음 |
 
 ---
 
@@ -114,9 +124,18 @@ npm run dev  → http://localhost:3000
 npm test       → Vitest 단위 테스트 실행 (tests/**/*.test.ts)
 npm run typecheck → TypeScript 타입 체크
 npm run lint   → ESLint
+npx playwright test --list → E2E 시나리오 목록 확인
 ```
 
-테스트는 node 환경 (`vitest.config.ts` `environment: 'node'`). Playwright E2E 테스트 파일은 현재 미구성.
+Vitest 테스트는 node 환경 (`vitest.config.ts` `environment: 'node'`).
+
+Playwright E2E:
+
+```
+PLAYWRIGHT_BASE_URL=https://preview-url npx playwright test
+```
+
+Mutating E2E는 `E2E_ALLOW_MUTATION=true`가 필요하며 production 데이터 대상으로 실행하지 않는다.
 
 ### 의존성 구조
 
@@ -132,16 +151,19 @@ npm run lint   → ESLint
 | `sonner` | 토스트 알림 |
 | `tailwindcss@4` | 스타일링 |
 | `vitest@4` | 단위 테스트 |
+| `playwright` | E2E 테스트 |
 
 ---
 
 ## 7. 배포 전 확인 체크리스트
 
-- [ ] Vercel 환경변수 설정 확인: `DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL`, `R2_*`, `RESEND_*`, `NEXT_PUBLIC_APP_URL`, `CRON_SECRET`
-- [ ] `CRON_SECRET` Vercel에 설정되었는가 (cron 보호용, `.env.example`에 없음)
+- [ ] Vercel 환경변수 설정 확인: `DATABASE_URL`, `DIRECT_URL`, `AUTH_SECRET`, `AUTH_URL`, `R2_*`, `RESEND_*`, `NEXT_PUBLIC_APP_URL`, `CRON_SECRET`, `DISCORD_WEBHOOK_URL`, `HEALTHCHECK_TOKEN`, `NICEPAY_*`, `UPSTASH_*`
+- [ ] `CRON_SECRET` Vercel에 설정되었는가
+- [ ] `/api/health` 공개 요약과 토큰 상세 응답 확인
 - [ ] Prisma 마이그레이션 적용 확인 (`prisma/migrations/`)
 - [ ] R2 버킷 Public access 활성화 확인
 - [ ] `NEXT_PUBLIC_APP_URL`이 실제 배포 도메인으로 업데이트되었는가 (고객 공유 링크 기준)
+- [ ] Vercel Cron 2개(`/api/cron/deadline-reminder`, `/api/cron/billing`) 활성 상태 확인
 
 ---
 

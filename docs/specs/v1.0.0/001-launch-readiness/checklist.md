@@ -88,9 +88,9 @@
 
 - [x] `tsc --noEmit`
 - [x] `next build`
-- [ ] `eslint`
-- [ ] `vitest run`
-- [ ] `playwright test --list`
+- [x] `eslint`
+- [x] `vitest run`
+- [x] `playwright test --list`
 - [ ] Core Playwright E2E scenarios pass.
 
 ## 9. Preview And Staging Strategy

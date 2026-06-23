@@ -185,6 +185,8 @@
   },
   "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
+    "specs/v1.0.0/DIFF-001-launch-readiness.md",
+    "specs/v1.0.0/CHANGES.md",
     "specs/v1.0.0/001-launch-readiness/checklist.md",
     "specs/v1.0.0/001-launch-readiness/plan.md",
     "specs/v0.7.0/001-tosspayments/tasks.md",
@@ -218,8 +220,6 @@
     "specs/v0.6.0/002-order-form-management/spec.md",
     "specs/v0.6.0/002-order-form-management",
     "specs/v0.6.0/001-webhook-platform-integration",
-    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-database-design-agent.md",
-    "specs/v0.5.0/001-revision-comment-threads/spec.md",
-    "specs/v0.5.0/001-revision-comment-threads/planning/plan.md"
+    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-database-design-agent.md"
   ]
 }

@@ -15,8 +15,8 @@
 
 - **프로젝트명**: Flowrit
 - **목적**: 프리랜서 디자이너·개발자를 위한 AI Workflow OS SaaS — 고객 관리, 프로젝트 진행, 수정 요청, 납품, 팀 협업을 한 곳에서 처리한다.
-- **현재 버전**: v0.6.0
-- **주요 기술 스택**: Next.js 16.2.9 (App Router), React 19, TypeScript, NextAuth v5 beta (Credentials + JWT), Prisma 7 + PostgreSQL (Neon), Tailwind CSS v4, Vitest 4
+- **현재 버전**: v1.0.0 launch readiness 진행 중
+- **주요 기술 스택**: Next.js 16.2.9 (App Router), React 19, TypeScript, NextAuth v5 beta (Credentials + JWT), Prisma 7 + PostgreSQL (Neon), Tailwind CSS v4, Vitest 4, Playwright
 
 ---
 
@@ -41,8 +41,10 @@ flowrit/
 │   │   └── templates/   ← 워크플로우 템플릿 (OWNER/ADMIN 전용)
 │   ├── api/
 │   │   ├── auth/[...nextauth]/  ← NextAuth 핸들러
-│   │   ├── cron/deadline-reminder/  ← Vercel Cron (매시간)
+│   │   ├── cron/deadline-reminder/  ← Vercel Cron (매일 자정 UTC)
+│   │   ├── cron/billing/            ← Vercel Cron (정기 결제)
 │   │   ├── export/      ← 데이터 내보내기
+│   │   ├── health/      ← 공개 요약 + 토큰 보호 상세 Health Check
 │   │   ├── upload/      ← Presigned URL 발급
 │   │   └── webhooks/intake/[workspaceSlug]/  ← 외부 플랫폼 의뢰 접수 Webhook POST
 │   ├── intake/[workspaceSlug]/  ← 고객 일반 문의 접수 공개 페이지
@@ -55,12 +57,16 @@ flowrit/
 │   ├── db.ts            ← Prisma 클라이언트 싱글턴
 │   ├── email.ts         ← Resend 이메일 발송 함수
 │   ├── notifications.ts ← 인앱·이메일 알림 통합 함수
+│   ├── ops-alert.ts     ← Discord 운영 알림 전송 유틸
+│   ├── ops-sanitize.ts  ← 운영 알림 민감 정보 제거 유틸
+│   ├── ratelimit.ts     ← Upstash Redis rate limiting
 │   ├── storage.ts       ← Cloudflare R2 presigned URL
 │   └── project-utils.ts ← getCurrentStage / isProjectDone
 ├── components/          ← 공유 UI 컴포넌트
 ├── hooks/               ← 클라이언트 커스텀 훅
 ├── prisma/schema.prisma ← 데이터 모델
-├── tests/               ← Vitest 단위 테스트
+├── tests/               ← Vitest 단위 테스트 + Playwright E2E
+├── playwright.config.ts ← E2E desktop/mobile 프로젝트 설정
 ├── proxy.ts             ← 라우트 보호 (Next.js 16 middleware 역할)
 └── vercel.json          ← Vercel Cron 스케줄 설정
 ```
@@ -86,12 +92,17 @@ Prisma Client (lib/db.ts)  →  PostgreSQL (Neon)
 | `lib/storage.ts` | lib | Cloudflare R2 presigned URL 발급, `MAX_UPLOAD_SIZE` 정의 |
 | `lib/email.ts` | lib | Resend 기반 이메일 템플릿 함수 |
 | `lib/project-utils.ts` | lib | `isProjectDone` — 완료 단계 판별 유틸 |
+| `lib/ops-alert.ts` | lib | production 운영 이벤트를 Discord Webhook으로 전송 |
+| `lib/ops-sanitize.ts` | lib | Discord 알림 context에서 secret/token/key 등 민감 키 마스킹 |
+| `lib/ratelimit.ts` | lib | intake/webhook/login rate limit. Upstash 미설정 시 no-op |
 | `lib/actions/revisionComment.ts` | lib/actions | 작업자용 수정 요청 댓글 조회·작성 Server Actions (workspaceId scope) |
 | `lib/actions/publicRevisionComment.ts` | lib/actions | 고객 포털용 수정 요청 댓글 작성 Server Action (token 검증, 인앱 알림) |
 | `lib/actions/testWebhook.ts` | lib/actions | 설정 화면 테스트 의뢰 전송 Server Action |
 | `components/sidebar-nav.tsx` | components | RBAC 기반 메뉴 필터링, pendingOrderCount 뱃지 |
 | `app/api/webhooks/intake/[workspaceSlug]/route.ts` | app/api | Bearer 인증 기반 외부 플랫폼 Webhook 수신 엔드포인트 |
 | `app/api/cron/deadline-reminder/` | app/api | Vercel Cron — 마감 24시간 전 알림 발송 |
+| `app/api/cron/billing/` | app/api | Vercel Cron — Pro 구독 정기 결제 및 실패 처리 |
+| `app/api/health/route.ts` | app/api | Health Check. 공개 요약과 `HEALTHCHECK_TOKEN` 상세 응답 |
 | `app/api/upload/route.ts` | app/api | presigned URL 발급 엔드포인트 (10MB 제한 검증) |
 
 ---
@@ -194,7 +205,18 @@ PENDING → CONVERTED (projectId 연결)
 | PostgreSQL (Neon) | Prisma + PrismaPg adapter | `lib/db.ts` |
 | Cloudflare R2 | AWS SDK S3 호환 + presigned URL | `lib/storage.ts` |
 | Resend | HTTP API (이메일 발송) | `lib/email.ts` |
-| Vercel Cron | GET `/api/cron/deadline-reminder` (매시간) | `app/api/cron/` |
+| Vercel Cron | GET `/api/cron/deadline-reminder`, `/api/cron/billing` (매일 자정 UTC) | `app/api/cron/` |
+| Discord Webhook | production 운영 알림 | `lib/ops-alert.ts` |
+| NicePayments | 카드 인증, 빌링키, 정기 결제 | `lib/billing.ts`, `app/api/billing/callback/route.ts`, `app/api/cron/billing/route.ts` |
+
+### 3.5 1.0.0 UI 구조
+
+- 전역 `loading`, `error`, `global-error`, `not-found` 화면은 Flowrit 브랜드 톤과 복구 액션을 제공한다.
+- 공통 CSS 패턴은 `app/globals.css`의 `flowrit-*` 클래스에 정리되어 있다.
+- 대시보드는 오늘의 우선순위, 업무 파이프라인, 최근 접수, 기간별 지표 중심으로 읽는다.
+- 프로젝트 상세는 고객 공유 링크, 수정 요청, 납품물, 타임라인/메시지 영역을 분리한다.
+- 주문서 관리는 접수 → 검토 → 전환 흐름과 PENDING 주문의 프로젝트 전환 CTA를 우선한다.
+- 공개 주문서, 문의, 고객 포털은 제출 후 다음 단계 안내와 성공 상태를 보여준다.
 
 ---
 
@@ -252,6 +274,7 @@ Workspace
 | WorkspaceRole enum 미정의 | `schema.prisma`의 role 필드가 `String`으로 선언됨 (Prisma enum 미사용). `lib/types.ts`에 TypeScript 타입만 존재. 잘못된 문자열 저장을 DB 레벨에서 막지 못함. | WorkspaceMember, WorkspaceInvite | — |
 | JWT 세션 단일 워크스페이스 | JWT에 workspaceId 하나만 저장. 복수 워크스페이스 멤버인 경우 재로그인으로만 전환 가능. | 인증, 워크스페이스 전환 UX | — |
 | 테스트 Prisma mock | `tests/setup.ts`에 next/cache·next/navigation·next-auth mock만 설정. Prisma는 각 테스트 파일에서 개별 mock. 일관성 주의 필요. | tests/ | — |
+| E2E mutating tests | Playwright 테스트 중 가입/주문서/수정 요청은 `E2E_ALLOW_MUTATION=true`일 때만 실행한다. preview/staging 데이터만 사용해야 한다. | tests/e2e | v1.0.0 |
 
 ---
 
