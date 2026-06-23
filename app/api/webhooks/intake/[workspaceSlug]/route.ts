@@ -59,6 +59,12 @@ export async function POST(
   if (!content) {
     return NextResponse.json({ ok: false, error: 'content 필드가 필요합니다.' }, { status: 422 })
   }
+  if (name.length > 200) {
+    return NextResponse.json({ ok: false, error: 'name은 200자 이하여야 합니다.' }, { status: 422 })
+  }
+  if (content.length > 10000) {
+    return NextResponse.json({ ok: false, error: 'content는 10,000자 이하여야 합니다.' }, { status: 422 })
+  }
 
   // 5. 워크스페이스 조회
   const { workspaceSlug } = await params

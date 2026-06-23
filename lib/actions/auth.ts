@@ -1,10 +1,12 @@
 'use server'
 
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { signIn, signOut } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { AuthError } from 'next-auth'
 import { seedDefaultWorkflowTemplates } from '@/lib/default-workflow-templates'
+import { sendPasswordResetEmail } from '@/lib/email'
 
 function generateSlug(name: string): string {
   const base = name
@@ -103,4 +105,69 @@ export async function login(
 
 export async function logout() {
   await signOut({ redirectTo: '/login' })
+}
+
+export type ForgotPasswordState = { error?: string; success?: boolean }
+
+export async function forgotPassword(
+  _prevState: ForgotPasswordState,
+  formData: FormData
+): Promise<ForgotPasswordState> {
+  const email = (formData.get('email') as string)?.trim().toLowerCase()
+
+  if (!email) {
+    return { error: '이메일을 입력해 주세요.' }
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } })
+
+  if (user) {
+    const token = crypto.randomBytes(32).toString('hex')
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1시간
+
+    await prisma.passwordResetToken.create({
+      data: { token, userId: user.id, expiresAt },
+    })
+
+    await sendPasswordResetEmail(email, token).catch(() => {
+      // 이메일 발송 실패는 조용히 처리 — 토큰은 DB에 남음
+    })
+  }
+
+  // 이메일 열거 방어: 사용자 존재 여부와 무관하게 성공 응답
+  return { success: true }
+}
+
+export type ResetPasswordState = { error?: string; success?: boolean }
+
+export async function resetPassword(
+  _prevState: ResetPasswordState,
+  formData: FormData
+): Promise<ResetPasswordState> {
+  const token = formData.get('token') as string
+  const password = formData.get('password') as string
+  const confirm = formData.get('confirm') as string
+
+  if (!password || password.length < 8) {
+    return { error: '비밀번호는 8자 이상이어야 합니다.' }
+  }
+
+  if (password !== confirm) {
+    return { error: '비밀번호가 일치하지 않습니다.' }
+  }
+
+  const record = await prisma.passwordResetToken.findUnique({ where: { token } })
+
+  if (!record || record.usedAt || record.expiresAt < new Date()) {
+    return { error: '유효하지 않거나 만료된 링크입니다. 다시 요청해 주세요.' }
+  }
+
+  const hashed = await bcrypt.hash(password, 10)
+
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: record.userId }, data: { password: hashed } }),
+    prisma.passwordResetToken.update({ where: { id: record.id }, data: { usedAt: new Date() } }),
+  ])
+
+  return { success: true }
 }

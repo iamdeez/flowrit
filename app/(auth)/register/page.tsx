@@ -68,7 +68,14 @@ export default function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-4 text-center text-sm text-gray-500">
+        가입 시{' '}
+        <Link href="/terms" className="hover:underline text-gray-600">이용약관</Link>
+        {' '}및{' '}
+        <Link href="/privacy" className="hover:underline text-gray-600">개인정보처리방침</Link>
+        에 동의하게 됩니다.
+      </p>
+      <p className="mt-2 text-center text-sm text-gray-600">
         이미 계정이 있으신가요?{' '}
         <Link href="/login" className="text-indigo-600 hover:underline">
           로그인

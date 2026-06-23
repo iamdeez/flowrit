@@ -185,6 +185,11 @@
   },
   "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
+    "specs/pre-launch/002-launch-infra/tasks.md",
+    "specs/pre-launch/001-password-reset/tasks.md",
+    "specs/pre-launch/001-password-reset/spec.md",
+    "specs/pre-launch/002-launch-infra",
+    "specs/pre-launch/001-password-reset",
     "specs/v0.6.0/002-order-form-management/tasks.md",
     "specs/v0.6.0/001-webhook-platform-integration/tasks.md",
     "specs/v0.6.0/001-webhook-platform-integration/spec.md",
@@ -215,11 +220,6 @@
     "specs/v0.5.0/001-revision-comment-threads/test",
     "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-development-agent.md",
     "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-002-test-agent-authoring.md",
-    "specs/v0.5.0/001-revision-comment-threads/db-design/migrations/20260622134000_add_revision_comment_threads/migration.sql",
-    "specs/v0.5.0/001-revision-comment-threads/db-design/migrations/20260622134000_add_revision_comment_threads",
-    "specs/v0.5.0/001-revision-comment-threads/db-design/data-model.md",
-    "specs/v0.5.0/001-revision-comment-threads/design/tasks.md",
-    "specs/v0.5.0/001-revision-comment-threads/gaps.md",
-    "specs/v0.5.0/001-revision-comment-threads/design/research.md"
+    "specs/v0.5.0/001-revision-comment-threads/db-design/data-model.md"
   ]
 }

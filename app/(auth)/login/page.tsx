@@ -53,12 +53,17 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
-        아직 계정이 없으신가요?{' '}
-        <Link href="/register" className="text-indigo-600 hover:underline">
-          가입하기
+      <div className="mt-4 flex flex-col items-center gap-2 text-sm text-gray-600">
+        <Link href="/forgot-password" className="text-gray-500 hover:text-indigo-600 hover:underline">
+          비밀번호를 잊으셨나요?
         </Link>
-      </p>
+        <span>
+          아직 계정이 없으신가요?{' '}
+          <Link href="/register" className="text-indigo-600 hover:underline">
+            가입하기
+          </Link>
+        </span>
+      </div>
     </div>
   )
 }

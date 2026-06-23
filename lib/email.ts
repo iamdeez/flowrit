@@ -148,6 +148,29 @@ export async function sendRevisionCommentReplyEmail(
   })
 }
 
+export async function sendPasswordResetEmail(
+  to: string,
+  resetToken: string
+): Promise<void> {
+  const resetUrl = `${APP_URL}/reset-password/${resetToken}`
+
+  await resend.emails.send({
+    from: FROM,
+    to,
+    subject: '[Flowrit] 비밀번호 재설정 안내',
+    html: emailWrapper(`
+      <h1 style="margin:0 0 12px;font-size:20px;color:#111827">비밀번호 재설정</h1>
+      <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#4b5563">
+        비밀번호 재설정 요청이 접수되었습니다. 아래 버튼을 클릭하여 새 비밀번호를 설정하세요.
+      </p>
+      ${actionLink(resetUrl, '비밀번호 재설정하기')}
+      <p style="color:#888;font-size:12px;margin-top:24px">
+        이 링크는 1시간 후 만료됩니다. 본인이 요청하지 않았다면 이 이메일을 무시하세요.
+      </p>
+    `),
+  })
+}
+
 export async function sendDeadlineReminderEmail(
   to: string,
   payload: {

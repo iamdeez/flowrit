@@ -17,6 +17,7 @@ model User {
   memberships          WorkspaceMember[]
   notifications        Notification[]
   sessions             Session[]
+  passwordResetTokens  PasswordResetToken[]
 }
 
 model Session {
@@ -86,6 +87,8 @@ model Project {
   assets         Asset[]
   events         TimelineEvent[]
   publicPage     PublicProjectPage?
+
+  @@index([workspaceId])
 }
 
 model WorkflowTemplate {
@@ -130,6 +133,8 @@ model RevisionRequest {
   createdAt  DateTime @default(now())
   project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   comments   RevisionComment[]
+
+  @@index([projectId, status])
 }
 
 model RevisionComment {
@@ -184,6 +189,8 @@ model Inquiry {
   projectId   String?
   createdAt   DateTime  @default(now())
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
 }
 
 model OrderFormField {
@@ -232,6 +239,16 @@ model WorkspaceInvite {
   status      String    @default("PENDING")
   createdAt   DateTime  @default(now())
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
