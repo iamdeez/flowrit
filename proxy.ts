@@ -1,5 +1,6 @@
-import { auth } from '@/lib/auth'
+import NextAuth from 'next-auth'
 import { NextResponse } from 'next/server'
+import { authConfig } from '@/lib/auth.config'
 
 const MEMBER_BLOCKED_PATHS = [
   '/customers',
@@ -9,6 +10,8 @@ const MEMBER_BLOCKED_PATHS = [
   '/team',
   '/settings',
 ]
+
+const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
   function redirectTo(pathname: string) {
