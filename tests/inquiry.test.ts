@@ -6,6 +6,16 @@ const prismaMock = mockDeep<PrismaClient>()
 
 vi.mock('@/lib/db', () => ({ prisma: prismaMock }))
 vi.mock('@/lib/auth', () => ({ auth: vi.fn() }))
+vi.mock('next/headers', () => ({
+  headers: vi.fn().mockResolvedValue(new Headers()),
+}))
+vi.mock('@/lib/ratelimit', () => ({
+  checkIntakeRateLimit: vi.fn().mockResolvedValue({ limited: false }),
+  checkWebhookRateLimit: vi.fn().mockResolvedValue({ limited: false }),
+}))
+vi.mock('@/lib/actions/form-fields', () => ({
+  getOrInitOrderFormFields: vi.fn(),
+}))
 
 const SESSION = {
   user: { id: 'u1', workspaceId: 'ws1', email: 'test@example.com', name: 'Test' },
@@ -136,6 +146,118 @@ describe('getPendingInquiries (SC-011)', () => {
       })
     )
     expect(result).toHaveLength(2)
+  })
+})
+
+// SC-012: 주문서 폼 제출
+describe('submitOrder (SC-012)', () => {
+  const DEFAULT_FIELDS = [
+    { fieldKey: 'name', label: '이름', type: 'text', required: true, isSystem: true, order: 0, placeholder: null, options: null },
+    { fieldKey: 'contact', label: '연락처', type: 'text', required: false, isSystem: true, order: 1, placeholder: null, options: null },
+    { fieldKey: 'content', label: '의뢰 내용', type: 'textarea', required: true, isSystem: true, order: 4, placeholder: null, options: null },
+  ]
+
+  it('유효한 주문서 폼 제출 → formType ORDER로 Inquiry 생성', async () => {
+    const { getOrInitOrderFormFields } = await import('@/lib/actions/form-fields')
+    vi.mocked(getOrInitOrderFormFields).mockResolvedValue(DEFAULT_FIELDS as never)
+    prismaMock.workspace.findUnique.mockResolvedValue({ id: 'ws1' } as never)
+    prismaMock.inquiry.create.mockResolvedValue({ id: 'inq-order-1' } as never)
+
+    const formData = new FormData()
+    formData.set('name', '김주문')
+    formData.set('content', '웨딩 촬영 부탁드립니다.')
+
+    const { submitOrder } = await import('@/lib/actions/inquiry')
+    const result = await submitOrder('my-workspace', {}, formData)
+
+    expect(result.success).toBe(true)
+    expect(prismaMock.inquiry.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          workspaceId: 'ws1',
+          name: '김주문',
+          formType: 'ORDER',
+        }),
+      })
+    )
+  })
+
+  it('존재하지 않는 워크스페이스 → 에러 반환', async () => {
+    prismaMock.workspace.findUnique.mockResolvedValue(null)
+
+    const formData = new FormData()
+    formData.set('name', '김주문')
+    formData.set('content', '내용')
+
+    const { submitOrder } = await import('@/lib/actions/inquiry')
+    const result = await submitOrder('nonexistent', {}, formData)
+
+    expect(result.error).toBeDefined()
+    expect(prismaMock.inquiry.create).not.toHaveBeenCalled()
+  })
+
+  it('필수 필드(이름) 누락 → 에러 반환', async () => {
+    const { getOrInitOrderFormFields } = await import('@/lib/actions/form-fields')
+    vi.mocked(getOrInitOrderFormFields).mockResolvedValue(DEFAULT_FIELDS as never)
+    prismaMock.workspace.findUnique.mockResolvedValue({ id: 'ws1' } as never)
+
+    const formData = new FormData()
+    formData.set('name', '')
+    formData.set('content', '내용')
+
+    const { submitOrder } = await import('@/lib/actions/inquiry')
+    const result = await submitOrder('my-workspace', {}, formData)
+
+    expect(result.error).toBeDefined()
+    expect(prismaMock.inquiry.create).not.toHaveBeenCalled()
+  })
+
+  it('커스텀 필수 필드 누락 → 에러 반환', async () => {
+    const { getOrInitOrderFormFields } = await import('@/lib/actions/form-fields')
+    const fieldsWithCustom = [
+      ...DEFAULT_FIELDS,
+      { fieldKey: 'budget', label: '예산', type: 'text', required: true, isSystem: false, order: 3, placeholder: null, options: null },
+    ]
+    vi.mocked(getOrInitOrderFormFields).mockResolvedValue(fieldsWithCustom as never)
+    prismaMock.workspace.findUnique.mockResolvedValue({ id: 'ws1' } as never)
+
+    const formData = new FormData()
+    formData.set('name', '김주문')
+    formData.set('content', '내용')
+    // budget 미입력
+
+    const { submitOrder } = await import('@/lib/actions/inquiry')
+    const result = await submitOrder('my-workspace', {}, formData)
+
+    expect(result.error).toContain('예산')
+  })
+})
+
+// SC-011: 의뢰 닫기
+describe('dismissInquiry (SC-011)', () => {
+  it('OWNER가 의뢰를 닫으면 상태가 DISMISSED로 변경된다', async () => {
+    prismaMock.inquiry.findFirst.mockResolvedValue({ id: 'inq-1', workspaceId: 'ws1' } as never)
+    prismaMock.inquiry.update.mockResolvedValue({} as never)
+
+    const { dismissInquiry } = await import('@/lib/actions/inquiry')
+    const result = await dismissInquiry('inq-1')
+
+    expect(result.error).toBeUndefined()
+    expect(prismaMock.inquiry.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: { status: 'DISMISSED' },
+      })
+    )
+  })
+
+  it('다른 워크스페이스 의뢰 닫기 시도 → 에러 반환', async () => {
+    prismaMock.inquiry.findFirst.mockResolvedValue(null)
+
+    const { dismissInquiry } = await import('@/lib/actions/inquiry')
+    const result = await dismissInquiry('inq-other')
+
+    expect(result.error).toBeDefined()
+    expect(prismaMock.inquiry.update).not.toHaveBeenCalled()
   })
 })
 
