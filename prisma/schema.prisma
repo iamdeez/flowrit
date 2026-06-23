@@ -42,6 +42,7 @@ model Workspace {
   inquiries        Inquiry[]
   messageTemplates MessageTemplate[]
   invites          WorkspaceInvite[]
+  orderFormFields  OrderFormField[]
 }
 
 model WorkspaceMember {
@@ -177,11 +178,29 @@ model Inquiry {
   contact     String?
   content     String
   fileUrls    Json      @default("[]")
+  fieldValues Json      @default("{}")
   status      String    @default("PENDING")
   formType    String    @default("INQUIRY")
   projectId   String?
   createdAt   DateTime  @default(now())
   workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+}
+
+model OrderFormField {
+  id          String    @id @default(cuid())
+  workspaceId String
+  label       String
+  fieldKey    String
+  type        String
+  placeholder String?
+  required    Boolean   @default(false)
+  order       Int
+  options     Json?
+  isSystem    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, fieldKey])
 }
 
 model MessageTemplate {

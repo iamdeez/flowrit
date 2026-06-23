@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from 'react'
 import { Loader2, Paperclip, X } from 'lucide-react'
 import { submitOrder, type InquiryFormState } from '@/lib/actions/inquiry'
+import type { FormFieldRow } from '@/lib/actions/form-fields'
 
 type UploadedFile = { name: string; url: string }
 
@@ -18,16 +19,50 @@ async function uploadFile(file: File): Promise<string> {
     const data = (await res.json()) as { error?: string }
     throw new Error(data.error ?? '업로드 준비에 실패했습니다.')
   }
-  const { presignedUrl, publicUrl } = (await res.json()) as {
-    presignedUrl: string
-    publicUrl: string
-  }
+  const { presignedUrl, publicUrl } = (await res.json()) as { presignedUrl: string; publicUrl: string }
   const putRes = await fetch(presignedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
   if (!putRes.ok) throw new Error('파일 업로드에 실패했습니다.')
   return publicUrl
 }
 
-export function OrderForm({ workspaceSlug }: { workspaceSlug: string }) {
+function FieldInput({ field }: { field: FormFieldRow }) {
+  const base = 'flowrit-input mt-1'
+  if (field.type === 'textarea') {
+    return (
+      <textarea
+        name={field.fieldKey}
+        required={field.required}
+        rows={field.fieldKey === 'content' ? 6 : 3}
+        className={base}
+        placeholder={field.placeholder ?? undefined}
+      />
+    )
+  }
+  if (field.type === 'date') {
+    return <input name={field.fieldKey} type="date" required={field.required} className={base} />
+  }
+  if (field.type === 'select' && field.options && field.options.length > 0) {
+    return (
+      <select name={field.fieldKey} required={field.required} className={base}>
+        <option value="">선택해 주세요</option>
+        {field.options.map((opt) => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
+    )
+  }
+  return (
+    <input
+      name={field.fieldKey}
+      type="text"
+      required={field.required}
+      className={base}
+      placeholder={field.placeholder ?? undefined}
+    />
+  )
+}
+
+export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fields: FormFieldRow[] }) {
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -48,7 +83,7 @@ export function OrderForm({ workspaceSlug }: { workspaceSlug: string }) {
     setUploading(true)
     try {
       const uploaded = await Promise.all(
-        selected.map(async (file) => ({ name: file.name, url: await uploadFile(file) }))
+        selected.map(async (file) => ({ name: file.name, url: await uploadFile(file) })),
       )
       setFiles((prev) => [...prev, ...uploaded])
     } catch (err) {
@@ -63,99 +98,109 @@ export function OrderForm({ workspaceSlug }: { workspaceSlug: string }) {
     return (
       <div className="rounded-xl border border-green-200 bg-green-50 p-8 text-center">
         <p className="text-lg font-semibold text-green-800">주문서가 접수되었습니다</p>
-        <p className="mt-2 text-sm text-green-700">
-          담당자가 확인 후 연락드리겠습니다. 감사합니다.
-        </p>
+        <p className="mt-2 text-sm text-green-700">담당자가 확인 후 연락드리겠습니다. 감사합니다.</p>
       </div>
     )
+  }
+
+  // Group consecutive non-file fields into rows (pair up short fields side by side)
+  const PAIR_TYPES = new Set(['text', 'date'])
+  const rows: FormFieldRow[][] = []
+  let i = 0
+  while (i < fields.length) {
+    const field = fields[i]
+    if (field.type === 'file') {
+      rows.push([field])
+      i++
+    } else if (
+      PAIR_TYPES.has(field.type) &&
+      i + 1 < fields.length &&
+      PAIR_TYPES.has(fields[i + 1].type) &&
+      fields[i + 1].type !== 'file'
+    ) {
+      rows.push([field, fields[i + 1]])
+      i += 2
+    } else {
+      rows.push([field])
+      i++
+    }
   }
 
   return (
     <form action={action} className="space-y-5">
       <input type="hidden" name="fileUrls" value={JSON.stringify(files.map((f) => f.url))} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            이름 <span className="text-red-500">*</span>
-          </label>
-          <input name="name" type="text" required className="flowrit-input mt-1" placeholder="홍길동" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">연락처</label>
-          <input
-            name="contact"
-            type="text"
-            className="flowrit-input mt-1"
-            placeholder="010-0000-0000 또는 이메일"
-          />
-        </div>
-      </div>
+      {rows.map((row) => {
+        if (row.length === 2) {
+          return (
+            <div key={row[0].id} className="grid gap-4 sm:grid-cols-2">
+              {row.map((field) => (
+                <div key={field.id}>
+                  <label className="block text-sm font-medium text-gray-700">
+                    {field.label}
+                    {field.required && <span className="ml-0.5 text-red-500"> *</span>}
+                  </label>
+                  <FieldInput field={field} />
+                </div>
+              ))}
+            </div>
+          )
+        }
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">희망 날짜</label>
-          <input name="preferredDate" type="date" className="flowrit-input mt-1" />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">예산</label>
-          <input
-            name="budget"
-            type="text"
-            className="flowrit-input mt-1"
-            placeholder="예: 50만원 이상"
-          />
-        </div>
-      </div>
+        const field = row[0]
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          의뢰 내용 <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          name="content"
-          required
-          rows={6}
-          className="flowrit-input mt-1"
-          placeholder="원하시는 내용, 일정, 참고사항 등을 자유롭게 적어주세요."
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">
-          참고 파일 첨부 <span className="text-xs text-gray-400">(각 10MB 이하)</span>
-        </label>
-        <div className="mt-1">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            className="flowrit-button-secondary px-3 disabled:opacity-50"
-          >
-            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
-            {uploading ? '업로드 중...' : '파일 선택'}
-          </button>
-          <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileChange} />
-        </div>
-        {uploadError && <p className="mt-1.5 text-xs text-red-600">{uploadError}</p>}
-        {files.length > 0 && (
-          <ul className="mt-2 space-y-1">
-            {files.map((f) => (
-              <li key={f.url} className="flex items-center gap-2 text-sm text-gray-600">
-                <Paperclip className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                <span className="truncate">{f.name}</span>
+        if (field.type === 'file') {
+          return (
+            <div key={field.id}>
+              <label className="block text-sm font-medium text-gray-700">
+                {field.label}
+                {field.required && <span className="ml-0.5 text-red-500"> *</span>}
+                <span className="ml-1 text-xs text-gray-400">(각 10MB 이하)</span>
+              </label>
+              <div className="mt-1">
                 <button
                   type="button"
-                  onClick={() => setFiles((prev) => prev.filter((x) => x.url !== f.url))}
-                  className="ml-auto shrink-0 text-gray-400 hover:text-red-500"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flowrit-button-secondary px-3 disabled:opacity-50"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
+                  {uploading ? '업로드 중...' : '파일 선택'}
                 </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileChange} />
+              </div>
+              {uploadError && <p className="mt-1.5 text-xs text-red-600">{uploadError}</p>}
+              {files.length > 0 && (
+                <ul className="mt-2 space-y-1">
+                  {files.map((f) => (
+                    <li key={f.url} className="flex items-center gap-2 text-sm text-gray-600">
+                      <Paperclip className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                      <span className="truncate">{f.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setFiles((prev) => prev.filter((x) => x.url !== f.url))}
+                        className="ml-auto shrink-0 text-gray-400 hover:text-red-500"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )
+        }
+
+        return (
+          <div key={field.id}>
+            <label className="block text-sm font-medium text-gray-700">
+              {field.label}
+              {field.required && <span className="ml-0.5 text-red-500"> *</span>}
+            </label>
+            <FieldInput field={field} />
+          </div>
+        )
+      })}
 
       {state.error && (
         <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>

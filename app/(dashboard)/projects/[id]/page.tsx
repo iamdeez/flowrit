@@ -72,8 +72,9 @@ export default async function ProjectDetailPage({
   const hdrs = await headers()
   const proto = hdrs.get('x-forwarded-proto') ?? 'http'
   const host = hdrs.get('host') ?? 'localhost:3000'
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? `${proto}://${host}`
   const shareLink = project.publicPage?.token
-    ? `${proto}://${host}/p/${project.publicPage.token}`
+    ? `${appUrl}/p/${project.publicPage.token}`
     : '(공유 링크 없음)'
 
   return (

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Reference code from other projects — not part of this app
+    "_reference/**",
+    // Seed file uses CJS require() by design
+    "prisma/seed.cjs",
   ]),
 ]);
 

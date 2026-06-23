@@ -11,8 +11,15 @@ const MEMBER_BLOCKED_PATHS = [
 ]
 
 export default auth((req) => {
+  function redirectTo(pathname: string) {
+    const url = req.nextUrl.clone()
+    url.pathname = pathname
+    url.search = ''
+    return NextResponse.redirect(url)
+  }
+
   if (!req.auth) {
-    return NextResponse.redirect(new URL('/login', req.url))
+    return redirectTo('/login')
   }
 
   const role = req.auth.user?.role
@@ -22,7 +29,7 @@ export default auth((req) => {
     role === 'MEMBER' &&
     MEMBER_BLOCKED_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))
   ) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+    return redirectTo('/dashboard')
   }
 })
 

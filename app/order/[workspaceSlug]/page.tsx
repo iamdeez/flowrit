@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
+import { getOrInitOrderFormFields } from '@/lib/actions/form-fields'
 import { OrderForm } from './order-form'
 
 type Props = {
@@ -11,6 +12,8 @@ export default async function OrderPage({ params }: Props) {
 
   const workspace = await prisma.workspace.findUnique({ where: { slug: workspaceSlug } })
   if (!workspace) notFound()
+
+  const fields = await getOrInitOrderFormFields(workspace.id)
 
   return (
     <div className="min-h-screen bg-[var(--flowrit-panel-subtle)]">
@@ -24,7 +27,7 @@ export default async function OrderPage({ params }: Props) {
         </div>
 
         <section className="flowrit-panel-padded">
-          <OrderForm workspaceSlug={workspaceSlug} />
+          <OrderForm workspaceSlug={workspaceSlug} fields={fields} />
         </section>
 
         <p className="mt-6 text-center text-xs text-gray-400">Powered by Flowrit</p>

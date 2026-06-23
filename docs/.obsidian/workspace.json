@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "specs/v0.5.0/CHANGES.md",
+                "file": "specs/v0.6.0/CHANGES.md",
                 "mode": "source",
                 "source": false
               },
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "specs/v0.5.0/CHANGES.md",
+                "file": "specs/v0.6.0/CHANGES.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,7 +113,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "specs/v0.5.0/CHANGES.md",
+                "file": "specs/v0.6.0/CHANGES.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
@@ -156,7 +156,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "specs/v0.5.0/CHANGES.md",
+                "file": "specs/v0.6.0/CHANGES.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
@@ -185,13 +185,16 @@
   },
   "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
-    "specs/v0.6.0/CHANGES.md",
     "specs/v0.6.0/002-order-form-management/tasks.md",
+    "specs/v0.6.0/001-webhook-platform-integration/tasks.md",
+    "specs/v0.6.0/001-webhook-platform-integration/spec.md",
+    "specs/v0.6.0/001-webhook-platform-integration/plan.md",
+    "specs/v0.5.0/CHANGES.md",
+    "specs/pre-launch/CHECKLIST.md",
+    "specs/pre-launch",
+    "specs/v0.6.0/CHANGES.md",
     "specs/v0.6.0/002-order-form-management/plan.md",
     "specs/v0.6.0/002-order-form-management/spec.md",
-    "specs/v0.6.0/001-webhook-platform-integration/tasks.md",
-    "specs/v0.6.0/001-webhook-platform-integration/plan.md",
-    "specs/v0.6.0/001-webhook-platform-integration/spec.md",
     "specs/v0.6.0/002-order-form-management",
     "specs/v0.6.0/001-webhook-platform-integration",
     "specs/v0.6.0",
@@ -201,7 +204,6 @@
     "specs/v0.5.0/001-revision-comment-threads/security",
     "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-security-agent.md",
     "specs/v0.5.0/DIFF-001-revision-comment-threads.md",
-    "specs/v0.5.0/CHANGES.md",
     "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-docs-agent.md",
     "specs/v0.5.0/_ai-workspace/runs",
     "specs/v0.5.0/_ai-workspace",
@@ -215,11 +217,9 @@
     "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-002-test-agent-authoring.md",
     "specs/v0.5.0/001-revision-comment-threads/db-design/migrations/20260622134000_add_revision_comment_threads/migration.sql",
     "specs/v0.5.0/001-revision-comment-threads/db-design/migrations/20260622134000_add_revision_comment_threads",
-    "specs/v0.5.0/001-revision-comment-threads/db-design/migrations",
     "specs/v0.5.0/001-revision-comment-threads/db-design/data-model.md",
     "specs/v0.5.0/001-revision-comment-threads/design/tasks.md",
     "specs/v0.5.0/001-revision-comment-threads/gaps.md",
-    "specs/v0.5.0/001-revision-comment-threads/design/research.md",
-    "specs/v0.5.0/001-revision-comment-threads/planning/selection-phases.md"
+    "specs/v0.5.0/001-revision-comment-threads/design/research.md"
   ]
 }

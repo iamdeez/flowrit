@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ClipboardList,
   FilePen,
@@ -13,41 +13,46 @@ import {
   Settings,
   UserPlus,
   Users,
-} from 'lucide-react'
-import { logout } from '@/lib/actions/auth'
+} from "lucide-react";
+import { logout } from "@/lib/actions/auth";
 
 type NavItem = {
-  href: string
-  label: string
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
-}
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+};
 
 const coreItems: NavItem[] = [
-  { href: '/dashboard', label: '대시보드', icon: LayoutDashboard },
-  { href: '/orders', label: '주문서 관리', icon: ClipboardList },
-  { href: '/projects', label: '프로젝트', icon: FolderOpen },
-  { href: '/revisions', label: '수정 요청', icon: FilePen },
-  { href: '/customers', label: '고객', icon: Users },
-]
+  { href: "/dashboard", label: "대시보드", icon: LayoutDashboard },
+  { href: "/orders", label: "주문서 관리", icon: ClipboardList },
+  { href: "/projects", label: "프로젝트", icon: FolderOpen },
+  { href: "/revisions", label: "수정 요청", icon: FilePen },
+  { href: "/customers", label: "고객", icon: Users },
+];
 
 const workItems: NavItem[] = [
-  { href: '/messages', label: '메시지', icon: MessageSquare },
-  { href: '/templates', label: '템플릿', icon: Layers },
-]
+  { href: "/messages", label: "메시지", icon: MessageSquare },
+  { href: "/templates", label: "템플릿", icon: Layers },
+];
 
 const adminItems: NavItem[] = [
-  { href: '/team', label: '팀', icon: UserPlus },
-  { href: '/settings', label: '설정', icon: Settings },
-]
+  { href: "/team", label: "팀", icon: UserPlus },
+  { href: "/settings", label: "설정", icon: Settings },
+];
 
-const MEMBER_ALLOWED = new Set(['/dashboard', '/projects', '/revisions', '/orders'])
+const MEMBER_ALLOWED = new Set([
+  "/dashboard",
+  "/projects",
+  "/revisions",
+  "/orders",
+]);
 
 type SidebarNavProps = {
-  userName: string
-  userRole: string
-  openRevisionCount?: number
-  pendingOrderCount?: number
-}
+  userName: string;
+  userRole: string;
+  openRevisionCount?: number;
+  pendingOrderCount?: number;
+};
 
 function NavLink({
   href,
@@ -56,29 +61,41 @@ function NavLink({
   badge,
   pathname,
 }: NavItem & { badge?: number; pathname: string }) {
-  const isActive = pathname === href || pathname.startsWith(href + '/')
+  const isActive = pathname === href || pathname.startsWith(href + "/");
 
   return (
     <Link
       href={href}
       className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
         isActive
-          ? 'bg-[var(--flowrit-primary-soft)] text-[var(--flowrit-primary-soft-text)]'
-          : 'text-[var(--flowrit-text-secondary)] hover:bg-[var(--flowrit-panel-subtle)] hover:text-[var(--flowrit-text)]'
+          ? "bg-[var(--flowrit-primary-soft)] text-[var(--flowrit-primary-soft-text)]"
+          : "text-[var(--flowrit-text-secondary)] hover:bg-[var(--flowrit-panel-subtle)] hover:text-[var(--flowrit-text)]"
       }`}
     >
       <Icon
-        className={`h-5 w-5 shrink-0 ${isActive ? 'text-[var(--flowrit-primary)]' : ''}`}
+        className={`h-5 w-5 shrink-0 ${isActive ? "text-[var(--flowrit-primary)]" : ""}`}
         strokeWidth={isActive ? 2.5 : 2}
       />
       <span className="flex-1">{label}</span>
       {badge != null && badge > 0 && (
-        <span className="flex min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-1 py-px text-[10px] font-bold leading-none text-white">
-          {badge > 99 ? '99+' : badge}
+        <span
+          className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-500 px-2 text-[10px] font-bold leading-none text-white"
+          style={{
+            height: "1.25rem",
+            minWidth: "1.25rem",
+            width: "1.25rem",
+            padding: 0,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "9999px",
+          }}
+        >
+          {badge > 99 ? "99+" : badge}
         </span>
       )}
     </Link>
-  )
+  );
 }
 
 function SectionLabel({ children }: { children: string }) {
@@ -86,21 +103,28 @@ function SectionLabel({ children }: { children: string }) {
     <p className="mb-1 mt-4 px-3 text-[10px] font-semibold uppercase tracking-widest text-[var(--flowrit-text-muted)]">
       {children}
     </p>
-  )
+  );
 }
 
-export function SidebarNav({ userName, userRole, openRevisionCount = 0, pendingOrderCount = 0 }: SidebarNavProps) {
-  const pathname = usePathname()
-  const isAdmin = userRole !== 'MEMBER'
+export function SidebarNav({
+  userName,
+  userRole,
+  openRevisionCount = 0,
+  pendingOrderCount = 0,
+}: SidebarNavProps) {
+  const pathname = usePathname();
+  const isAdmin = userRole !== "MEMBER";
   const initials =
     userName
-      .split(' ')
+      .split(" ")
       .map((w) => w[0])
-      .join('')
+      .join("")
       .slice(0, 2)
-      .toUpperCase() || '?'
+      .toUpperCase() || "?";
 
-  const visibleCore = isAdmin ? coreItems : coreItems.filter((item) => MEMBER_ALLOWED.has(item.href))
+  const visibleCore = isAdmin
+    ? coreItems
+    : coreItems.filter((item) => MEMBER_ALLOWED.has(item.href));
 
   return (
     <nav className="flex flex-1 flex-col overflow-y-auto px-3 py-3">
@@ -110,9 +134,11 @@ export function SidebarNav({ userName, userRole, openRevisionCount = 0, pendingO
           {...item}
           pathname={pathname}
           badge={
-            item.href === '/revisions' ? openRevisionCount
-            : item.href === '/orders' ? pendingOrderCount
-            : undefined
+            item.href === "/revisions"
+              ? openRevisionCount
+              : item.href === "/orders"
+                ? pendingOrderCount
+                : undefined
           }
         />
       ))}
@@ -151,5 +177,5 @@ export function SidebarNav({ userName, userRole, openRevisionCount = 0, pendingO
         </div>
       </div>
     </nav>
-  )
+  );
 }

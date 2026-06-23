@@ -8,11 +8,14 @@ import { NotificationForm } from './notification-form'
 import { DangerZone } from './danger-zone'
 import { IntakeLinkCopy } from './intake-link-copy'
 import { WebhookInfo } from './webhook-info'
+import { OrderFormBuilder } from './order-form-builder'
+import { getOrInitOrderFormFields } from '@/lib/actions/form-fields'
 
 const TABS = [
   { key: 'profile', label: '프로필' },
   { key: 'password', label: '비밀번호' },
   { key: 'workspace', label: '워크스페이스' },
+  { key: 'orderform', label: '주문서 폼' },
   { key: 'notifications', label: '알림' },
   { key: 'danger', label: '위험 구역' },
 ] as const
@@ -54,6 +57,11 @@ export default async function SettingsPage({
 
   const isOwner = member.role === 'OWNER'
 
+  const orderFormFields =
+    (tab === 'orderform' && isOwner)
+      ? await getOrInitOrderFormFields(session.user.workspaceId)
+      : []
+
   return (
     <div className="flowrit-page max-w-2xl">
       <div className="mb-8">
@@ -62,8 +70,8 @@ export default async function SettingsPage({
       </div>
 
       {/* 탭 네비게이션 */}
-      <div className="mb-8 flex gap-1 border-b border-gray-200">
-        {TABS.filter((t) => t.key !== 'workspace' || isOwner).map((t) => (
+      <div className="mb-8 flex gap-1 overflow-x-auto border-b border-gray-200">
+        {TABS.filter((t) => (t.key !== 'workspace' && t.key !== 'orderform') || isOwner).map((t) => (
           <a
             key={t.key}
             href={`/settings?tab=${t.key}`}
@@ -93,6 +101,9 @@ export default async function SettingsPage({
             <WebhookInfo slug={workspace.slug} />
           </div>
         </div>
+      )}
+      {tab === 'orderform' && isOwner && (
+        <OrderFormBuilder fields={orderFormFields} />
       )}
       {tab === 'notifications' && (
         <NotificationForm

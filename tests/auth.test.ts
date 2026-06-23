@@ -131,6 +131,9 @@ describe('inviteTeamMember (SC-002)', () => {
       user: { id: 'u1', workspaceId: 'ws1', email: 'owner@example.com', name: 'Owner' },
     } as never)
 
+    prismaMock.workspaceMember.findFirst.mockResolvedValue({
+      role: 'OWNER',
+    } as never)
     prismaMock.workspace.findUnique.mockResolvedValue({
       id: 'ws1',
       name: 'Owner 워크스페이스',

@@ -14,10 +14,12 @@ export default async function InviteAcceptPage({ params }: Props) {
     include: { workspace: true },
   })
 
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now()
   const isExpired =
     invite &&
     invite.status === 'PENDING' &&
-    Date.now() - invite.createdAt.getTime() > 7 * 24 * 60 * 60 * 1000
+    now - invite.createdAt.getTime() > 7 * 24 * 60 * 60 * 1000
 
   if (!invite) {
     notFound()

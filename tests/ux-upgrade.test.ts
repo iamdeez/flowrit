@@ -187,7 +187,7 @@ describe('SC-106 submitCustomerRevision fileUrls', () => {
     const formData = new FormData()
     formData.set('token', 'valid-token')
     formData.set('content', '수정 요청입니다.')
-    formData.set('fileUrl', 'https://example.com/file.jpg')
+    formData.append('fileUrls', 'https://example.com/file.jpg')
 
     const { submitCustomerRevision } = await import('@/lib/actions/publicRevision')
     await submitCustomerRevision({}, formData)

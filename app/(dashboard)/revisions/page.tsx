@@ -28,6 +28,8 @@ const statusBadgeClass: Record<string, string> = {
 
 export default async function RevisionsPage() {
   const projects = await getRevisionGroups()
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now()
   const totalCount = projects.reduce((sum, p) => sum + p.revisions.length, 0)
   const openCount = projects.reduce(
     (sum, p) => sum + p.revisions.filter((r) => r.status === 'OPEN').length,
@@ -73,7 +75,6 @@ export default async function RevisionsPage() {
       {projects.length > 0 ? (
         <div className="space-y-4">
           {projects.map((project) => {
-            const now = Date.now()
             const urgent =
               project.dueDate != null &&
               project.dueDate.getTime() <= now + 2 * 24 * 60 * 60 * 1000

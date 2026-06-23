@@ -44,7 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const requestedId = credentials.workspaceId as string | undefined
         const membership = requestedId
           ? (user.memberships.find((m) => m.workspaceId === requestedId) ?? user.memberships[0])
-          : user.memberships[0]
+          : (user.memberships.find((m) => m.role === 'OWNER') ?? user.memberships[0])
 
         return {
           id: user.id,

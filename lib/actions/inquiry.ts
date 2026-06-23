@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { sendNewInquiryEmail } from '@/lib/email'
 import { sendNotification } from '@/lib/notifications'
+import { getOrInitOrderFormFields } from '@/lib/actions/form-fields'
 
 export type InquiryFormState = {
   error?: string
@@ -93,21 +94,27 @@ export async function submitOrder(
   const workspace = await prisma.workspace.findUnique({ where: { slug: workspaceSlug } })
   if (!workspace) return { error: '존재하지 않는 워크스페이스입니다.' }
 
-  const name = stringValue(formData, 'name')
-  const contact = stringValue(formData, 'contact')
-  const preferredDate = stringValue(formData, 'preferredDate')
-  const budget = stringValue(formData, 'budget')
-  const rawContent = stringValue(formData, 'content')
+  const fields = await getOrInitOrderFormFields(workspace.id)
   const fileUrlsRaw = formData.get('fileUrls') as string | null
   const fileUrls = fileUrlsRaw ? (JSON.parse(fileUrlsRaw) as string[]) : []
 
-  if (!name) return { error: '이름을 입력해 주세요.' }
-  if (!rawContent) return { error: '의뢰 내용을 입력해 주세요.' }
+  const name = stringValue(formData, 'name')
+  const contact = stringValue(formData, 'contact')
+  const content = stringValue(formData, 'content')
 
-  const metaLines: string[] = []
-  if (preferredDate) metaLines.push(`희망 날짜: ${preferredDate}`)
-  if (budget) metaLines.push(`예산: ${budget}`)
-  const content = metaLines.length > 0 ? `${metaLines.join('\n')}\n---\n${rawContent}` : rawContent
+  // Validate and collect non-system fields
+  const fieldValues: Record<string, string> = {}
+  for (const field of fields) {
+    if (['name', 'contact', 'content', 'files'].includes(field.fieldKey)) continue
+    const value = stringValue(formData, field.fieldKey)
+    if (field.required && !value) return { error: `${field.label}을(를) 입력해 주세요.` }
+    if (value) fieldValues[field.fieldKey] = value
+  }
+
+  const nameField = fields.find((f) => f.fieldKey === 'name')
+  const contentField = fields.find((f) => f.fieldKey === 'content')
+  if (nameField?.required !== false && !name) return { error: '이름을 입력해 주세요.' }
+  if (contentField?.required !== false && !content) return { error: `${contentField?.label ?? '의뢰 내용'}을(를) 입력해 주세요.` }
 
   const inquiry = await prisma.inquiry.create({
     data: {
@@ -116,6 +123,7 @@ export async function submitOrder(
       contact: contact || null,
       content,
       fileUrls,
+      fieldValues,
       formType: 'ORDER',
     },
   })
@@ -126,7 +134,7 @@ export async function submitOrder(
       select: { userId: true },
     })
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
-    const excerpt = rawContent.length > 100 ? `${rawContent.slice(0, 100)}...` : rawContent
+    const excerpt = content.length > 100 ? `${content.slice(0, 100)}...` : content
 
     await sendNotification({
       userIds: members.map((m) => m.userId),
