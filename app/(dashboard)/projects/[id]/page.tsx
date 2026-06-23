@@ -33,7 +33,7 @@ import {
 } from '@/lib/revision-labels'
 import { ImageGallery } from '@/components/image-gallery'
 import { AssetForm } from './asset-form'
-import { AssetStatusForm } from './asset-status-form'
+import { AssetBulkShareForm, AssetStatusForm } from './asset-status-form'
 import { DuplicateProjectDialog } from '../duplicate-project-dialog'
 import { MessagePanel } from './message-panel'
 import { PublicPageForm } from './public-page-form'
@@ -48,8 +48,8 @@ type ProjectDetailPageProps = {
 }
 
 const tabs = [
-  { key: 'revisions', label: '수정 요청', description: '고객 피드백과 내부 수정 항목' },
-  { key: 'assets', label: '납품물', description: '고객에게 공유할 파일과 링크' },
+  { key: 'revisions', label: '수정 관리', description: '고객 요청 확인과 처리 상태' },
+  { key: 'assets', label: '납품 이력', description: '1차 납품부터 최종본까지' },
   { key: 'timeline', label: '타임라인', description: '단계 변경과 내부 메모' },
   { key: 'messages', label: '메시지', description: '고객에게 보낼 안내문' },
 ]
@@ -82,6 +82,22 @@ export default async function ProjectDetailPage({
     ['OPEN', 'IN_PROGRESS'].includes(revision.status)
   ).length
   const sharedAssetCount = project.assets.filter((asset) => asset.status === 'SHARED').length
+  const assetDeliveryLabel = (asset: {
+    version: string | null
+    status: string
+    shareScheduledAt: Date | null
+  }) => {
+    if (asset.version) return asset.version
+    if (asset.shareScheduledAt) {
+      return `공유 예약 ${asset.shareScheduledAt.toLocaleString('ko-KR', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })}`
+    }
+    return assetStatusLabels[asset.status] ?? asset.status
+  }
 
   return (
     <div className="flowrit-page">
@@ -207,12 +223,12 @@ export default async function ProjectDetailPage({
               <FileText className="h-4 w-4" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-[var(--flowrit-text)]">수정 요청</p>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">수정 요청함</p>
               <p className="text-xs text-[var(--flowrit-text-muted)]">열린 요청 {openRevisionCount}건</p>
             </div>
           </div>
           <Link href={`/projects/${project.id}?tab=revisions`} className="flowrit-button-secondary min-h-9 px-3 text-xs">
-            요청 관리
+            요청 확인
           </Link>
         </div>
 
@@ -222,12 +238,12 @@ export default async function ProjectDetailPage({
               <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             </span>
             <div>
-              <p className="text-sm font-semibold text-[var(--flowrit-text)]">납품물</p>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">납품 이력</p>
               <p className="text-xs text-[var(--flowrit-text-muted)]">공유됨 {sharedAssetCount}개 / 전체 {project.assets.length}개</p>
             </div>
           </div>
           <Link href={`/projects/${project.id}?tab=assets`} className="flowrit-button-secondary min-h-9 px-3 text-xs">
-            파일·링크 관리
+            이력 관리
           </Link>
         </div>
       </section>
@@ -253,7 +269,34 @@ export default async function ProjectDetailPage({
 
       {tab === 'revisions' && (
         <section className="space-y-5">
-          <RevisionForm projectId={project.id} members={members} />
+          <div className="flowrit-panel-padded">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-[var(--flowrit-text)]">고객 수정 요청 관리</p>
+                <p className="mt-1 text-sm text-[var(--flowrit-text-muted)]">
+                  고객이 공유 페이지에서 남긴 요청을 확인하고 상태, 담당자, 댓글로 처리 흐름을 관리하세요.
+                </p>
+              </div>
+              {project.publicPage?.token ? (
+                <Link href={`/p/${project.publicPage.token}`} className="flowrit-button-secondary min-h-9 px-3 text-xs">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  고객 화면 열기
+                </Link>
+              ) : (
+                <span className="inline-flex min-h-9 items-center rounded-md border border-[var(--flowrit-border)] px-3 text-xs font-medium text-[var(--flowrit-text-muted)]">
+                  공유 페이지 미생성
+                </span>
+              )}
+            </div>
+            <details className="mt-4 rounded-lg border border-[var(--flowrit-border)] bg-[var(--flowrit-panel-subtle)]">
+              <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-[var(--flowrit-text-secondary)]">
+                내부 작업 항목을 직접 추가해야 하나요?
+              </summary>
+              <div className="border-t border-[var(--flowrit-border)] bg-white p-4">
+                <RevisionForm projectId={project.id} members={members} />
+              </div>
+            </details>
+          </div>
 
           {project.revisions.length > 0 ? (
             <div className="flowrit-panel divide-y divide-gray-100">
@@ -295,12 +338,57 @@ export default async function ProjectDetailPage({
                       <p className="mt-2 text-xs text-gray-500">
                         {revision.createdAt.toLocaleDateString('ko-KR')} 등록
                       </p>
+                      {revision.assets.length > 0 && (
+                        <div className="mt-4 rounded-lg border border-[var(--flowrit-border)] bg-[var(--flowrit-panel-subtle)] p-3">
+                          <p className="mb-2 text-xs font-semibold text-[var(--flowrit-text-muted)]">
+                            이 요청으로 생성된 납품본 {revision.assets.length}개
+                          </p>
+                          <div className="space-y-2">
+                            {revision.assets.map((asset) => (
+                              <div
+                                key={asset.id}
+                                className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-white px-3 py-2"
+                              >
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-medium text-[var(--flowrit-text)]">
+                                    {asset.name}
+                                  </p>
+                                  <p className="mt-0.5 text-xs text-[var(--flowrit-text-muted)]">
+                                    {assetStatusLabels[asset.status] ?? asset.status}
+                                    {asset.version ? ` · ${asset.version}` : ''}
+                                  </p>
+                                </div>
+                                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                                  <AssetStatusForm assetId={asset.id} />
+                                  <a
+                                    href={asset.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flowrit-button-secondary min-h-9 px-3 text-xs"
+                                  >
+                                    <ExternalLink className="h-3.5 w-3.5" />
+                                    열기
+                                  </a>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <RevisionStatusForm
                       revisionId={revision.id}
                       status={revision.status}
                     />
                   </div>
+                  <details className="mt-4 rounded-lg border border-[var(--flowrit-border)] bg-[var(--flowrit-panel-subtle)]">
+                    <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-[var(--flowrit-text-secondary)]">
+                      이 요청에 대한 재수정본 등록
+                    </summary>
+                    <div className="border-t border-[var(--flowrit-border)] bg-white p-4">
+                      <AssetForm projectId={project.id} revisionId={revision.id} compact />
+                    </div>
+                  </details>
                   <RevisionCommentSection revisionId={revision.id} />
                 </div>
               ))}
@@ -309,8 +397,8 @@ export default async function ProjectDetailPage({
             <div className="flowrit-panel">
               <EmptyPanel
                 icon={<FileText className="h-5 w-5" />}
-                title="등록된 수정 요청이 없습니다."
-                description="위 폼에서 첫 수정 요청을 등록하세요."
+                title="아직 고객 수정 요청이 없습니다."
+                description="고객 공유 페이지에서 요청이 접수되면 이곳에 표시됩니다."
               />
             </div>
           )}
@@ -320,6 +408,12 @@ export default async function ProjectDetailPage({
       {tab === 'assets' && (
         <section className="space-y-5">
           <AssetForm projectId={project.id} />
+          <AssetBulkShareForm
+            projectId={project.id}
+            hasScheduled={project.assets.some(
+              (a) => a.status === 'PREPARING' && a.shareScheduledAt !== null,
+            )}
+          />
 
           {project.assets.length > 0 ? (
             <div className="space-y-4">
@@ -331,7 +425,7 @@ export default async function ProjectDetailPage({
                   <div className="flowrit-panel p-4">
                     <div className="mb-3 flex items-center justify-between">
                       <p className="text-xs font-semibold text-[var(--flowrit-text-muted)]">
-                        갤러리 · {galleryAssets.length}장
+                        이미지 납품본 · {galleryAssets.length}장
                       </p>
                       <div className="flex items-center gap-2">
                         {galleryAssets.some((a) => a.status !== 'SHARED') && (
@@ -345,12 +439,18 @@ export default async function ProjectDetailPage({
                     <div className="mt-3 divide-y divide-[var(--flowrit-border)]">
                       {galleryAssets.map((asset) => (
                         <div key={asset.id} className="flex items-center justify-between gap-3 py-2">
-                          <p className="min-w-0 truncate text-xs text-[var(--flowrit-text-secondary)]">{asset.name}</p>
+                          <div className="min-w-0">
+                            <p className="truncate text-xs font-medium text-[var(--flowrit-text-secondary)]">{asset.name}</p>
+                            <p className="mt-0.5 text-[11px] text-[var(--flowrit-text-muted)]">
+                              {assetDeliveryLabel(asset)}
+                              {asset.revisionRequest ? ' · 수정 요청 반영본' : ''}
+                            </p>
+                          </div>
                           <div className="flex shrink-0 items-center gap-2">
                             <span className={`flowrit-badge ${asset.status === 'SHARED' ? 'flowrit-badge-active' : 'flowrit-badge-pending'}`}>
                               {assetStatusLabels[asset.status] ?? asset.status}
                             </span>
-                            <AssetStatusForm assetId={asset.id} status={asset.status} />
+                            <AssetStatusForm assetId={asset.id} />
                           </div>
                         </div>
                       ))}
@@ -378,6 +478,9 @@ export default async function ProjectDetailPage({
                             {asset.version && (
                               <span className="flowrit-badge bg-amber-50 text-amber-700">{asset.version}</span>
                             )}
+                            {asset.revisionRequest && (
+                              <span className="flowrit-badge bg-indigo-50 text-indigo-700">수정 요청 반영본</span>
+                            )}
                           </div>
                           <p className="text-sm font-medium text-[var(--flowrit-text)]">{asset.name}</p>
                           <a
@@ -394,10 +497,11 @@ export default async function ProjectDetailPage({
                               ? `${asset.expiredAt.toLocaleDateString('ko-KR')} 만료`
                               : '만료일 없음'}{' '}
                             · {asset.createdAt.toLocaleDateString('ko-KR')} 등록
+                            {asset.revisionRequest ? ' · 수정 요청에서 생성' : ''}
                           </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                          <AssetStatusForm assetId={asset.id} status={asset.status} />
+                          <AssetStatusForm assetId={asset.id} />
                           <a
                             href={asset.url}
                             target="_blank"
@@ -418,8 +522,8 @@ export default async function ProjectDetailPage({
             <div className="flowrit-panel">
               <EmptyPanel
                 icon={<ExternalLink className="h-5 w-5" />}
-                title="등록된 파일·링크가 없습니다."
-                description="위 폼에서 첫 외부 링크를 등록하세요."
+                title="아직 납품 이력이 없습니다."
+                description="1차 납품 파일부터 등록하면 고객에게 전달한 흐름을 관리할 수 있습니다."
               />
             </div>
           )}

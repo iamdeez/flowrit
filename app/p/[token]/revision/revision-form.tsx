@@ -7,8 +7,9 @@ import {
   submitCustomerRevision,
   type CustomerRevisionState,
 } from '@/lib/actions/publicRevision'
+import { uploadFileToR2 } from '@/lib/client-upload'
+import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/upload-constants'
 
-const MAX_SIZE = 10 * 1024 * 1024
 const MAX_FILES = 100
 
 function SubmitButton() {
@@ -50,9 +51,9 @@ export function CustomerRevisionForm({ token }: { token: string }) {
     }
 
     const toUpload = selected.slice(0, remaining)
-    const oversized = toUpload.filter((f) => f.size > MAX_SIZE)
+    const oversized = toUpload.filter((f) => f.size > MAX_UPLOAD_SIZE)
     if (oversized.length) {
-      setUploadError(`파일 크기가 10MB를 초과할 수 없습니다: ${oversized.map((f) => f.name).join(', ')}`)
+      setUploadError(`파일 크기가 ${MAX_UPLOAD_SIZE_LABEL}를 초과할 수 없습니다: ${oversized.map((f) => f.name).join(', ')}`)
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
@@ -63,25 +64,10 @@ export function CustomerRevisionForm({ token }: { token: string }) {
     const results: AttachedFile[] = []
     for (const file of toUpload) {
       try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size }),
-        })
-        if (!res.ok) throw new Error()
-        const { presignedUrl, publicUrl } = (await res.json()) as {
-          presignedUrl: string
-          publicUrl: string
-          key: string
-        }
-        await fetch(presignedUrl, {
-          method: 'PUT',
-          body: file,
-          headers: { 'Content-Type': file.type },
-        })
+        const publicUrl = await uploadFileToR2(file)
         results.push({ url: publicUrl, name: file.name, isImage: IMAGE_TYPES.includes(file.type) })
-      } catch {
-        setUploadError(`'${file.name}' 업로드에 실패했습니다.`)
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : `'${file.name}' 업로드에 실패했습니다.`)
       }
     }
 
@@ -136,7 +122,7 @@ export function CustomerRevisionForm({ token }: { token: string }) {
       <div>
         <p className="mb-2 text-sm font-medium text-gray-900">
           파일·사진 첨부{' '}
-          <span className="font-normal text-gray-400">(선택, 최대 {MAX_FILES}개 · 각 10MB 이하)</span>
+          <span className="font-normal text-gray-400">(선택, 최대 {MAX_FILES}개 · 각 {MAX_UPLOAD_SIZE_LABEL} 이하)</span>
         </p>
 
         {/* 이미지 썸네일 그리드 */}

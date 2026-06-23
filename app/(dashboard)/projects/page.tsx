@@ -73,6 +73,15 @@ function formatCreatedAt(date: Date): string {
   return `${value.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })} 등록`
 }
 
+function getNextShareSchedule(assets: { shareScheduledAt: Date | null }[]): Date | null {
+  const now = new Date()
+  return assets
+    .map((asset) => asset.shareScheduledAt)
+    .filter((date): date is Date => Boolean(date))
+    .filter((date) => date.getTime() > now.getTime())
+    .sort((a, b) => a.getTime() - b.getTime())[0] ?? null
+}
+
 export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
   const { status, q, archived, page: pageParam, assigneeId } = await searchParams
   const isArchivedFilter = archived === 'true' || status === 'archived'
@@ -166,6 +175,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
               const dueInfo = getDueInfo(project.dueDate, done, !!project.archivedAt)
               const color = avatarColor(project.customer.name)
               const createdLabel = formatCreatedAt(project.createdAt)
+              const nextShareSchedule = getNextShareSchedule(project.assets)
 
               const statusBadgeCls = project.archivedAt
                 ? 'flowrit-badge-archived'
@@ -243,6 +253,17 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
                       <span className={`inline-flex items-center gap-1 ${dueInfo.cls}`}>
                         <CalendarDays className="h-3.5 w-3.5 shrink-0" />
                         {dueInfo.text}
+                      </span>
+                    )}
+                    {nextShareSchedule && (
+                      <span className="inline-flex items-center gap-1 font-medium text-indigo-600">
+                        <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+                        공유 예약 {nextShareSchedule.toLocaleString('ko-KR', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </span>
                     )}
                     <span className="inline-flex items-center gap-1 text-[var(--flowrit-text-muted)]">

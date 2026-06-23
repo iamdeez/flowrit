@@ -10,14 +10,14 @@ type RevisionComment = {
   authorType: string
   authorName: string
   content: string
-  createdAt: Date
+  createdAt: Date | string
   parentId: string | null
   replies: {
     id: string
     authorType: string
     authorName: string
     content: string
-    createdAt: Date
+    createdAt: Date | string
     parentId: string | null
   }[]
 }

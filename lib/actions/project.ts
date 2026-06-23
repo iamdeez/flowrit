@@ -34,7 +34,7 @@ export type ProjectWithAssignee = {
   customer: { id: string; workspaceId: string; name: string; contact: string | null; memo: string | null; createdAt: Date }
   stages: Array<{ id: string; order: number; internalName: string; customerName: string; projectId: string; completedAt: Date | null }>
   revisions: Array<{ id: string; status: string }>
-  assets: Array<{ id: string }>
+  assets: Array<{ id: string; shareScheduledAt: Date | null }>
 }
 
 export type GetProjectsResult = {
@@ -236,8 +236,18 @@ export async function getProjectDetail(projectId: string) {
     include: {
       customer: true,
       stages: { orderBy: { order: 'asc' } },
-      revisions: { orderBy: { createdAt: 'desc' } },
-      assets: { orderBy: { createdAt: 'desc' } },
+      revisions: {
+        orderBy: { createdAt: 'desc' },
+        include: { assets: { orderBy: { createdAt: 'desc' } } },
+      },
+      assets: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          revisionRequest: {
+            select: { id: true, content: true, status: true },
+          },
+        },
+      },
       events: { orderBy: { createdAt: 'desc' } },
       publicPage: true,
     },

@@ -3,35 +3,12 @@
 import { useActionState, useRef, useState } from 'react'
 import { CheckCircle2, Loader2, Paperclip, X } from 'lucide-react'
 import { submitInquiry, type InquiryFormState } from '@/lib/actions/inquiry'
+import { uploadFileToR2 } from '@/lib/client-upload'
+import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/upload-constants'
 
 type UploadedFile = {
   name: string
   url: string
-}
-
-const MAX_SIZE = 10 * 1024 * 1024
-
-async function uploadFile(file: File): Promise<string> {
-  const res = await fetch('/api/upload', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size }),
-  })
-  if (!res.ok) {
-    const data = (await res.json()) as { error?: string }
-    throw new Error(data.error ?? '업로드 준비에 실패했습니다.')
-  }
-  const { presignedUrl, publicUrl } = (await res.json()) as {
-    presignedUrl: string
-    publicUrl: string
-  }
-  const putRes = await fetch(presignedUrl, {
-    method: 'PUT',
-    body: file,
-    headers: { 'Content-Type': file.type },
-  })
-  if (!putRes.ok) throw new Error('파일 업로드에 실패했습니다.')
-  return publicUrl
 }
 
 export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
@@ -50,9 +27,9 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
     const selected = Array.from(e.target.files ?? [])
     if (selected.length === 0) return
 
-    const oversized = selected.find((f) => f.size > MAX_SIZE)
+    const oversized = selected.find((f) => f.size > MAX_UPLOAD_SIZE)
     if (oversized) {
-      setUploadError(`파일 크기는 10MB를 초과할 수 없습니다. (${oversized.name})`)
+      setUploadError(`파일 크기는 ${MAX_UPLOAD_SIZE_LABEL}를 초과할 수 없습니다. (${oversized.name})`)
       return
     }
 
@@ -61,7 +38,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
     try {
       const uploaded = await Promise.all(
         selected.map(async (file) => {
-          const url = await uploadFile(file)
+          const url = await uploadFileToR2(file)
           return { name: file.name, url }
         })
       )
@@ -134,7 +111,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700">
-          참고 파일 첨부 <span className="text-xs text-gray-400">(각 10MB 이하)</span>
+          참고 파일 첨부 <span className="text-xs text-gray-400">(각 {MAX_UPLOAD_SIZE_LABEL} 이하)</span>
         </label>
         <div className="mt-1">
           <button

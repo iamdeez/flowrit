@@ -181,3 +181,36 @@ describe('submitCustomerRevision (SC-010)', () => {
     expect(result.error).toBeDefined()
   })
 })
+
+describe('confirmProjectDelivery', () => {
+  it('고객이 작업 확정하면 프로젝트를 완료 단계로 이동한다', async () => {
+    prismaMock.publicProjectPage.findUnique.mockResolvedValue({
+      id: 'pp1',
+      projectId: 'p1',
+      token: 'valid-token',
+      isActive: true,
+      project: {
+        currentStageId: 's7',
+        stages: [
+          { id: 's7', internalName: '고객 확인 대기', customerName: '확인 요청', order: 7 },
+          { id: 's10', internalName: '완료', customerName: '완료', order: 10 },
+        ],
+      },
+    } as never)
+    prismaMock.project.update.mockResolvedValue({} as never)
+    prismaMock.timelineEvent.create.mockResolvedValue({} as never)
+
+    const formData = new FormData()
+    formData.set('token', 'valid-token')
+
+    const { confirmProjectDelivery } = await import('@/lib/actions/publicProject')
+    await confirmProjectDelivery(formData)
+
+    expect(prismaMock.project.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'p1' },
+        data: { currentStageId: 's10' },
+      }),
+    )
+  })
+})

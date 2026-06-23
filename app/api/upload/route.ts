@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { createPresignedUploadUrl, getPublicUrl, MAX_UPLOAD_SIZE } from '@/lib/storage'
+import { MAX_UPLOAD_SIZE_LABEL } from '@/lib/upload-constants'
 
 export async function POST(request: NextRequest) {
   let body: unknown
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'size가 유효하지 않습니다.' }, { status: 400 })
   }
   if (size > MAX_UPLOAD_SIZE) {
-    return Response.json({ error: '파일 크기가 10MB를 초과할 수 없습니다.' }, { status: 400 })
+    return Response.json({ error: `파일 크기가 ${MAX_UPLOAD_SIZE_LABEL}를 초과할 수 없습니다.` }, { status: 400 })
   }
 
   try {

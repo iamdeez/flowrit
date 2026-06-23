@@ -9,10 +9,33 @@ function createPrismaClient() {
 }
 
 function hasCurrentDelegates(client: unknown): client is PrismaClient {
+  const runtimeDataModel = (
+    client as {
+      _runtimeDataModel?: {
+        models?: {
+          RevisionRequest?: {
+            fields?: Array<{ name?: string }>
+          }
+          Asset?: {
+            fields?: Array<{ name?: string }>
+          }
+        }
+      }
+    } | null
+  )?._runtimeDataModel
+  const revisionRequestHasAssets = runtimeDataModel?.models?.RevisionRequest?.fields?.some(
+    (field) => field.name === 'assets',
+  )
+  const assetHasShareSchedule = runtimeDataModel?.models?.Asset?.fields?.some(
+    (field) => field.name === 'shareScheduledAt',
+  )
+
   return Boolean(
     client &&
       typeof client === 'object' &&
-      'revisionComment' in client
+      'revisionComment' in client &&
+      revisionRequestHasAssets &&
+      assetHasShareSchedule
   )
 }
 

@@ -4,26 +4,10 @@ import { useActionState, useRef, useState } from 'react'
 import { CheckCircle2, Loader2, Paperclip, X } from 'lucide-react'
 import { submitOrder, type InquiryFormState } from '@/lib/actions/inquiry'
 import type { FormFieldRow } from '@/lib/actions/form-fields'
+import { uploadFileToR2 } from '@/lib/client-upload'
+import { MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE_LABEL } from '@/lib/upload-constants'
 
 type UploadedFile = { name: string; url: string }
-
-const MAX_SIZE = 10 * 1024 * 1024
-
-async function uploadFile(file: File): Promise<string> {
-  const res = await fetch('/api/upload', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size }),
-  })
-  if (!res.ok) {
-    const data = (await res.json()) as { error?: string }
-    throw new Error(data.error ?? '업로드 준비에 실패했습니다.')
-  }
-  const { presignedUrl, publicUrl } = (await res.json()) as { presignedUrl: string; publicUrl: string }
-  const putRes = await fetch(presignedUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-  if (!putRes.ok) throw new Error('파일 업로드에 실패했습니다.')
-  return publicUrl
-}
 
 function FieldInput({ field }: { field: FormFieldRow }) {
   const base = 'flowrit-input mt-1'
@@ -77,16 +61,16 @@ export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fi
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = Array.from(e.target.files ?? [])
     if (selected.length === 0) return
-    const oversized = selected.find((f) => f.size > MAX_SIZE)
+    const oversized = selected.find((f) => f.size > MAX_UPLOAD_SIZE)
     if (oversized) {
-      setUploadError(`파일 크기는 10MB를 초과할 수 없습니다. (${oversized.name})`)
+      setUploadError(`파일 크기는 ${MAX_UPLOAD_SIZE_LABEL}를 초과할 수 없습니다. (${oversized.name})`)
       return
     }
     setUploadError(null)
     setUploading(true)
     try {
       const uploaded = await Promise.all(
-        selected.map(async (file) => ({ name: file.name, url: await uploadFile(file) })),
+        selected.map(async (file) => ({ name: file.name, url: await uploadFileToR2(file) })),
       )
       setFiles((prev) => [...prev, ...uploaded])
     } catch (err) {
@@ -163,7 +147,7 @@ export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fi
               <label className="block text-sm font-medium text-gray-700">
                 {field.label}
                 {field.required && <span className="ml-0.5 text-red-500"> *</span>}
-                <span className="ml-1 text-xs text-gray-400">(각 10MB 이하)</span>
+                <span className="ml-1 text-xs text-gray-400">(각 {MAX_UPLOAD_SIZE_LABEL} 이하)</span>
               </label>
               <div className="mt-1">
                 <button

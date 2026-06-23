@@ -23,7 +23,7 @@ function SubmitButton() {
       disabled={pending}
       className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {pending ? '등록 중...' : '수정 요청 등록'}
+      {pending ? '추가 중...' : '작업 항목 추가'}
     </button>
   )
 }
@@ -36,18 +36,18 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
   useFormToast(state)
 
   return (
-    <form action={formAction} className="flowrit-panel-padded space-y-4">
+    <form action={formAction} className="space-y-4">
       <input type="hidden" name="projectId" value={projectId} />
       <div>
         <label htmlFor="content" className="text-sm font-medium text-gray-900">
-          수정 요청 내용
+          내부 작업 항목
         </label>
         <textarea
           id="content"
           name="content"
           rows={4}
           required
-          placeholder="고객 요청이나 내부 수정 항목을 입력하세요."
+          placeholder="고객 요청과 별도로 추적할 내부 작업 내용을 입력하세요."
           className="flowrit-input mt-2 resize-none"
         />
       </div>
@@ -91,7 +91,7 @@ export function RevisionForm({ projectId, members }: RevisionFormProps) {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-gray-500">
-          등록된 요청은 접수됨 상태로 시작하고 전체 수정 요청 목록에도 표시됩니다.
+          내부 항목은 고객 요청과 함께 처리 목록에 표시되며 고객에게 자동 발송되지 않습니다.
         </p>
         <SubmitButton />
       </div>

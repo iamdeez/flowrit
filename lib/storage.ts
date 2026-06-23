@@ -2,6 +2,8 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { randomUUID } from 'crypto'
 
+export { MAX_UPLOAD_SIZE } from '@/lib/upload-constants'
+
 const r2 = new S3Client({
   region: 'auto',
   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -12,9 +14,6 @@ const r2 = new S3Client({
 })
 
 const BUCKET = process.env.R2_BUCKET_NAME!
-const MAX_SIZE = 10 * 1024 * 1024 // 10MB
-
-export const MAX_UPLOAD_SIZE = MAX_SIZE
 
 export async function createPresignedUploadUrl(
   filename: string,
