@@ -1,6 +1,6 @@
-# Spec: TossPayments 결제 · 구독 시스템
+# Spec: 나이스페이먼츠 결제 · 구독 시스템
 
-> Branch: 001-tosspayments | Date: 2026-06-23 | Version: v0.7.0
+> Branch: 001-nicepayments | Date: 2026-06-23 | Version: v0.7.0
 
 ## 목차
 
@@ -20,7 +20,7 @@ Flowrit은 SaaS로 상용화하기 위해 결제 및 구독 관리 기능이 필
 현재 모든 워크스페이스가 `plan = "beta"` 상태로 기능 제한 없이 운영 중이며,
 상용화 전 결제 시스템을 구축하고 플랜별 기능 제한을 적용해야 한다.
 
-국내 타겟 사용자 기반으로 **TossPayments 빌링키 기반 정기결제** 방식을 채택한다.
+국내 타겟 사용자 기반으로 **나이스페이먼츠(NICEPAY) 빌링키 기반 정기결제** 방식을 채택한다.
 
 ---
 
@@ -52,10 +52,11 @@ Flowrit은 SaaS로 상용화하기 위해 결제 및 구독 관리 기능이 필
 
 ### 카드 등록 및 빌링키 발급 (FR-002)
 
-**FR-002**: 사용자는 TossPayments 카드 등록 UI를 통해 카드를 등록할 수 있다.
+**FR-002**: 사용자는 나이스페이먼츠 `AUTHNICE` 카드 인증 UI를 통해 카드를 등록할 수 있다.
 
 - 카드 등록 페이지: `/settings/billing/upgrade`
-- 카드 인증 완료 후 서버가 TossPayments API를 호출하여 빌링키를 발급받는다.
+- 카드 인증 완료 후 클라이언트는 `authToken`과 카드 등록용 `orderId`를 서버에 전달한다.
+- 서버는 나이스페이먼츠 `/v1/subscribe/regist` API를 호출하여 `bid`(빌링키)를 발급받는다.
 - 발급된 빌링키는 워크스페이스의 Subscription 레코드에 저장된다.
 
 ### 첫 결제 및 구독 활성화 (FR-003)
@@ -124,7 +125,7 @@ Flowrit은 SaaS로 상용화하기 위해 결제 및 구독 관리 기능이 필
 ## 비기능 요구사항
 
 - **NFR-001**: 결제 금액은 서버 사이드에서만 결정한다. 클라이언트에서 전달하는 금액 파라미터를 사용하지 않는다.
-- **NFR-002**: 빌링키는 워크스페이스별 DB에 저장한다. TossPayments 대시보드에서 관리 가능.
+- **NFR-002**: 나이스페이먼츠 `bid`는 워크스페이스별 DB에 저장한다. 카드 원문 정보는 저장하지 않는다.
 - **NFR-003**: 모든 결제 API 호출 실패는 Sentry에 기록한다.
 - **NFR-004**: 결제 관련 Cron 엔드포인트는 `CRON_SECRET`으로 인증한다.
 
@@ -134,10 +135,10 @@ Flowrit은 SaaS로 상용화하기 위해 결제 및 구독 관리 기능이 필
 
 - **SC-001** (`FR-007` 관련): FREE 워크스페이스에서 활성 프로젝트 3개인 상태에서 프로젝트 생성 Server Action 호출 시 에러가 반환되고 생성되지 않는다.
 - **SC-002** (`FR-007` 관련): FREE 워크스페이스에서 팀원 초대 Server Action 호출 시 에러가 반환되고 초대가 생성되지 않는다.
-- **SC-003** (`FR-002` 관련): 카드 등록 콜백(`/api/billing/callback`) 처리 후 `Subscription.billingKey`가 DB에 저장된다.
+- **SC-003** (`FR-002` 관련): 카드 등록 콜백(`/api/billing/callback`) 처리 후 나이스페이먼츠 `bid`가 `Subscription.billingKey`에 저장된다.
 - **SC-004** (`FR-003` 관련): 첫 결제 성공 시 `Workspace.plan = "pro"`, `Subscription.status = "active"`, `Payment.status = "done"` 이 DB에 저장된다.
 - **SC-005** (`FR-004` 관련): 자동결제 성공 시 `currentPeriodEnd`가 다음 주기로 갱신되고 새 Payment 레코드가 생성된다.
-- **SC-006** (`FR-005` 관련): TossPayments 결제 API가 실패를 반환하면 `Payment.status = "failed"`, `Payment.failReason`에 사유가 저장된다.
+- **SC-006** (`FR-005` 관련): 나이스페이먼츠 결제 API가 실패를 반환하면 `Payment.status = "failed"`, `Payment.failReason`에 사유가 저장된다.
 - **SC-007** (`FR-005` 관련): 3회 재시도 후 최종 실패 시 `Subscription.status = "past_due"`, `Workspace.plan = "free"` 로 변경된다.
 - **SC-008** (`FR-006` 관련): 구독 취소 요청 시 `Subscription.cancelAtPeriodEnd = true` 로 설정되고 즉시 다운그레이드되지 않는다.
 - **SC-009** (`FR-008` 관련): 결제 내역 페이지에서 해당 워크스페이스의 Payment 목록이 최신순으로 표시된다.
@@ -151,7 +152,7 @@ Flowrit은 SaaS로 상용화하기 위해 결제 및 구독 관리 기능이 필
 - 플랜 업그레이드/다운그레이드 (Monthly ↔ Yearly 전환): 추후 spec으로 분리
 - 기업 플랜 / 커스텀 플랜: MVP 범위 아님
 - 프로모션 코드 / 쿠폰: MVP 범위 아님
-- 환불 처리 UI: 초기에는 관리자 직접 TossPayments 대시보드에서 처리
+- 환불 처리 UI: 초기에는 관리자 직접 나이스페이먼츠 관리자 콘솔에서 처리
 - 베타 사용자 무료 체험 기간 부여: 범위 아님 (FREE 플랜 직접 전환)
 - 인보이스 발행 (세금계산서): MVP 범위 아님
 

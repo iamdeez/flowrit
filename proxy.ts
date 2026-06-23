@@ -38,6 +38,7 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
+    '/onboarding',
     '/dashboard/:path*',
     '/customers/:path*',
     '/projects/:path*',

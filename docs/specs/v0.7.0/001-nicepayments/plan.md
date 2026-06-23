@@ -1,6 +1,6 @@
-# Plan: TossPayments 결제 · 구독 시스템
+# Plan: 나이스페이먼츠 결제 · 구독 시스템
 
-> Branch: 001-tosspayments | Date: 2026-06-23 | Spec: [spec.md](spec.md)
+> Branch: 001-nicepayments | Date: 2026-06-23 | Spec: [spec.md](spec.md)
 
 ## 목차
 
@@ -33,7 +33,7 @@
 - **언어 / 런타임**: TypeScript, Node.js 24 (Next.js 16.2.9 App Router)
 - **패키지 매니저**: npm
 - **DB**: Prisma 7 + PostgreSQL (Neon), 출력 경로 `app/generated/prisma`
-- **결제**: TossPayments (`@tosspayments/payment-sdk` 클라이언트 SDK + REST API 서버 직접 호출)
+- **결제**: 나이스페이먼츠(NICEPAY) `AUTHNICE` 클라이언트 스크립트 + REST API 서버 직접 호출
 - **이메일**: Resend (`lib/email.ts`)
 - **Cron**: Vercel Cron (`vercel.json` 또는 `next.config.ts`의 `crons` 설정)
 - **테스트**: Vitest 4, Prisma mock 개별 파일 작성
@@ -49,7 +49,7 @@
 | `prisma/schema.prisma` | 수정 | `Subscription`, `Payment` 모델 추가; `Workspace` 관계 추가 |
 | `prisma/migrations/` | 신규 | 마이그레이션 파일 자동 생성 |
 | `lib/plan.ts` | 신규 | 플랜 상수 정의, 플랜 제한 조회 함수 |
-| `lib/billing.ts` | 신규 | TossPayments API 호출 래퍼 |
+| `lib/billing.ts` | 신규 | 나이스페이먼츠 API 호출 래퍼 |
 | `lib/email.ts` | 수정 | 결제 실패 알림 이메일 함수 추가 |
 | `lib/actions/billing.ts` | 신규 | 구독 취소, 카드 등록 콜백 처리 Server Actions |
 | `lib/actions/project.ts` | 수정 | 프로젝트 생성 시 FREE 플랜 제한 체크 추가 |
@@ -57,7 +57,7 @@
 | `app/(dashboard)/settings/page.tsx` | 수정 | 빌링 탭 추가 |
 | `app/(dashboard)/settings/billing-tab.tsx` | 신규 | 결제 정보 / 내역 UI 컴포넌트 |
 | `app/(dashboard)/settings/upgrade-modal.tsx` | 신규 | 업그레이드 유도 모달 |
-| `app/billing/callback/page.tsx` | 신규 | TossPayments 카드 등록 완료 콜백 페이지 |
+| `app/billing/callback/page.tsx` | 신규 | 나이스페이먼츠 카드 등록 완료 콜백 페이지 |
 | `app/api/billing/callback/route.ts` | 신규 | 빌링키 발급 + 첫 결제 실행 API Route |
 | `app/api/cron/billing/route.ts` | 신규 | 자동결제 Cron 핸들러 |
 | `vercel.json` | 수정 또는 신규 | Cron 스케줄 추가 (`/api/cron/billing` 매일 09:00 KST) |
@@ -73,35 +73,37 @@
 
 ## 핵심 설계
 
-### 1. TossPayments 빌링키 발급 플로우
+### 1. 나이스페이먼츠 빌링키 발급 플로우
 
 ```
 사용자 → /settings/billing 클릭 "Pro 업그레이드"
     → 빌링 플랜 선택 (월/연) UI
-    → TossPayments Payment SDK 카드 등록 위젯 렌더링
-       (customerKey = workspaceId, successUrl, failUrl 설정)
+    → https://pay.nicepay.co.kr/v1/js/ 로드 후 AUTHNICE.requestPay 호출
+       (clientId, orderId, amount, goodsName, returnUrl, fn_success/fn_error 설정)
     → 카드 인증 완료
-    → TossPayments → GET /billing/callback?customerKey=...&authKey=...
-    → app/billing/callback/page.tsx (서버 컴포넌트)
-       → POST /api/billing/callback (authKey, customerKey, billingCycle 전달)
-          → TossPayments POST /v1/billing/authorizations/issue
-          → billingKey 획득 → DB Subscription 생성
-          → 첫 결제 즉시 실행: TossPayments POST /v1/billing/{billingKey}
+    → AUTHNICE fn_success(data) 콜백에서 authToken, orderId 수신
+       → POST /api/billing/callback (authToken, orderId, billingCycle 전달)
+          → 나이스페이먼츠 POST /v1/subscribe/regist
+          → bid 획득 → Subscription.billingKey 저장
+          → 첫 결제 즉시 실행: POST /v1/subscribe/{bid}/payments
           → 성공: Workspace.plan = "pro", Subscription.status = "active"
           → 실패: 오류 메시지 반환 (구독 미생성)
     → 결과 페이지 표시
 ```
 
-### 2. customerKey 설계
+### 2. 카드 등록 orderId 설계
 
-- `customerKey = workspaceId` (UUID/CUID) 사용
-- TossPayments 측에서 고객 식별자로 사용됨
-- 워크스페이스당 하나의 빌링키만 존재 (`Subscription.workspaceId` UNIQUE 제약)
+- 카드 등록용 `orderId`는 `nicepay-auth-{workspaceId}-{timestamp}` 형식으로 생성한다.
+- `orderId`는 나이스페이먼츠 카드 인증과 `/v1/subscribe/regist` 호출을 연결하는 값으로 사용한다.
+- 서버는 세션의 `workspaceId`를 신뢰하고, 클라이언트가 전달하는 워크스페이스 식별자는 사용하지 않는다.
+- 워크스페이스당 하나의 빌링키만 존재한다 (`Subscription.workspaceId` UNIQUE 제약).
 
-### 3. orderId 설계
+### 3. 결제 orderId 및 PG 식별자 설계
 
 - 결제마다 고유 orderId 필요: `billing-{workspaceId}-{timestamp}`
-- TossPayments 응답의 `paymentKey`와 함께 DB 저장
+- 나이스페이먼츠 결제 응답의 `tid`를 `Payment.paymentKey`에 저장한다.
+- `Subscription.billingKey`에는 나이스페이먼츠 `bid`를 저장한다.
+- `Subscription.customerKey`는 별도 PG 고객키가 아니라 내부 추적용으로 `workspaceId`를 저장한다.
 
 ### 4. 자동결제 Cron 설계
 
@@ -110,7 +112,7 @@ GET /api/cron/billing (매일 09:00 KST = 00:00 UTC)
   → Authorization: Bearer {CRON_SECRET} 검증
   → DB에서 today 만료 예정 Subscription 조회
      (currentPeriodEnd BETWEEN today 00:00 AND today 23:59, status = "active", cancelAtPeriodEnd = false)
-  → 각 구독에 대해 TossPayments 자동결제 실행
+  → 각 구독에 대해 나이스페이먼츠 `/v1/subscribe/{bid}/payments` 자동결제 실행
   → 성공: currentPeriodEnd 갱신, Payment 레코드 생성
   → 실패: Payment 실패 기록, retryCount 증가
      - retryCount >= 3: Subscription.status = "past_due", Workspace.plan = "free"
@@ -170,7 +172,7 @@ function getAmount(billingCycle: 'monthly' | 'yearly'): number {
 
 | 경로 | 메서드 | 설명 |
 |---|---|---|
-| `/api/billing/callback` | POST | 빌링키 발급 + 첫 결제 (TossPayments 콜백 처리) |
+| `/api/billing/callback` | POST | 빌링키 발급 + 첫 결제 (나이스페이먼츠 AUTHNICE 콜백 처리) |
 | `/api/cron/billing` | GET | 자동결제 실행 (CRON_SECRET 인증) |
 
 ### 플랜 제한 에러 코드
@@ -195,8 +197,8 @@ model Subscription {
   plan               String    // "free" | "pro"
   billingCycle       String?   // "monthly" | "yearly" | null (free)
   status             String    @default("active") // "active" | "canceled" | "past_due"
-  billingKey         String?   // TossPayments 빌링키
-  customerKey        String?   // TossPayments 고객 키 (= workspaceId)
+  billingKey         String?   // 나이스페이먼츠 bid
+  customerKey        String?   // 내부 추적용 workspaceId
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?
   cancelAtPeriodEnd  Boolean   @default(false)
@@ -212,7 +214,7 @@ model Payment {
   workspace      Workspace @relation(fields: [workspaceId], references: [id])
   subscriptionId String
   subscription   Subscription @relation(fields: [subscriptionId], references: [id])
-  paymentKey     String    @unique   // TossPayments paymentKey
+  paymentKey     String    @unique   // 나이스페이먼츠 tid
   orderId        String    @unique   // billing-{workspaceId}-{timestamp}
   amount         Int                 // 결제 금액 (원)
   status         String              // "pending" | "done" | "failed" | "canceled"
@@ -262,7 +264,7 @@ WHERE id NOT IN (SELECT "workspaceId" FROM "Subscription");
 | SC-001 | 단위 | FREE 플랜 프로젝트 생성 제한 | mock: plan=free, 기존 프로젝트 3개 | `PLAN_LIMIT_EXCEEDED:PROJECT` 에러 |
 | SC-001 | 단위 | FREE 플랜 프로젝트 생성 허용 | mock: plan=free, 기존 프로젝트 2개 | 정상 생성 |
 | SC-002 | 단위 | FREE 플랜 팀원 초대 제한 | mock: plan=free, 멤버 1명 | `PLAN_LIMIT_EXCEEDED:MEMBER` 에러 |
-| SC-006 | 단위 | TossPayments 결제 실패 | mock: API 에러 반환 | Payment.status="failed", failReason 저장 |
+| SC-006 | 단위 | 나이스페이먼츠 결제 실패 | mock: API 에러 반환 | Payment.status="failed", failReason 저장 |
 | SC-007 | 단위 | 3회 재시도 실패 | mock: retryCount=2, API 실패 | status="past_due", plan="free" |
 | SC-008 | 단위 | 구독 취소 | session: OWNER | cancelAtPeriodEnd=true, plan 즉시 유지 |
 | SC-011 | 단위 | 마이그레이션 후 beta plan 없음 | mock: beta 워크스페이스 존재 | plan="beta" 카운트 = 0 |
@@ -271,27 +273,29 @@ WHERE id NOT IN (SELECT "workspaceId" FROM "Subscription");
 
 ## 기타 고려사항
 
-### TossPayments 테스트 환경
+### 나이스페이먼츠 테스트 환경
 
-- 테스트 클라이언트 키 (`test_ck_...`)와 시크릿 키 (`test_sk_...`)를 TossPayments 대시보드에서 발급
-- `.env.local`에 `TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY` 추가
+- `NEXT_PUBLIC_NICEPAY_CLIENT_ID`와 `NICEPAY_SECRET_KEY`를 나이스페이먼츠 관리자 콘솔에서 발급
+- `.env.local`에 `NEXT_PUBLIC_NICEPAY_CLIENT_ID`, `NICEPAY_SECRET_KEY` 추가
 - 테스트 환경에서는 실제 결제가 발생하지 않음
 
-### TossPayments SDK 설치
+### 나이스페이먼츠 클라이언트 스크립트
 
-```bash
-npm install @tosspayments/payment-sdk
-```
+- 별도 npm SDK를 설치하지 않는다.
+- 클라이언트에서는 `next/script`로 `https://pay.nicepay.co.kr/v1/js/`를 로드한다.
+- 카드 인증은 `window.AUTHNICE.requestPay(...)`로 시작한다.
 
-서버 측 API 호출은 SDK 없이 `fetch` + Basic Auth (Base64 인코딩된 secretKey) 사용:
+서버 측 API 호출은 SDK 없이 `fetch` + Basic Auth를 사용한다:
 ```typescript
-const encodedKey = Buffer.from(`${process.env.TOSS_SECRET_KEY}:`).toString('base64')
+const encodedKey = Buffer.from(
+  `${process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID}:${process.env.NICEPAY_SECRET_KEY}`
+).toString('base64')
 headers: { Authorization: `Basic ${encodedKey}` }
 ```
 
 ### 빌링키 보안
 
-TossPayments 빌링키는 실제 카드 정보가 아니므로 평문 DB 저장 허용.
+나이스페이먼츠 `bid`는 실제 카드 정보가 아니므로 평문 DB 저장 허용.
 단, Prisma의 `@select` 기반으로 API 응답에서 빌링키 필드는 제외한다.
 
 ### Vercel Cron 무료 플랜 제한

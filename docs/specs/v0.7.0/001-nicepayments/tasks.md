@@ -1,6 +1,6 @@
-# Tasks: TossPayments 결제 · 구독 시스템
+# Tasks: NicePayments 결제 · 구독 시스템
 
-> Branch: 001-tosspayments | Date: 2026-06-23 | Plan: [plan.md](plan.md)
+> Branch: 001-nicepayments | Date: 2026-06-23 | Plan: [plan.md](plan.md)
 
 ## 목차
 
@@ -14,7 +14,7 @@
 
 - [x] spec.md의 모든 `[NEEDS CLARIFICATION]` 항목이 해소되었는가? — 예 (없음)
 - [x] plan.md의 Constitution Gates가 모두 통과(또는 예외 기재)되었는가? — 예
-- [ ] TossPayments 개발자 계정 및 테스트 키 발급 완료 (`TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`)
+- [ ] NicePayments 개발자 계정 및 테스트 키 발급 완료 (`NEXT_PUBLIC_NICEPAY_CLIENT_ID`, `NICEPAY_SECRET_KEY`)
 
 ---
 
@@ -43,12 +43,12 @@
     - `checkMemberLimit(workspaceId)` — 초과 시 `throw new Error('PLAN_LIMIT_EXCEEDED:MEMBER')`
   - 완료 기준: 함수 작성 완료, TypeScript 컴파일 에러 없음
 
-- [ ] **T003** `[P]` — TossPayments API 래퍼 작성
+- [ ] **T003** `[P]` — NicePayments API 래퍼 작성
   - 구현 파일: `lib/billing.ts` (신규)
   - 관련 요구사항: `FR-002`, `FR-003`, `FR-004`
   - 상세:
     - `PLAN_PRICES = { monthly: 29900, yearly: 298000 }` 상수
-    - `issueBillingKey(authKey, customerKey)` — TossPayments `/v1/billing/authorizations/issue` 호출
+    - `issueBillingKey(authKey, customerKey)` — NicePayments `/v1/billing/authorizations/issue` 호출
     - `chargeBillingKey(billingKey, orderId, amount, customerKey)` — `/v1/billing/{billingKey}` 호출
     - `getNextPeriodEnd(billingCycle, from)` — 월/연 기준 다음 결제일 계산
     - 모든 함수는 실패 시 throw, Sentry captureException 호출
@@ -58,10 +58,10 @@
   - 구현 파일: `.env.local`, `.env.example`
   - 관련 요구사항: `FR-002`
   - 상세:
-    - `npm install @tosspayments/payment-sdk` 실행
-    - `.env.local`에 `TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY` 추가 (TossPayments 대시보드에서 발급)
+    - `npm install @tosspayments나이스페이먼츠 AUTHNICE 스크립트` 실행
+    - `.env.local`에 `NEXT_PUBLIC_NICEPAY_CLIENT_ID`, `NICEPAY_SECRET_KEY` 추가 (NicePayments 대시보드에서 발급)
     - `.env.example`에 동일 키 추가 (placeholder 값)
-  - 완료 기준: `@tosspayments/payment-sdk` package.json에 등록, env 파일 업데이트
+  - 완료 기준: `@tosspayments나이스페이먼츠 AUTHNICE 스크립트` package.json에 등록, env 파일 업데이트
 
 ### Phase 2. 핵심 비즈니스 로직
 
@@ -76,7 +76,7 @@
     - `chargeBillingKey(billingKey, orderId, PLAN_PRICES[billingCycle], customerKey)` 호출
     - 성공 시: Subscription 생성 (plan=pro, status=active, billingKey, currentPeriodEnd), Workspace.plan = "pro", Payment 생성 (status=done)
     - 실패 시: Payment 생성 (status=failed), 400 반환
-  - 완료 기준: TossPayments 테스트 환경에서 정상 동작
+  - 완료 기준: NicePayments 테스트 환경에서 정상 동작
 
 - [ ] **T006** — 자동결제 Cron API Route
   - 구현 파일: `app/api/cron/billing/route.ts` (신규)
@@ -139,10 +139,10 @@
     - PRO일 경우: 등록 카드 마지막 4자리, "구독 취소" 버튼
     - FREE일 경우: "Pro 업그레이드" 버튼 → 업그레이드 모달
     - 결제 내역 테이블 (날짜, 금액, 상태)
-    - 업그레이드 모달: 월/연 선택, TossPayments 카드 등록 위젯 렌더링
+    - 업그레이드 모달: 월/연 선택, NicePayments 카드 등록 위젯 렌더링
   - 완료 기준: 빌링 탭 렌더링, 업그레이드 플로우 UI 확인
 
-- [ ] **T012** — TossPayments 카드 등록 콜백 페이지
+- [ ] **T012** — NicePayments 카드 등록 콜백 페이지
   - 구현 파일: `app/billing/callback/page.tsx` (신규)
   - 관련 요구사항: `FR-002`, `FR-003`
   - 상세:
@@ -185,7 +185,7 @@
   - 테스트 파일: `tests/billing.test.ts` (신규)
   - 검증 대상: `SC-006`, `SC-007`, `SC-008`, `SC-010`
   - 시나리오:
-    - TossPayments API mock 실패 → Payment.status=failed, failReason 저장
+    - NicePayments API mock 실패 → Payment.status=failed, failReason 저장
     - retryCount=2 + 실패 → status=past_due, Workspace.plan=free
     - `cancelSubscription()` OWNER → cancelAtPeriodEnd=true
     - 연간 결제 → amount=298000, currentPeriodEnd=+365일
@@ -199,4 +199,4 @@
 - [ ] `npm run typecheck` 에러 없음
 - [ ] `npm run lint` 에러 없음
 - [ ] `git status`에 의도치 않은 파일 없음
-- [ ] TossPayments 테스트 환경에서 카드 등록 → 결제 → 구독 활성화 플로우 수동 확인
+- [ ] NicePayments 테스트 환경에서 카드 등록 → 결제 → 구독 활성화 플로우 수동 확인
