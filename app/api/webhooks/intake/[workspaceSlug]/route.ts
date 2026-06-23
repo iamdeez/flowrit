@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { sendNewInquiryEmail } from '@/lib/email'
 import { sendNotification } from '@/lib/notifications'
+import { checkWebhookRateLimit } from '@/lib/ratelimit'
 
 // 외부 플랫폼 소스 레이블
 const SOURCE_LABELS: Record<string, string> = {
@@ -24,7 +25,17 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ workspaceSlug: string }> }
 ) {
-  // 1. WEBHOOK_SECRET 설정 여부 확인
+  // 1. Rate limit
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const rateLimit = await checkWebhookRateLimit(ip)
+  if (rateLimit.limited) {
+    return NextResponse.json(
+      { ok: false, error: 'Too Many Requests' },
+      { status: 429, headers: { 'Retry-After': String(rateLimit.retryAfter) } }
+    )
+  }
+
+  // 2. WEBHOOK_SECRET 설정 여부 확인
   const secret = process.env.WEBHOOK_SECRET
   if (!secret) {
     return NextResponse.json(

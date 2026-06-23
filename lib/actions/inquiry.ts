@@ -2,11 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { sendNewInquiryEmail } from '@/lib/email'
 import { sendNotification } from '@/lib/notifications'
 import { getOrInitOrderFormFields } from '@/lib/actions/form-fields'
+import { checkIntakeRateLimit } from '@/lib/ratelimit'
 
 export type InquiryFormState = {
   error?: string
@@ -32,6 +34,12 @@ export async function submitInquiry(
   _prevState: InquiryFormState,
   formData: FormData
 ): Promise<InquiryFormState> {
+  const ip = ((await headers()).get('x-forwarded-for')?.split(',')[0]?.trim()) ?? 'unknown'
+  const rateLimit = await checkIntakeRateLimit(ip)
+  if (rateLimit.limited) {
+    return { error: '너무 많은 요청입니다. 잠시 후 다시 시도해 주세요.' }
+  }
+
   const workspace = await prisma.workspace.findUnique({
     where: { slug: workspaceSlug },
   })
@@ -91,6 +99,12 @@ export async function submitOrder(
   _prevState: InquiryFormState,
   formData: FormData
 ): Promise<InquiryFormState> {
+  const ip = ((await headers()).get('x-forwarded-for')?.split(',')[0]?.trim()) ?? 'unknown'
+  const rateLimit = await checkIntakeRateLimit(ip)
+  if (rateLimit.limited) {
+    return { error: '너무 많은 요청입니다. 잠시 후 다시 시도해 주세요.' }
+  }
+
   const workspace = await prisma.workspace.findUnique({ where: { slug: workspaceSlug } })
   if (!workspace) return { error: '존재하지 않는 워크스페이스입니다.' }
 

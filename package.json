@@ -18,6 +18,8 @@
     "@prisma/client": "^7.8.0",
     "@sentry/nextjs": "^10.59.0",
     "@tosspayments/payment-sdk": "^1.9.3",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "bcryptjs": "^3.0.3",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
