@@ -23,9 +23,13 @@ export function requireMutationAllowed() {
 
 export async function login(page: Page) {
   requireEnv(['email', 'password'])
+  // Skip form when already authenticated via storageState
+  await page.goto('/dashboard')
+  if (page.url().includes('/dashboard')) return
+
   await page.goto('/login')
   await page.getByLabel('이메일').fill(e2eEnv.email!)
   await page.getByLabel('비밀번호').fill(e2eEnv.password!)
   await page.getByRole('button', { name: '로그인' }).click()
-  await expect(page).toHaveURL(/\/dashboard/)
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 })
 }

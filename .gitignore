@@ -58,3 +58,4 @@ _ai-workspace/
 # OS / Tool crash dumps
 *.stackdump
 core.*
+tests/.auth/

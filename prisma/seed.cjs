@@ -77,7 +77,7 @@ async function main() {
   await q(
     `INSERT INTO "Workspace" (id, name, slug, plan, "createdAt")
      VALUES ($1,$2,$3,$4,NOW())`,
-    [wsId, '민준 스튜디오', 'flowrit-demo', 'beta']
+    [wsId, '민준 스튜디오', 'flowrit-demo', 'pro']
   )
 
   // ── 멤버십 ─────────────────────────────────────────────

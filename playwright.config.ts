@@ -31,18 +31,29 @@ export default defineConfig({
       },
   projects: [
     {
+      name: 'setup',
+      testMatch: /setup\/auth\.setup\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
       name: 'desktop-chrome',
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1440, height: 1100 },
+        storageState: 'tests/.auth/user.json',
       },
+      dependencies: ['setup'],
+      testIgnore: /setup\//,
     },
     {
       name: 'mobile-chrome',
       use: {
         ...devices['Pixel 5'],
         viewport: { width: 390, height: 920 },
+        storageState: 'tests/.auth/user.json',
       },
+      dependencies: ['setup'],
+      testIgnore: /setup\//,
     },
   ],
 })
