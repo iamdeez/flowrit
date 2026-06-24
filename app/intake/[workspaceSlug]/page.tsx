@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Clock3, MessageSquareText } from 'lucide-react'
 import { prisma } from '@/lib/db'
@@ -5,6 +6,42 @@ import { IntakeForm } from './intake-form'
 
 type Props = {
   params: Promise<{ workspaceSlug: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { workspaceSlug: rawSlug } = await params
+  const workspaceSlug = decodeURIComponent(rawSlug)
+  const workspace = await prisma.workspace.findUnique({
+    where: { slug: workspaceSlug },
+    select: { name: true },
+  })
+
+  if (!workspace) {
+    return {
+      title: '문의 폼을 찾을 수 없습니다',
+      robots: { index: false, follow: false },
+    }
+  }
+
+  const title = `${workspace.name} 문의 접수`
+  const description =
+    `${workspace.name}에 문의 내용과 참고 파일을 전달하는 Flowrit 접수 폼입니다. 담당자가 확인 후 다음 진행 방법을 안내합니다.`
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  }
 }
 
 export default async function IntakePage({ params }: Props) {

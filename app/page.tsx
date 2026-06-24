@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -17,6 +18,32 @@ import {
   UserRound,
   Zap,
 } from 'lucide-react'
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+  SITE_URL,
+  defaultOpenGraph,
+  defaultTwitter,
+} from '@/lib/seo'
+
+export const metadata: Metadata = {
+  title: DEFAULT_TITLE,
+  description: DEFAULT_DESCRIPTION,
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    ...defaultOpenGraph,
+    url: SITE_URL,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+  },
+  twitter: {
+    ...defaultTwitter,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+  },
+}
 
 // ─── 실제 기능 3가지 ────────────────────────────────────────
 const FEATURES = [

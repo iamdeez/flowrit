@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: '개인정보처리방침',
+  description: 'Flowrit 개인정보처리방침입니다. 서비스 제공을 위해 수집하는 정보와 이용 목적, 보관 기간을 안내합니다.',
 }
 
 export default function PrivacyPage() {

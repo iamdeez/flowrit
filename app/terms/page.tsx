@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 export const metadata = {
   title: '이용약관',
+  description: 'Flowrit 이용약관입니다. 서비스 이용 조건, 데이터 소유권, 이용자의 권리와 의무를 안내합니다.',
 }
 
 export default function TermsPage() {

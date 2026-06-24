@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Clock3, ShieldCheck } from 'lucide-react'
 import { prisma } from '@/lib/db'
@@ -6,6 +7,42 @@ import { OrderForm } from './order-form'
 
 type Props = {
   params: Promise<{ workspaceSlug: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { workspaceSlug: rawSlug } = await params
+  const workspaceSlug = decodeURIComponent(rawSlug)
+  const workspace = await prisma.workspace.findUnique({
+    where: { slug: workspaceSlug },
+    select: { name: true },
+  })
+
+  if (!workspace) {
+    return {
+      title: '주문서를 찾을 수 없습니다',
+      robots: { index: false, follow: false },
+    }
+  }
+
+  const title = `${workspace.name} 주문서`
+  const description =
+    `${workspace.name}에 프로젝트 의뢰 내용을 안전하게 전달하는 Flowrit 주문서입니다. 필요한 정보와 참고 파일을 한 번에 접수할 수 있습니다.`
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  }
 }
 
 export default async function OrderPage({ params }: Props) {

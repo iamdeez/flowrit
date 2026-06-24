@@ -1,39 +1,49 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
+import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_KEYWORDS,
+  DEFAULT_TITLE,
+  SITE_NAME,
+  SITE_URL,
+  defaultOpenGraph,
+  defaultTwitter,
+} from '@/lib/seo'
 import "./globals.css";
-
-const SITE_URL = 'https://flowrit.motionbit.kr'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Flowrit',
+    default: DEFAULT_TITLE,
     template: '%s | Flowrit',
   },
-  description: '고객 의뢰·수정 요청·납품 링크를 한 곳에서 관리하세요',
-  keywords: ['프리랜서', '고객 관리', '의뢰 관리', '수정 요청', '납품', '워크플로우', 'Flowrit'],
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: DEFAULT_KEYWORDS,
   authors: [{ name: 'Flowrit' }],
+  creator: 'Flowrit',
+  publisher: 'Flowrit',
+  category: 'productivity',
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: '/FLOWRIT_icon_logo.svg',
     shortcut: '/FLOWRIT_icon_logo.svg',
     apple: '/FLOWRIT_icon_logo.svg',
   },
-  openGraph: {
-    type: 'website',
-    locale: 'ko_KR',
-    url: SITE_URL,
-    siteName: 'Flowrit',
-    title: 'Flowrit — 고객 의뢰·수정 요청·납품 링크를 한 곳에서',
-    description: '고객 의뢰·수정 요청·납품 링크를 한 곳에서 관리하세요',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Flowrit — 고객 의뢰·수정 요청·납품 링크를 한 곳에서',
-    description: '고객 의뢰·수정 요청·납품 링크를 한 곳에서 관리하세요',
-  },
+  openGraph: defaultOpenGraph,
+  twitter: defaultTwitter,
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
   },
 };
 

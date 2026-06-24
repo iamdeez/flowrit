@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { getEffectiveStageFromSharedAssets } from '@/lib/project-utils'
@@ -5,6 +6,50 @@ import { PublicProjectPortal } from './public-project-portal'
 
 type Props = {
   params: Promise<{ token: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { token } = await params
+  const page = await prisma.publicProjectPage.findUnique({
+    where: { token },
+    select: {
+      isActive: true,
+      project: {
+        select: {
+          title: true,
+          dueDate: true,
+          customer: { select: { name: true } },
+        },
+      },
+    },
+  })
+
+  if (!page || !page.isActive) {
+    return {
+      title: '공유 페이지를 찾을 수 없습니다',
+      robots: { index: false, follow: false },
+    }
+  }
+
+  const dueDate = page.project.dueDate?.toLocaleDateString('ko-KR') ?? '일정 확인 중'
+  const title = `${page.project.title} 진행 현황`
+  const description = `${page.project.customer.name}님의 프로젝트 진행 단계, 납품 이력, 수정 요청 현황을 확인하는 Flowrit 공유 페이지입니다. 납품 일정: ${dueDate}.`
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: false },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  }
 }
 
 export default async function PublicProjectPage({ params }: Props) {
