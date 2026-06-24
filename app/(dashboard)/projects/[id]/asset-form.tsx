@@ -49,7 +49,7 @@ function SubmitButton({ disabled, revisionId }: { disabled: boolean; revisionId?
     <button
       type="submit"
       disabled={pending || disabled}
-      className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
+      className="flowrit-button-primary min-h-9 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {pending ? '등록 중...' : revisionId ? '재수정본 등록' : '납품본 등록'}
     </button>

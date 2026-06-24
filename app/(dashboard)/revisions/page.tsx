@@ -46,7 +46,7 @@ export default async function RevisionsPage() {
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-[var(--flowrit-text)] md:text-2xl">수정 요청</h1>
-          <p className="mt-1 hidden text-sm text-[var(--flowrit-text-muted)] md:block">
+          <p className="mt-1 line-clamp-1 text-sm text-[var(--flowrit-text-muted)]">
             전체 워크스페이스의 미완료 요청을 프로젝트별로 확인합니다.
           </p>
         </div>
@@ -115,7 +115,7 @@ export default async function RevisionsPage() {
                   </div>
                   <Link
                     href={`/projects/${project.id}?tab=revisions`}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--flowrit-text-secondary)] transition-colors hover:bg-[var(--flowrit-panel-subtle)]"
+                    className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[var(--flowrit-text-secondary)] transition-colors hover:bg-[var(--flowrit-panel-subtle)]"
                   >
                     열기
                     <ArrowUpRight className="h-3.5 w-3.5" />

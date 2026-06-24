@@ -110,7 +110,7 @@ export default async function ProjectDetailPage({
       </Link>
 
       <div className="flowrit-panel-padded mb-4">
-        <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">{project.title}</h1>
             <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
@@ -198,8 +198,8 @@ export default async function ProjectDetailPage({
         </div>
       </div>
 
-      <section className="mb-6 grid gap-3 md:grid-cols-3">
-        <div className="flowrit-panel-padded">
+      <section className="mb-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+        <div className="flowrit-panel-padded sm:col-span-2 md:col-span-1">
           <div className="mb-3 flex items-center gap-2">
             <span className="flowrit-empty-icon h-9 w-9">
               <Link2 className="h-4 w-4" aria-hidden="true" />
@@ -248,12 +248,12 @@ export default async function ProjectDetailPage({
         </div>
       </section>
 
-      <div className="mb-5 grid gap-2 border-b border-gray-200 md:grid-cols-4">
+      <div className="mb-5 flex overflow-x-auto border-b border-gray-200 [&::-webkit-scrollbar]:hidden">
         {tabs.map((item) => (
           <Link
             key={item.key}
             href={`/projects/${project.id}?tab=${item.key}`}
-            className={`border-b-2 px-3 py-3 text-sm font-medium ${
+            className={`flex-shrink-0 border-b-2 px-3 py-3 text-sm font-medium ${
               tab === item.key
                 ? 'border-indigo-600 text-indigo-700'
                 : 'border-transparent text-gray-500 hover:text-gray-900'
@@ -543,7 +543,7 @@ export default async function ProjectDetailPage({
             <div className="mt-2 flex justify-end">
               <button
                 type="submit"
-                className="flowrit-button-primary"
+                className="flowrit-button-primary min-h-9"
               >
                 메모 저장
               </button>

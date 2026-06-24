@@ -15,7 +15,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
   const [editing, setEditing] = useState<Template | null>(null)
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(360px,480px)]">
+    <div className="flex flex-col-reverse gap-6 md:grid md:grid-cols-[minmax(0,1fr)_minmax(360px,480px)]">
       <section>
         <h2 className="mb-3 text-sm font-medium text-gray-700">
           템플릿 목록 ({templates.length})
@@ -46,7 +46,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
                     <button
                       type="button"
                       onClick={() => setEditing(t)}
-                      className="flowrit-button-secondary"
+                      className="flowrit-button-secondary min-h-9"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                       편집
@@ -55,7 +55,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
                       <input type="hidden" name="id" value={t.id} />
                       <button
                         type="submit"
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         삭제

@@ -129,12 +129,12 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         </div>
         <div className="flex items-center gap-2">
           {isAdmin && (
-            <a href={exportHref} download className="flowrit-button-secondary inline-flex">
+            <a href={exportHref} download className="flowrit-button-secondary inline-flex min-h-9">
               <Download className="h-4 w-4" />
               CSV
             </a>
           )}
-          <Link href="/projects/new" className="flowrit-button-primary">
+          <Link href="/projects/new" className="flowrit-button-primary min-h-9">
             <Plus className="h-4 w-4" />
             <span className="hidden md:inline">새 프로젝트</span>
             <span className="md:hidden">추가</span>
@@ -321,7 +321,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
           </p>
           {!q && !isArchivedFilter && role !== 'MEMBER' && (
             <div className="flowrit-empty-actions">
-              <Link href="/projects/new" className="flowrit-button-primary">
+              <Link href="/projects/new" className="flowrit-button-primary min-h-9">
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 새 프로젝트
               </Link>

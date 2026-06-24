@@ -90,7 +90,7 @@ export function MessageForm({ mode, template, onSuccess }: MessageFormProps) {
       <button
         type="submit"
         disabled={pending}
-        className="flowrit-button-primary disabled:cursor-not-allowed disabled:opacity-50"
+        className="flowrit-button-primary min-h-9 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? '저장 중...' : mode === 'create' ? '템플릿 생성' : '변경사항 저장'}
       </button>

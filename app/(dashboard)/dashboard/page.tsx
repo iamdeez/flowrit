@@ -369,7 +369,7 @@ export default async function DashboardPage({
           <PeriodSelector current={period} />
           <Link
             href="/projects/new"
-            className="flowrit-button-primary inline-flex items-center gap-2"
+            className="flowrit-button-primary inline-flex min-h-9 items-center gap-2"
           >
             <Plus className="h-4 w-4" />새 프로젝트
           </Link>
@@ -444,7 +444,7 @@ export default async function DashboardPage({
       </section>
 
       <section
-        className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.85fr)]"
+        className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.85fr)]"
         style={{ alignItems: "stretch" }}
       >
         {/* 두 영역의 높이+더보기 버튼 위치를 맞추고, 외곽선으로 시각적 분리 */}
@@ -693,7 +693,7 @@ async function DashboardAnalytics({
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {analyticsStatCard({
           label: "완료 프로젝트",
           value: `${completedInPeriodCount}건`,
@@ -723,7 +723,7 @@ async function DashboardAnalytics({
         })}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
         <div className="flowrit-panel-padded">
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-gray-900">
@@ -757,7 +757,7 @@ async function DashboardAnalytics({
         <InquiryTrendChart data={inquiryTrendData} />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(360px,0.75fr)_minmax(0,1.25fr)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(360px,0.75fr)_minmax(0,1.25fr)]">
         <div className="flowrit-panel-padded">
           <div className="mb-4">
             <h3 className="text-sm font-semibold text-gray-900">팀 워크로드</h3>
@@ -782,7 +782,7 @@ function DashboardAnalyticsFallback() {
           상단 기간 선택 기준으로 프로젝트 완료, 수정 요청, 수익 흐름을 봅니다.
         </p>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
           <div key={index} className="flowrit-panel-padded animate-pulse">
             <div className="mb-4 flex items-center justify-between">
@@ -794,7 +794,7 @@ function DashboardAnalyticsFallback() {
           </div>
         ))}
       </div>
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
         <div className="flowrit-panel-padded h-72 animate-pulse bg-gray-50" />
         <div className="flowrit-panel-padded h-72 animate-pulse bg-gray-50" />
       </div>

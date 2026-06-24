@@ -27,9 +27,11 @@ export default async function TeamPage() {
 
   return (
     <div className="flowrit-page max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">팀</h1>
-        <p className="text-sm text-gray-500 mt-1">워크스페이스 팀원을 관리하고 새 팀원을 초대합니다.</p>
+      <div className="flowrit-page-header">
+        <div>
+          <h1 className="flowrit-page-title">팀</h1>
+          <p className="flowrit-page-description">워크스페이스 팀원을 관리하고 새 팀원을 초대합니다.</p>
+        </div>
       </div>
 
       {/* 팀원 목록 */}
@@ -50,7 +52,7 @@ export default async function TeamPage() {
             const canTransfer = myRole === 'OWNER' && !isSelf && !isTargetOwner
 
             return (
-              <div key={m.id} className="flex items-center justify-between px-5 py-4">
+              <div key={m.id} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-900">
                     {m.user.name}
@@ -58,7 +60,7 @@ export default async function TeamPage() {
                   </p>
                   <p className="text-xs text-gray-500">{m.user.email}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {canChangeRole ? (
                     <RoleChangeSelect memberId={m.id} currentRole={memberRole} />
                   ) : (

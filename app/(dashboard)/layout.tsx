@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import { MobilePageTitle } from '@/components/mobile-page-title'
+import { MobileNavWrapper } from '@/components/mobile-nav-wrapper'
+import { NotificationBell } from '@/components/notification-bell'
 import { SidebarNav } from '@/components/sidebar-nav'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/db'
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
-import { NotificationBell } from '@/components/notification-bell'
-import { MobileNavWrapper } from '@/components/mobile-nav-wrapper'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/db'
 
 export default async function DashboardLayout({
   children,
@@ -71,15 +72,9 @@ export default async function DashboardLayout({
       <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {/* Top bar */}
         <div className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b border-[var(--flowrit-border)] bg-[rgba(248,250,252,0.92)] px-4 backdrop-blur md:px-8">
-          {/* Mobile: brand + workspace */}
+          {/* Mobile: current page title */}
           <div className="md:hidden">
-            <div className="flex items-center gap-1.5">
-              <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={22} height={22} className="shrink-0" />
-              <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={72} height={12} />
-            </div>
-            <p className="mt-0.5 text-[11px] leading-none text-[var(--flowrit-text-muted)]">
-              {workspace?.name ?? '나의 작업실'}
-            </p>
+            <MobilePageTitle />
           </div>
           {/* Desktop: workspace name only */}
           <p className="hidden text-sm font-medium text-[var(--flowrit-text-secondary)] md:block">

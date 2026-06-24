@@ -18,7 +18,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-[var(--flowrit-text)] md:text-2xl">고객</h1>
-          <p className="mt-1 hidden text-sm text-[var(--flowrit-text-muted)] md:block">
+          <p className="mt-1 line-clamp-1 text-sm text-[var(--flowrit-text-muted)]">
             고객 정보를 등록하고 이름으로 빠르게 찾습니다.
           </p>
         </div>
@@ -26,12 +26,12 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
           <a
             href="/api/export/customers"
             download
-            className="flowrit-button-secondary inline-flex"
+            className="flowrit-button-secondary inline-flex min-h-9"
           >
             <Download className="h-4 w-4" />
             CSV 내보내기
           </a>
-          <Link href="/customers/new" className="flowrit-button-primary">
+          <Link href="/customers/new" className="flowrit-button-primary min-h-9">
             <Plus className="h-4 w-4" />
             <span className="hidden md:inline">고객 등록</span>
             <span className="md:hidden">등록</span>
@@ -50,7 +50,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
               className="flowrit-input pl-9"
             />
           </div>
-          <button type="submit" className="flowrit-button-secondary">
+          <button type="submit" className="flowrit-button-secondary min-h-9">
             검색
           </button>
         </Form>
@@ -135,7 +135,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
           </p>
           {!query && (
             <div className="flowrit-empty-actions">
-              <Link href="/customers/new" className="flowrit-button-primary">
+              <Link href="/customers/new" className="flowrit-button-primary min-h-9">
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 고객 등록
               </Link>
