@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { OnboardingForm } from './onboarding-form'
 
-export const metadata = { title: 'Flowrit 시작하기' }
+export const metadata = { title: '시작하기', robots: { index: false, follow: false } }
 
 export default async function OnboardingPage() {
   const session = await auth()

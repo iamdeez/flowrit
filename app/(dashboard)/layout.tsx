@@ -1,5 +1,10 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import { SidebarNav } from '@/components/sidebar-nav'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 import { NotificationBell } from '@/components/notification-bell'
 import { MobileNavWrapper } from '@/components/mobile-nav-wrapper'
 import { auth } from '@/lib/auth'
