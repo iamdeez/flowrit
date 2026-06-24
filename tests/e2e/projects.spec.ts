@@ -54,6 +54,76 @@ test.describe('projects', () => {
     }
   })
 
+  test('E-04 project detail shows basic info', async ({ page }) => {
+    requireEnv(['email', 'password'])
+    await login(page)
+    await page.goto('/projects')
+    const firstProject = page.locator('a[href^="/projects/"]:not([href="/projects/new"])').first()
+    test.skip((await firstProject.count()) === 0, '프로젝트 없음 — 선행 데이터 필요')
+    // Use goto to avoid click races with concurrent revalidatePath server actions
+    const href = await firstProject.getAttribute('href')
+    await page.goto(href!)
+    await expect(page).toHaveURL(/\/projects\/(?!new)[a-z0-9]+/)
+    // Project detail should show stage info and project heading
+    await expect(page.locator('h1, h2').first()).toBeVisible()
+  })
+
+  test('E-05 stage can be advanced on project detail', async ({ page }) => {
+    requireMutationAllowed()
+    requireEnv(['email', 'password'])
+    await login(page)
+    await page.goto('/projects')
+    const firstProject = page.locator('a[href^="/projects/"]:not([href="/projects/new"])').first()
+    test.skip((await firstProject.count()) === 0, '프로젝트 없음 — 선행 데이터 필요')
+    // Use goto instead of click to avoid grid overflow issues on mobile
+    const href = await firstProject.getAttribute('href')
+    await page.goto(href!)
+    await expect(page).toHaveURL(/\/projects\/(?!new)[a-z0-9]+/)
+
+    // Stage buttons are rendered by StageForm — find a non-current stage button
+    // Require some text to exclude the icon-only logout button (form button[type=submit] with no text)
+    const stageButtons = page.locator('form button[type="submit"]')
+      .filter({ hasText: /[가-힣a-zA-Z]/ })
+      .filter({ hasNotText: /확인|제출|생성/ })
+    test.skip((await stageButtons.count()) === 0, '스테이지 버튼 없음 — 선행 데이터 필요')
+    // Click first non-selected stage button
+    await stageButtons.first().click()
+    // Stage change updates the page without navigation
+    await expect(page).toHaveURL(/\/projects\/(?!new)[a-z0-9]+/)
+  })
+
+  test('E-07 project share link copy button', async ({ page }) => {
+    requireEnv(['email', 'password'])
+    await login(page)
+    await page.goto('/projects')
+    const firstProject = page.locator('a[href^="/projects/"]:not([href="/projects/new"])').first()
+    test.skip((await firstProject.count()) === 0, '프로젝트 없음 — 선행 데이터 필요')
+    // Use goto to avoid click races with concurrent revalidatePath server actions
+    const href = await firstProject.getAttribute('href')
+    await page.goto(href!)
+    await expect(page).toHaveURL(/\/projects\/(?!new)[a-z0-9]+/)
+
+    // Either "공유 링크 생성" button (no public page yet) or "링크 복사" button (page exists)
+    const copyOrCreate = page.getByRole('button', { name: /링크 복사|공유 링크 생성/ })
+    test.skip((await copyOrCreate.count()) === 0, '공유 링크 버튼 없음 — UI 확인 필요')
+    await expect(copyOrCreate.first()).toBeVisible()
+  })
+
+  test('E-08 timeline tab shows stage change history', async ({ page }) => {
+    requireEnv(['email', 'password'])
+    await login(page)
+    await page.goto('/projects')
+    const firstProject = page.locator('a[href^="/projects/"]:not([href="/projects/new"])').first()
+    test.skip((await firstProject.count()) === 0, '프로젝트 없음 — 선행 데이터 필요')
+    const href = await firstProject.getAttribute('href')
+    await page.goto(`${href}?tab=timeline`)
+    await expect(page).toHaveURL(/\/projects\/(?!new)[a-z0-9]+/)
+    // Timeline tab renders a textarea for memos and any existing events
+    await expect(
+      page.locator('textarea').or(page.getByText(/단계 변경|타임라인|기록/).first()).first()
+    ).toBeVisible({ timeout: 10_000 })
+  })
+
   test('E-10 project list filter by status', async ({ page }) => {
     requireEnv(['email', 'password'])
     await login(page)

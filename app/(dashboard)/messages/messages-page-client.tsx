@@ -15,7 +15,7 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
   const [editing, setEditing] = useState<Template | null>(null)
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_minmax(360px,480px)] gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(360px,480px)]">
       <section>
         <h2 className="mb-3 text-sm font-medium text-gray-700">
           템플릿 목록 ({templates.length})

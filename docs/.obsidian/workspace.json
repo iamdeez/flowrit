@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
+                "file": "e2e-test.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "tasks"
+              "title": "e2e-test"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
+                "file": "e2e-test.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "tasks 의 백링크"
+              "title": "e2e-test 의 백링크"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
+                "file": "e2e-test.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "tasks 의 나가는 링크"
+              "title": "e2e-test 의 나가는 링크"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "specs/v1.0.0/001-launch-readiness/tasks.md",
+                "file": "e2e-test.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "tasks 의 개요"
+              "title": "e2e-test 의 개요"
             }
           }
         ]
@@ -185,12 +185,24 @@
   },
   "active": "4485eb2ea0b1ebcc",
   "lastOpenFiles": [
+    "promo/capcut-workflow.md",
+    "promo/instagram-reels-checklist.md",
+    "promo/higgsfield-handoff.md",
+    "promo/README.md",
+    "specs/v1.0.0/002-marketing-video-automation/tasks.md",
+    "specs/v1.0.0/002-marketing-video-automation/research.md",
+    "e2e-test.md",
+    "promo",
+    "specs/v1.0.0/002-marketing-video-automation/plan.md",
+    "specs/v1.0.0/002-marketing-video-automation/spec.md",
+    "specs/v1.0.0/002-marketing-video-automation",
+    "specs/v1.0.0/001-launch-readiness/tasks.md",
+    "manual-test.md",
     "specs/v1.0.0/001-launch-readiness/checklist.md",
     "specs/v1.0.0/DIFF-001-launch-readiness.md",
     "specs/v1.0.0/CHANGES.md",
     "specs/v1.0.0/001-launch-readiness/plan.md",
     "specs/v0.7.0/001-tosspayments/tasks.md",
-    "specs/v1.0.0/001-launch-readiness/tasks.md",
     "specs/v1.0.0/001-launch-readiness/research.md",
     "specs/v1.0.0/001-launch-readiness/spec.md",
     "specs/v1.0.0/001-launch-readiness",
@@ -206,20 +218,8 @@
     "specs/v0.7.0",
     "specs/pre-launch/002-launch-infra/tasks.md",
     "specs/pre-launch/001-password-reset/tasks.md",
-    "specs/pre-launch/001-password-reset/spec.md",
     "specs/pre-launch/002-launch-infra",
     "specs/pre-launch/001-password-reset",
-    "specs/v0.6.0/002-order-form-management/tasks.md",
-    "specs/v0.6.0/001-webhook-platform-integration/tasks.md",
-    "specs/v0.6.0/001-webhook-platform-integration/spec.md",
-    "specs/v0.6.0/001-webhook-platform-integration/plan.md",
-    "specs/v0.5.0/CHANGES.md",
-    "specs/pre-launch/CHECKLIST.md",
-    "specs/pre-launch",
-    "specs/v0.6.0/002-order-form-management/plan.md",
-    "specs/v0.6.0/002-order-form-management/spec.md",
-    "specs/v0.6.0/002-order-form-management",
-    "specs/v0.6.0/001-webhook-platform-integration",
-    "specs/v0.5.0/001-revision-comment-threads/_ai-workspace/runs/run-001-database-design-agent.md"
+    "specs/pre-launch"
   ]
 }

@@ -26,7 +26,7 @@ export default async function CustomersPage({ searchParams }: CustomersPageProps
           <a
             href="/api/export/customers"
             download
-            className="flowrit-button-secondary hidden md:inline-flex"
+            className="flowrit-button-secondary inline-flex"
           >
             <Download className="h-4 w-4" />
             CSV 내보내기

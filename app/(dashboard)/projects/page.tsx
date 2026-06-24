@@ -129,7 +129,7 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
         </div>
         <div className="flex items-center gap-2">
           {isAdmin && (
-            <a href={exportHref} download className="flowrit-button-secondary hidden md:inline-flex">
+            <a href={exportHref} download className="flowrit-button-secondary inline-flex">
               <Download className="h-4 w-4" />
               CSV
             </a>

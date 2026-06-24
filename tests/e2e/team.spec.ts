@@ -34,15 +34,31 @@ test.describe('team management', () => {
     await login(page)
     await page.goto('/team')
 
-    const cancelBtn = page.getByRole('button', { name: /취소/ }).first()
-    test.skip((await cancelBtn.count()) === 0, '대기 중인 초대 없음 — K-01 먼저 실행 필요')
-
-    const inviteRow = cancelBtn.locator('..')
-    const inviteEmail = await inviteRow.getByText(/@/).first().textContent()
-    await cancelBtn.click()
-
-    if (inviteEmail) {
-      await expect(page.getByText(inviteEmail)).not.toBeVisible({ timeout: 5_000 })
+    // Create a fresh invite so this test is self-contained (fullyParallel=true means
+    // K-01 may not have completed yet when this test starts)
+    const email = `e2e-cancel-${Date.now()}@example.com`
+    await page.getByLabel('이메일').fill(email)
+    await page.getByLabel('역할').selectOption('ADMIN')
+    await page.getByRole('button', { name: '초대 이메일 발송' }).click()
+    // Wait for invite to appear; reload once if not shown (parallel test cache interference)
+    const inviteLocator = page.getByText(email, { exact: true }).or(page.locator('input[readonly]'))
+    try {
+      await expect(inviteLocator).toBeVisible({ timeout: 12_000 })
+    } catch {
+      await page.reload()
+      await expect(inviteLocator).toBeVisible({ timeout: 8_000 })
     }
+
+    // If invite appeared as readonly URL (email failure path), reload to get list view
+    if (await page.locator('input[readonly]').isVisible()) {
+      await page.reload()
+    }
+
+    const cancelBtn = page.getByRole('button', { name: '취소' }).first()
+    test.skip((await cancelBtn.count()) === 0, '취소 버튼 없음 — 초대 생성 실패')
+
+    page.on('dialog', (dialog) => dialog.accept())
+    await cancelBtn.click()
+    await expect(page.getByText(email, { exact: true })).not.toBeVisible({ timeout: 10_000 })
   })
 })

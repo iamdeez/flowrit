@@ -14,7 +14,7 @@ export default async function TemplatesPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(420px,560px)] gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">
         <section>
           <h2 className="mb-3 text-sm font-medium text-gray-700">
             템플릿 목록 ({templates.length})

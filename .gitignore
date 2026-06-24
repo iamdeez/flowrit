@@ -34,6 +34,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -54,6 +55,9 @@ next-env.d.ts
 
 # AI workspace (pipeline 실행 로그·기록)
 _ai-workspace/
+
+# Generated promo video artifacts
+/artifacts/
 
 # OS / Tool crash dumps
 *.stackdump
