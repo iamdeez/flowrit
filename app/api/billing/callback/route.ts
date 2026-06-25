@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       context: { workspaceId, orderId, billingCycle, error: err },
     })
     return NextResponse.json(
-      { error: '카드 등록에 실패했습니다.', detail: String(err) },
+      { error: `카드 등록에 실패했습니다. ${String(err)}` },
       { status: 502 },
     )
   }
