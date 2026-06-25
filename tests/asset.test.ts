@@ -400,7 +400,7 @@ describe('shareProjectAssets', () => {
 
     expect(prismaMock.asset.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { projectId: 'p1', status: { not: 'EXPIRED' } },
+        where: { projectId: 'p1', status: 'PREPARING' },
         data: { status: 'SHARED', shareScheduledAt: null },
       }),
     )
@@ -433,7 +433,7 @@ describe('shareProjectAssets', () => {
 
     expect(prismaMock.asset.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { projectId: 'p1', status: { not: 'EXPIRED' } },
+        where: { projectId: 'p1', status: 'PREPARING' },
         data: expect.objectContaining({
           shareScheduledAt: expect.any(Date),
         }),

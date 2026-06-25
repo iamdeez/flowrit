@@ -42,23 +42,23 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
                     </div>
                     <p className="pt-1.5 text-sm font-semibold text-gray-900">{t.name}</p>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 gap-1.5">
                     <button
                       type="button"
                       onClick={() => setEditing(t)}
-                      className="flowrit-button-secondary min-h-9"
+                      className="flowrit-icon-button"
+                      aria-label="편집"
                     >
-                      <Pencil className="h-3.5 w-3.5" />
-                      편집
+                      <Pencil className="h-4 w-4" />
                     </button>
                     <form action={deleteMessageTemplate}>
                       <input type="hidden" name="id" value={t.id} />
                       <button
                         type="submit"
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                        className="flowrit-icon-button flowrit-icon-button-danger"
+                        aria-label="삭제"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        삭제
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </form>
                   </div>

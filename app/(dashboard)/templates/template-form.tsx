@@ -141,28 +141,30 @@ export function TemplateForm({ mode, template }: TemplateFormProps) {
           {stages.map((stage, index) => (
             <div
               key={stage.key}
-              className="grid grid-cols-[36px_1fr_1fr_112px] items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2"
+              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-2"
             >
-              <div className="text-center text-sm font-medium text-gray-500">{index + 1}</div>
-              <input
-                name="stageInternalName"
-                value={stage.internalName}
-                onChange={(event) =>
-                  updateStage(stage.key, 'internalName', event.target.value)
-                }
-                placeholder="내부 표시명"
-                className="flowrit-input"
-              />
-              <input
-                name="stageCustomerName"
-                value={stage.customerName}
-                onChange={(event) =>
-                  updateStage(stage.key, 'customerName', event.target.value)
-                }
-                placeholder="고객 표시명"
-                className="flowrit-input"
-              />
-              <div className="flex justify-end gap-1">
+              <div className="w-6 shrink-0 text-center text-sm font-medium text-gray-500">{index + 1}</div>
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:gap-2">
+                <input
+                  name="stageInternalName"
+                  value={stage.internalName}
+                  onChange={(event) =>
+                    updateStage(stage.key, 'internalName', event.target.value)
+                  }
+                  placeholder="내부 표시명"
+                  className="flowrit-input"
+                />
+                <input
+                  name="stageCustomerName"
+                  value={stage.customerName}
+                  onChange={(event) =>
+                    updateStage(stage.key, 'customerName', event.target.value)
+                  }
+                  placeholder="고객 표시명"
+                  className="flowrit-input"
+                />
+              </div>
+              <div className="flex shrink-0 justify-end gap-1">
                 <button
                   type="button"
                   onClick={() => moveStage(index, -1)}

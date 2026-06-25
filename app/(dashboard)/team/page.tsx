@@ -100,7 +100,7 @@ export default async function TeamPage() {
               <div key={invite.id} className="flex items-center justify-between gap-3 px-5 py-4">
                 <p className="min-w-0 truncate text-sm text-gray-700">{invite.email}</p>
                 <div className="flex shrink-0 items-center gap-3">
-                  <span className="whitespace-nowrap rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-600">
+                  <span className="flowrit-badge flowrit-badge-pending">
                     초대 대기
                   </span>
                   {canManage && <CancelInviteButton inviteId={invite.id} email={invite.email} />}

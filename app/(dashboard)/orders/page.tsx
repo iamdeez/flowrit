@@ -90,39 +90,52 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
         </div>
       </div>
 
-      <section className="mb-5 grid gap-3 md:grid-cols-3">
-        <div className="flowrit-panel-padded">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="flowrit-empty-icon h-9 w-9">
-              <Inbox className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <p className="text-sm font-semibold text-[var(--flowrit-text)]">접수</p>
+      {/* 프로세스 안내 — 데스크탑: 3카드, 모바일: 한 줄 요약 */}
+      <section className="mb-5">
+        <div className="hidden gap-3 md:grid md:grid-cols-3">
+          <div className="flowrit-panel-padded">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flowrit-empty-icon h-9 w-9">
+                <Inbox className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">접수</p>
+            </div>
+            <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
+              주문서 링크로 들어온 의뢰가 대기 목록에 쌓입니다.
+            </p>
           </div>
-          <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
-            주문서 링크로 들어온 의뢰가 대기 목록에 쌓입니다.
-          </p>
+          <div className="flowrit-panel-padded">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flowrit-empty-icon h-9 w-9">
+                <SearchCheck className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">검토</p>
+            </div>
+            <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
+              내용, 고객 정보, 일정이 충분한지 확인합니다.
+            </p>
+          </div>
+          <div className="flowrit-panel-padded">
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flowrit-empty-icon h-9 w-9">
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">전환</p>
+            </div>
+            <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
+              템플릿과 고객을 선택해 프로젝트를 생성합니다.
+            </p>
+          </div>
         </div>
-        <div className="flowrit-panel-padded">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="flowrit-empty-icon h-9 w-9">
-              <SearchCheck className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <p className="text-sm font-semibold text-[var(--flowrit-text)]">검토</p>
-          </div>
-          <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
-            내용, 고객 정보, 일정이 충분한지 확인합니다.
-          </p>
-        </div>
-        <div className="flowrit-panel-padded">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="flowrit-empty-icon h-9 w-9">
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-            </span>
-            <p className="text-sm font-semibold text-[var(--flowrit-text)]">전환</p>
-          </div>
-          <p className="text-xs leading-5 text-[var(--flowrit-text-muted)]">
-            템플릿과 고객을 선택해 프로젝트를 생성합니다.
-          </p>
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--flowrit-border)] bg-[var(--flowrit-panel)] px-4 py-2.5 md:hidden">
+          <Inbox className="h-3.5 w-3.5 shrink-0 text-[var(--flowrit-text-muted)]" />
+          <span className="text-xs text-[var(--flowrit-text-muted)]">접수</span>
+          <ArrowRight className="h-3 w-3 shrink-0 text-gray-300" />
+          <SearchCheck className="h-3.5 w-3.5 shrink-0 text-[var(--flowrit-text-muted)]" />
+          <span className="text-xs text-[var(--flowrit-text-muted)]">검토</span>
+          <ArrowRight className="h-3 w-3 shrink-0 text-gray-300" />
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[var(--flowrit-text-muted)]" />
+          <span className="text-xs text-[var(--flowrit-text-muted)]">전환</span>
         </div>
       </section>
 

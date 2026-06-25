@@ -22,26 +22,28 @@ export function ProfileForm({
         <h2 className="text-base font-semibold text-gray-900 mb-4">프로필 정보</h2>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
-        <input
-          type="text"
-          name="name"
-          defaultValue={initialName}
-          required
-          className="flowrit-input"
-        />
-      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">이름</label>
+          <input
+            type="text"
+            name="name"
+            defaultValue={initialName}
+            required
+            className="flowrit-input"
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-        <input
-          type="email"
-          name="email"
-          defaultValue={initialEmail}
-          required
-          className="flowrit-input"
-        />
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">이메일</label>
+          <input
+            type="email"
+            name="email"
+            defaultValue={initialEmail}
+            required
+            className="flowrit-input"
+          />
+        </div>
       </div>
 
       <button

@@ -1,11 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/deadline-reminder",
-      "schedule": "0 0 * * *"
-    },
-    {
-      "path": "/api/cron/billing",
+      "path": "/api/cron/daily",
       "schedule": "0 0 * * *"
     }
   ]
