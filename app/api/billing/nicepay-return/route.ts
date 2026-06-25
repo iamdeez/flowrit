@@ -36,9 +36,10 @@ async function handleReturn(request: Request): Promise<NextResponse> {
     }
   }
 
-  const isSuccess = resultCode === '0000'
-  const debugSuffix = ` [code:${resultCode || 'empty'} token:${authToken ? 'yes' : 'no'}]`
-  const errorMsg = (resultMsg || '결제에 실패했습니다.') + debugSuffix
+  // NicePayments는 returnUrl에 resultCode 없이 authToken만 전달하는 경우가 있음.
+  // authToken 존재 자체가 인증 성공 신호이며, 실제 결과는 /subscribe/regist 응답으로 확인.
+  const isSuccess = !!authToken || resultCode === '0000'
+  const errorMsg = resultMsg || '결제 인증에 실패했습니다.'
 
   const fullPageScript = isSuccess
     ? `
