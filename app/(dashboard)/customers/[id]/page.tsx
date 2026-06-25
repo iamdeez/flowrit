@@ -32,20 +32,20 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
       </Link>
 
       <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold text-gray-900">{customer.name}</h1>
           <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-500">
             <span>{customer.contact || '연락처 미입력'}</span>
             <span>등록일 {customer.createdAt.toLocaleDateString('ko-KR')}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <CustomerEditModal customer={customer} />
           <form action={deleteCustomer}>
             <input type="hidden" name="id" value={customer.id} />
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
             >
               <Trash2 className="h-4 w-4" />
               삭제

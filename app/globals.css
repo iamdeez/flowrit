@@ -86,6 +86,7 @@ a {
     background: var(--flowrit-primary);
     padding: 0.5rem 1rem;
     text-align: center;
+    white-space: nowrap;
     color: white;
     font-size: 0.875rem;
     font-weight: 500;
@@ -114,6 +115,7 @@ a {
     background: var(--flowrit-panel);
     padding: 0.5rem 1rem;
     text-align: center;
+    white-space: nowrap;
     color: var(--flowrit-text-secondary);
     font-size: 0.875rem;
     font-weight: 500;
