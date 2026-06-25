@@ -13,6 +13,7 @@ async function handleReturn(request: Request): Promise<NextResponse> {
   let resultMsg = url.searchParams.get('resultMsg') ?? ''
   let authToken = url.searchParams.get('authToken') ?? ''
   let tid = url.searchParams.get('tid') ?? ''
+  let encData = url.searchParams.get('encData') ?? ''
 
   // POST body가 있으면 body 파라미터가 우선
   if (request.method === 'POST') {
@@ -24,12 +25,14 @@ async function handleReturn(request: Request): Promise<NextResponse> {
         resultMsg = (formData.get('resultMsg') as string) || resultMsg
         authToken = (formData.get('authToken') as string) || authToken
         tid = (formData.get('tid') as string) || tid
+        encData = (formData.get('encData') as string) || encData
       } else if (contentType.includes('application/json')) {
         const json = await request.json()
         resultCode = json.resultCode || resultCode
         resultMsg = json.resultMsg || resultMsg
         authToken = json.authToken || authToken
         tid = json.tid || tid
+        encData = json.encData || encData
       }
     } catch {
       // 파싱 실패 시 query param 값 사용
@@ -49,6 +52,7 @@ async function handleReturn(request: Request): Promise<NextResponse> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         authToken: ${JSON.stringify(authToken)},
+        encData: ${JSON.stringify(encData)},
         orderId: ${JSON.stringify(orderId)},
         billingCycle: ${JSON.stringify(billingCycle)}
       })
@@ -76,7 +80,7 @@ async function handleReturn(request: Request): Promise<NextResponse> {
     if (window.opener && !window.opener.closed) {
       var payload = ${JSON.stringify(
         isSuccess
-          ? { type: 'NICEPAY_SUCCESS', authToken, tid }
+          ? { type: 'NICEPAY_SUCCESS', authToken, tid, encData }
           : { type: 'NICEPAY_ERROR', errorMsg }
       )};
       window.opener.postMessage(payload, '*');

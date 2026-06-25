@@ -21,14 +21,18 @@ export async function registerBillingKey(
   orderId: string,
   buyerEmail: string,
   buyerName: string,
+  encData?: string,
 ): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string }> {
+  const body: Record<string, string> = { authToken, orderId, buyerEmail, buyerName }
+  if (encData) body.encData = encData
+
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
     headers: {
       Authorization: authHeader(),
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ authToken, orderId, buyerEmail, buyerName }),
+    body: JSON.stringify(body),
   })
 
   const json = await res.json()
