@@ -37,7 +37,8 @@ async function handleReturn(request: Request): Promise<NextResponse> {
   }
 
   const isSuccess = resultCode === '0000'
-  const errorMsg = resultMsg || '결제에 실패했습니다.'
+  const debugSuffix = ` [code:${resultCode || 'empty'} token:${authToken ? 'yes' : 'no'}]`
+  const errorMsg = (resultMsg || '결제에 실패했습니다.') + debugSuffix
 
   const fullPageScript = isSuccess
     ? `
