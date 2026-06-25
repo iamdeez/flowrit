@@ -92,7 +92,7 @@ export function UpgradeModal({ onClose }: Props) {
       orderId,
       amount,
       goodsName,
-      returnUrl: `${appUrl}/api/billing/nicepay-return`,
+      returnUrl: `${appUrl}/api/billing/nicepay-return?billingCycle=${billingCycle}&orderId=${orderId}`,
       fnSuccess: async (result) => {
         window.removeEventListener('message', handleReturnMessage)
         await processBilling(result.authToken)
