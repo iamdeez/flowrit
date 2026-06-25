@@ -33,13 +33,14 @@ export async function registerBillingKey(
   buyerEmail: string,
   buyerName: string,
   signature?: string,
+  authNiceEncData?: string,
 ): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string }> {
-  // encData: AES-128-ECB(authToken, key=hex_decode(secretKey))
-  // signature는 더 이상 encData로 사용하지 않음 (SHA256이라 형식 불일치).
-  const encData = buildEncDataFromAuthToken(authToken)
+  // AUTHNICE fnSuccess가 encData를 제공하면 그대로 사용.
+  // 제공하지 않으면 AES-128-ECB(authToken, hex_decode(secretKey))로 직접 생성.
+  const encData = authNiceEncData || buildEncDataFromAuthToken(authToken)
   const body: Record<string, string> = { authToken, orderId, buyerEmail, buyerName, encData }
 
-  console.log('[registerBillingKey] encData AES128(authToken,hexKey):', encData.slice(0, 24), 'len:', encData.length)
+  console.log('[registerBillingKey] encData source:', authNiceEncData ? 'authnice' : 'aes128', 'len:', encData.length, encData.slice(0, 24))
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
