@@ -16,6 +16,7 @@ declare global {
         orderId: string
         amount: number
         goodsName: string
+        returnUrl: string
         fnSuccess: (result: { authToken: string; tid: string }) => void
         fnError: (result: { errorMsg?: string }) => void
       }) => void
@@ -47,12 +48,14 @@ export function UpgradeModal({ onClose }: Props) {
 
     const orderId = `reg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
     window.AUTHNICE.requestPay({
       clientId,
       method: 'card',
       orderId,
       amount: 0, // 0원 인증 — 빌링키 발급용
       goodsName: '카드 등록',
+      returnUrl: `${appUrl}/api/billing/nicepay-return`,
       fnSuccess: async (result) => {
         try {
           const res = await fetch('/api/billing/callback', {
