@@ -16,8 +16,8 @@ declare global {
         orderId: string
         amount: number
         goodsName: string
-        fn_success: (result: { authToken: string; tid: string }) => void
-        fn_error: (result: { errorMsg?: string }) => void
+        fnSuccess: (result: { authToken: string; tid: string }) => void
+        fnError: (result: { errorMsg?: string }) => void
       }) => void
     }
   }
@@ -53,7 +53,7 @@ export function UpgradeModal({ onClose }: Props) {
       orderId,
       amount: 0, // 0원 인증 — 빌링키 발급용
       goodsName: '카드 등록',
-      fn_success: async (result) => {
+      fnSuccess: async (result) => {
         try {
           const res = await fetch('/api/billing/callback', {
             method: 'POST',
@@ -76,7 +76,7 @@ export function UpgradeModal({ onClose }: Props) {
           setLoading(false)
         }
       },
-      fn_error: (result) => {
+      fnError: (result) => {
         setError(result.errorMsg || '카드 등록에 실패했습니다.')
         setLoading(false)
       },
