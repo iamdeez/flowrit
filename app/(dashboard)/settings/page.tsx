@@ -27,12 +27,12 @@ type Tab = (typeof TABS)[number]['key']
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; billingError?: string }>
 }) {
   const session = await auth()
   if (!session?.user?.id || !session.user.workspaceId) redirect('/login')
 
-  const { tab: rawTab } = await searchParams
+  const { tab: rawTab, billingError } = await searchParams
   const tab: Tab = TABS.some((t) => t.key === rawTab) ? (rawTab as Tab) : 'profile'
 
   const [user, member, workspace] = await Promise.all([
@@ -90,6 +90,12 @@ export default async function SettingsPage({
           <p className="flowrit-page-description">계정, 워크스페이스, 주문서, 결제 설정을 관리합니다.</p>
         </div>
       </div>
+
+      {billingError && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          결제 오류: {billingError}
+        </div>
+      )}
 
       {/* 탭 네비게이션 */}
       <div className="mb-8 flex gap-1 overflow-x-auto border-b border-gray-200">
