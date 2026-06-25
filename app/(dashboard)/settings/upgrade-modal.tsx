@@ -17,6 +17,7 @@ declare global {
         amount: number
         goodsName: string
         returnUrl: string
+        vat: number
         fnSuccess: (result: { authToken: string; tid: string }) => void
         fnError: (result: { errorMsg?: string }) => void
       }) => void
@@ -54,6 +55,7 @@ export function UpgradeModal({ onClose }: Props) {
       method: 'card',
       orderId,
       amount: 0, // 0원 인증 — 빌링키 발급용
+      vat: 0,
       goodsName: '카드 등록',
       returnUrl: `${appUrl}/api/billing/nicepay-return`,
       fnSuccess: async (result) => {
