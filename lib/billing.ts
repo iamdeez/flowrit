@@ -10,7 +10,7 @@ function buildEncData(buyerName: string, buyerEmail: string): string {
   const key = Buffer.from(secretKey.substring(0, 16), 'utf8')
   const plain = `buyerName=${buyerName}&buyerEmail=${buyerEmail}`
   const cipher = createCipheriv('aes-128-ecb', key, null)
-  return Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]).toString('hex')
+  return Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]).toString('base64')
 }
 
 export const PLAN_PRICES = { monthly: 29900, yearly: 298000 } as const
