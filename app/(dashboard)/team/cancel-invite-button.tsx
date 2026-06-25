@@ -16,7 +16,7 @@ export function CancelInviteButton({ inviteId, email }: { inviteId: string; emai
       type="button"
       onClick={handleClick}
       disabled={pending}
-      className="text-xs text-red-500 hover:text-red-700 hover:underline disabled:opacity-50"
+      className="whitespace-nowrap text-xs text-red-500 hover:text-red-700 hover:underline disabled:opacity-50"
     >
       {pending ? '취소 중...' : '취소'}
     </button>

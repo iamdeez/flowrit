@@ -97,10 +97,10 @@ export default async function TeamPage() {
           </h2>
           <div className="flowrit-panel divide-y divide-gray-100">
             {invites.map((invite) => (
-              <div key={invite.id} className="flex items-center justify-between px-5 py-4">
-                <p className="text-sm text-gray-700">{invite.email}</p>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-medium">
+              <div key={invite.id} className="flex items-center justify-between gap-3 px-5 py-4">
+                <p className="min-w-0 truncate text-sm text-gray-700">{invite.email}</p>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="whitespace-nowrap rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-600">
                     초대 대기
                   </span>
                   {canManage && <CancelInviteButton inviteId={invite.id} email={invite.email} />}
