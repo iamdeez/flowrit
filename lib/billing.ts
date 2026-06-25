@@ -49,6 +49,7 @@ export async function registerBillingKey(
   })
 
   const json = await res.json()
+  console.log('[registerBillingKey] response:', JSON.stringify(json).slice(0, 500))
   if (json.resultCode !== '0000') {
     const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '빌링키 발급 실패'}`)
     Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, orderId } })
