@@ -50,6 +50,41 @@ export function UpgradeModal({ onClose }: Props) {
     const amount = billingCycle === 'monthly' ? 29900 : 298000
     const goodsName = `Flowrit Pro (${billingCycle === 'monthly' ? '월정기' : '연정기'})`
 
+    // returnUrl 경로(모바일/팝업 리다이렉트)에서 postMessage로 결과를 받는 핸들러
+    const handleReturnMessage = async (event: MessageEvent) => {
+      const data = event.data
+      if (data?.type !== 'NICEPAY_SUCCESS' && data?.type !== 'NICEPAY_ERROR') return
+      window.removeEventListener('message', handleReturnMessage)
+
+      if (data.type === 'NICEPAY_SUCCESS') {
+        await processBilling(data.authToken as string)
+      } else {
+        setError((data.errorMsg as string) || '카드 등록에 실패했습니다.')
+        setLoading(false)
+      }
+    }
+    window.addEventListener('message', handleReturnMessage)
+
+    async function processBilling(authToken: string) {
+      try {
+        const res = await fetch('/api/billing/callback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ authToken, orderId, billingCycle }),
+        })
+        const result = await res.json()
+        if (result.success) {
+          window.location.href = '/settings?tab=billing&upgraded=true'
+        } else {
+          setError(result.error || '결제에 실패했습니다.')
+          setLoading(false)
+        }
+      } catch {
+        setError('네트워크 오류가 발생했습니다.')
+        setLoading(false)
+      }
+    }
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
     window.AUTHNICE.requestPay({
       clientId,
@@ -59,29 +94,11 @@ export function UpgradeModal({ onClose }: Props) {
       goodsName,
       returnUrl: `${appUrl}/api/billing/nicepay-return`,
       fnSuccess: async (result) => {
-        try {
-          const res = await fetch('/api/billing/callback', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              authToken: result.authToken,
-              orderId,
-              billingCycle,
-            }),
-          })
-          const data = await res.json()
-          if (data.success) {
-            window.location.href = '/settings?tab=billing&upgraded=true'
-          } else {
-            setError(data.error || '결제에 실패했습니다.')
-            setLoading(false)
-          }
-        } catch {
-          setError('네트워크 오류가 발생했습니다.')
-          setLoading(false)
-        }
+        window.removeEventListener('message', handleReturnMessage)
+        await processBilling(result.authToken)
       },
       fnError: (result) => {
+        window.removeEventListener('message', handleReturnMessage)
         setError(result.errorMsg || '카드 등록에 실패했습니다.')
         setLoading(false)
       },
