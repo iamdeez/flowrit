@@ -13,14 +13,15 @@ function authHeader(): string {
 
 /**
  * 나이스페이먼츠 빌링키 발급
- * 클라이언트 AUTHNICE fn_success 콜백의 authToken을 서버에서 받아 bid(빌링키) 획득
+ * 클라이언트 AUTHNICE fnSuccess 콜백의 authToken을 서버에서 받아 빌링키(bid) 획득.
+ * popup amount > 0이면 /subscribe/regist 호출 시 첫 결제도 동시에 처리된다.
  */
 export async function registerBillingKey(
   authToken: string,
   orderId: string,
   buyerEmail: string,
   buyerName: string,
-): Promise<string> {
+): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string }> {
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
     headers: {
@@ -36,7 +37,12 @@ export async function registerBillingKey(
     Sentry.captureException(err, { extra: { resultCode: json.resultCode, orderId } })
     throw err
   }
-  return json.bid as string
+  return {
+    bid: json.bid as string,
+    tid: json.tid as string,
+    payMethod: json.payMethod as string,
+    paidAt: json.paidAt as string,
+  }
 }
 
 /**

@@ -3,7 +3,6 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import {
   registerBillingKey,
-  chargeBillingKey,
   getNextPeriodEnd,
   PLAN_PRICES,
   type BillingCycle,
@@ -46,10 +45,14 @@ export async function POST(request: Request) {
     select: { user: { select: { email: true, name: true } } },
   })
 
-  // 나이스페이먼츠 빌링키 발급
-  let bid: string
+  // 나이스페이먼츠 빌링키 발급 + 첫 결제 (AUTHNICE popup에서 실제 금액으로 승인됨)
+  const now = new Date()
+  const amount = PLAN_PRICES[billingCycle]
+  const periodEnd = getNextPeriodEnd(billingCycle, now)
+
+  let registration: { bid: string; tid: string; payMethod: string; paidAt: string }
   try {
-    bid = await registerBillingKey(
+    registration = await registerBillingKey(
       authToken,
       orderId,
       owner?.user.email ?? '',
@@ -57,7 +60,7 @@ export async function POST(request: Request) {
     )
   } catch (err) {
     await sendOpsAlert({
-      level: 'warning',
+      level: 'critical',
       title: 'Billing key registration failed',
       message: '나이스페이먼츠 빌링키 발급에 실패했습니다.',
       source: 'billing.callback.registerBillingKey',
@@ -69,22 +72,7 @@ export async function POST(request: Request) {
     )
   }
 
-  // 첫 결제 실행
-  const now = new Date()
-  const paymentOrderId = `billing-${workspaceId}-${now.getTime()}`
-  const amount = PLAN_PRICES[billingCycle]
-  const periodEnd = getNextPeriodEnd(billingCycle, now)
-
   try {
-    const result = await chargeBillingKey({
-      bid,
-      orderId: paymentOrderId,
-      amount,
-      goodsName: `Flowrit Pro (${billingCycle === 'monthly' ? '월정기' : '연정기'})`,
-      buyerName: owner?.user.name ?? '',
-      buyerEmail: owner?.user.email ?? '',
-    })
-
     await prisma.$transaction(async (tx) => {
       const subscription = await tx.subscription.upsert({
         where: { workspaceId },
@@ -93,7 +81,7 @@ export async function POST(request: Request) {
           plan: 'pro',
           billingCycle,
           status: 'active',
-          billingKey: bid,
+          billingKey: registration.bid,
           customerKey: workspaceId,
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
@@ -104,7 +92,7 @@ export async function POST(request: Request) {
           plan: 'pro',
           billingCycle,
           status: 'active',
-          billingKey: bid,
+          billingKey: registration.bid,
           customerKey: workspaceId,
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
@@ -117,12 +105,12 @@ export async function POST(request: Request) {
         data: {
           workspaceId,
           subscriptionId: subscription.id,
-          paymentKey: result.tid,
-          orderId: paymentOrderId,
+          paymentKey: registration.tid,
+          orderId,
           amount,
           status: 'done',
-          method: result.payMethod,
-          paidAt: new Date(result.paidAt),
+          method: registration.payMethod,
+          paidAt: new Date(registration.paidAt),
         },
       })
 
@@ -136,14 +124,14 @@ export async function POST(request: Request) {
   } catch (err) {
     await sendOpsAlert({
       level: 'critical',
-      title: 'Initial subscription payment failed',
-      message: 'Pro 업그레이드 첫 결제에 실패했습니다.',
-      source: 'billing.callback.chargeBillingKey',
-      context: { workspaceId, orderId: paymentOrderId, billingCycle, amount, error: err },
+      title: 'Subscription DB write failed after payment',
+      message: 'Pro 업그레이드 결제 후 DB 저장에 실패했습니다.',
+      source: 'billing.callback.db',
+      context: { workspaceId, orderId, billingCycle, amount, tid: registration.tid, error: err },
     })
     return NextResponse.json(
-      { error: '결제에 실패했습니다.', detail: String(err) },
-      { status: 402 },
+      { error: '결제는 완료되었으나 처리 중 오류가 발생했습니다. 고객센터에 문의해 주세요.', detail: String(err) },
+      { status: 500 },
     )
   }
 }
