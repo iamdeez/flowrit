@@ -57,7 +57,7 @@ export function UpgradeModal({ onClose }: Props) {
       window.removeEventListener('message', handleReturnMessage)
 
       if (data.type === 'NICEPAY_SUCCESS') {
-        await processBilling(data.authToken as string)
+        await processBilling(data.authToken as string, data.signature as string | undefined)
       } else {
         setError((data.errorMsg as string) || '카드 등록에 실패했습니다.')
         setLoading(false)
@@ -65,12 +65,12 @@ export function UpgradeModal({ onClose }: Props) {
     }
     window.addEventListener('message', handleReturnMessage)
 
-    async function processBilling(authToken: string) {
+    async function processBilling(authToken: string, signature?: string) {
       try {
         const res = await fetch('/api/billing/callback', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ authToken, orderId, billingCycle }),
+          body: JSON.stringify({ authToken, signature, orderId, billingCycle }),
         })
         const result = await res.json()
         if (result.success) {
@@ -95,7 +95,7 @@ export function UpgradeModal({ onClose }: Props) {
       returnUrl: `${appUrl}/api/billing/nicepay-return?billingCycle=${billingCycle}&orderId=${orderId}`,
       fnSuccess: async (result) => {
         window.removeEventListener('message', handleReturnMessage)
-        await processBilling(result.authToken)
+        await processBilling(result.authToken, result.signData)
       },
       fnError: (result) => {
         window.removeEventListener('message', handleReturnMessage)
