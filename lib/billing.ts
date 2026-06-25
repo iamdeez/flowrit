@@ -3,12 +3,12 @@ import * as Sentry from '@sentry/nextjs'
 
 const NICEPAY_API_BASE = 'https://api.nicepay.co.kr/v1'
 
-// NicePayments /subscribe/regist encData 후보들.
-// signature: returnUrl POST에서 NicePayments가 보낸 SHA256 서명 (가장 유력).
-// fallback: authToken AES-128-ECB 암호화.
+// NicePayments /subscribe/regist encData.
+// secretKey는 32자 hex 문자열 → hex decode하면 16바이트 AES-128 키.
+// 이전에 UTF-8 해석했던 것이 오류였음.
 function buildEncDataFromAuthToken(authToken: string): string {
   const secretKey = process.env.NICEPAY_SECRET_KEY!
-  const key = Buffer.from(secretKey.substring(0, 16), 'utf8')
+  const key = Buffer.from(secretKey, 'hex')  // hex decode → 16 bytes
   const cipher = createCipheriv('aes-128-ecb', key, null)
   return Buffer.concat([cipher.update(authToken, 'utf8'), cipher.final()]).toString('base64')
 }
@@ -34,12 +34,12 @@ export async function registerBillingKey(
   buyerName: string,
   signature?: string,
 ): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string }> {
-  // signature: NicePayments returnUrl POST에서 받은 SHA256 값 (encData로 사용).
-  // 없으면 authToken AES-128 암호화 fallback.
-  const encData = signature || buildEncDataFromAuthToken(authToken)
+  // encData: AES-128-ECB(authToken, key=hex_decode(secretKey))
+  // signature는 더 이상 encData로 사용하지 않음 (SHA256이라 형식 불일치).
+  const encData = buildEncDataFromAuthToken(authToken)
   const body: Record<string, string> = { authToken, orderId, buyerEmail, buyerName, encData }
 
-  console.log('[registerBillingKey] encData source:', signature ? `signature(${signature.length})` : 'AES128(authToken)', 'val:', encData.slice(0, 20))
+  console.log('[registerBillingKey] encData AES128(authToken,hexKey):', encData.slice(0, 24), 'len:', encData.length)
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
