@@ -13,7 +13,8 @@ async function handleReturn(request: Request): Promise<NextResponse> {
   let resultMsg = url.searchParams.get('resultMsg') ?? ''
   let authToken = url.searchParams.get('authToken') ?? ''
   let tid = url.searchParams.get('tid') ?? ''
-  let encData = url.searchParams.get('encData') ?? ''
+  let ediDate = url.searchParams.get('ediDate') ?? ''
+  let amount = url.searchParams.get('amount') ?? ''
 
   // POST body가 있으면 body 파라미터가 우선
   if (request.method === 'POST') {
@@ -21,28 +22,35 @@ async function handleReturn(request: Request): Promise<NextResponse> {
     try {
       if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
         const formData = await request.formData()
+        // 디버그: NicePayments가 보낸 전체 form 필드 확인
+        const allFields: Record<string, string> = {}
+        formData.forEach((v, k) => { allFields[k] = String(v).slice(0, 100) })
+        console.log('[nicepay-return] POST formData fields:', JSON.stringify(allFields))
         resultCode = (formData.get('resultCode') as string) || resultCode
         resultMsg = (formData.get('resultMsg') as string) || resultMsg
         authToken = (formData.get('authToken') as string) || authToken
         tid = (formData.get('tid') as string) || tid
-        encData = (formData.get('encData') as string) || encData
+        ediDate = (formData.get('ediDate') as string) || ediDate
+        amount = (formData.get('amount') as string) || amount
       } else if (contentType.includes('application/json')) {
         const json = await request.json()
+        console.log('[nicepay-return] POST json fields:', JSON.stringify(json).slice(0, 500))
         resultCode = json.resultCode || resultCode
         resultMsg = json.resultMsg || resultMsg
         authToken = json.authToken || authToken
         tid = json.tid || tid
-        encData = json.encData || encData
+        ediDate = json.ediDate || ediDate
+        amount = json.amount || amount
       }
-    } catch {
-      // 파싱 실패 시 query param 값 사용
+    } catch (e) {
+      console.log('[nicepay-return] POST parse error:', String(e), 'content-type:', contentType)
     }
   }
 
   // 디버그: NicePayments가 보낸 전체 파라미터 로그
   console.log('[nicepay-return] received params:', {
-    resultCode, resultMsg, authToken: authToken ? `${authToken.slice(0, 10)}...` : '', tid, encData: encData ? `${encData.slice(0, 20)}...` : '(empty)',
-    method: request.method, url: url.toString(),
+    resultCode, resultMsg, authToken: authToken ? `${authToken.slice(0, 10)}...` : '', tid,
+    ediDate, amount, method: request.method, url: url.toString(),
   })
 
   // NicePayments는 returnUrl에 resultCode 없이 authToken만 전달하는 경우가 있음.
@@ -58,7 +66,6 @@ async function handleReturn(request: Request): Promise<NextResponse> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         authToken: ${JSON.stringify(authToken)},
-        encData: ${JSON.stringify(encData)},
         orderId: ${JSON.stringify(orderId)},
         billingCycle: ${JSON.stringify(billingCycle)}
       })
@@ -86,7 +93,7 @@ async function handleReturn(request: Request): Promise<NextResponse> {
     if (window.opener && !window.opener.closed) {
       var payload = ${JSON.stringify(
         isSuccess
-          ? { type: 'NICEPAY_SUCCESS', authToken, tid, encData }
+          ? { type: 'NICEPAY_SUCCESS', authToken, tid }
           : { type: 'NICEPAY_ERROR', errorMsg }
       )};
       window.opener.postMessage(payload, '*');

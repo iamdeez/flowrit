@@ -3,14 +3,13 @@ import * as Sentry from '@sentry/nextjs'
 
 const NICEPAY_API_BASE = 'https://api.nicepay.co.kr/v1'
 
-// NicePayments /subscribe/regist 필수 파라미터.
-// 구매자 정보를 AES-128-ECB/PKCS5Padding으로 암호화. 키는 secretKey 앞 16자.
-function buildEncData(buyerName: string, buyerEmail: string): string {
+// NicePayments /subscribe/regist encData: authToken을 AES-128-ECB로 암호화 후 Base64.
+// 키는 secretKey 앞 16자리 (UTF-8).
+function buildEncData(authToken: string): string {
   const secretKey = process.env.NICEPAY_SECRET_KEY!
   const key = Buffer.from(secretKey.substring(0, 16), 'utf8')
-  const plain = `buyerName=${buyerName}&buyerEmail=${buyerEmail}`
   const cipher = createCipheriv('aes-128-ecb', key, null)
-  return Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]).toString('base64')
+  return Buffer.concat([cipher.update(authToken, 'utf8'), cipher.final()]).toString('base64')
 }
 
 export const PLAN_PRICES = { monthly: 29900, yearly: 298000 } as const
@@ -32,12 +31,11 @@ export async function registerBillingKey(
   orderId: string,
   buyerEmail: string,
   buyerName: string,
-  _encData?: string,
 ): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string }> {
-  const encData = buildEncData(buyerName, buyerEmail)
+  const encData = buildEncData(authToken)
   const body: Record<string, string> = { authToken, orderId, buyerEmail, buyerName, encData }
 
-  console.log('[registerBillingKey] request body keys:', Object.keys(body), 'encData len:', encData.length)
+  console.log('[registerBillingKey] encData formula: AES128(authToken), len:', encData.length, 'first20:', encData.slice(0, 20))
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
