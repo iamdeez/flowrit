@@ -39,6 +39,12 @@ async function handleReturn(request: Request): Promise<NextResponse> {
     }
   }
 
+  // 디버그: NicePayments가 보낸 전체 파라미터 로그
+  console.log('[nicepay-return] received params:', {
+    resultCode, resultMsg, authToken: authToken ? `${authToken.slice(0, 10)}...` : '', tid, encData: encData ? `${encData.slice(0, 20)}...` : '(empty)',
+    method: request.method, url: url.toString(),
+  })
+
   // NicePayments는 returnUrl에 resultCode 없이 authToken만 전달하는 경우가 있음.
   // authToken 존재 자체가 인증 성공 신호이며, 실제 결과는 /subscribe/regist 응답으로 확인.
   const isSuccess = !!authToken || resultCode === '0000'

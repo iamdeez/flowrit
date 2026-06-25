@@ -26,6 +26,8 @@ export async function registerBillingKey(
   const body: Record<string, string> = { authToken, orderId, buyerEmail, buyerName }
   if (encData) body.encData = encData
 
+  console.log('[registerBillingKey] request body:', { ...body, authToken: authToken.slice(0, 10) + '...', encData: encData ? encData.slice(0, 20) + '...' : '(not provided)' })
+
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
     headers: {
