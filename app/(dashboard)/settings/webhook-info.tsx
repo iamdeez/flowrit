@@ -257,13 +257,13 @@ export function WebhookInfo({ slug }: { slug: string }) {
       </div>
 
       {/* 플랫폼 탭 */}
-      <div className="flex gap-1 border-b border-[var(--flowrit-border)]">
+      <div className="flex gap-1 overflow-x-auto border-b border-[var(--flowrit-border)] [&::-webkit-scrollbar]:hidden">
         {PLATFORMS.map((p) => (
           <button
             key={p.id}
             type="button"
             onClick={() => setActiveTab(p.id)}
-            className={`flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-medium transition-colors -mb-px ${
+            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors -mb-px ${
               activeTab === p.id
                 ? 'border-[var(--flowrit-primary)] text-[var(--flowrit-primary)]'
                 : 'border-transparent text-[var(--flowrit-text-muted)] hover:text-[var(--flowrit-text-secondary)]'
