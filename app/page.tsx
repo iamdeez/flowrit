@@ -116,11 +116,11 @@ export default function LandingPage() {
 
       {/* ── Navigation ── */}
       <header className="sticky top-0 z-50 border-b border-[rgba(119,117,135,0.2)] bg-white/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-20 max-w-[1200px] items-center justify-between px-6">
-          <div className="flex items-center gap-12">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={36} height={36} />
-              <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={120} height={20} />
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 px-4 sm:px-6 md:h-20">
+          <div className="flex min-w-0 items-center gap-8 lg:gap-12">
+            <Link href="/" className="flex min-w-0 items-center gap-2">
+              <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={36} height={36} className="shrink-0" />
+              <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={120} height={20} className="shrink" />
             </Link>
             <nav className="hidden items-center gap-8 lg:flex">
               {[
@@ -139,19 +139,20 @@ export default function LandingPage() {
               ))}
             </nav>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             <Link
               href="/login"
-              className="px-4 py-2 text-sm font-semibold text-[#464555] transition-colors hover:text-[var(--flowrit-primary)]"
+              className="hidden px-4 py-2 text-sm font-semibold text-[#464555] transition-colors hover:text-[var(--flowrit-primary)] sm:inline-flex"
             >
               로그인
             </Link>
             <Link
               href="/register"
-              className="flowrit-button-primary px-6 py-2.5 text-sm"
+              className="flowrit-button-primary whitespace-nowrap px-4 py-2.5 text-sm sm:px-6"
               style={{ boxShadow: '0 4px 20px rgba(79,70,229,0.2)' }}
             >
-              무료로 시작하기
+              <span className="sm:hidden">시작하기</span>
+              <span className="hidden sm:inline">무료로 시작하기</span>
             </Link>
           </div>
         </div>
@@ -161,19 +162,19 @@ export default function LandingPage() {
 
         {/* ── Hero ── */}
         <section
-          className="overflow-hidden pb-16 pt-20"
+          className="overflow-hidden pb-14 pt-12 md:pb-16 md:pt-20"
           style={{
             background:
               'radial-gradient(circle at top right, rgba(79,70,229,0.08), transparent 40%), radial-gradient(circle at bottom left, rgba(70,72,212,0.05), transparent 40%)',
           }}
         >
-          <div className="mx-auto max-w-[1200px] px-6">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
 
             {/* Badge */}
             <div className="mb-8 flex justify-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(79,70,229,0.2)] bg-[rgba(79,70,229,0.05)] px-4 py-1.5">
+              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-[rgba(79,70,229,0.2)] bg-[rgba(79,70,229,0.05)] px-3 py-1.5 sm:px-4">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--flowrit-primary)]" />
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--flowrit-primary)]">
+                <span className="text-center text-[11px] font-bold uppercase text-[var(--flowrit-primary)] sm:text-xs">
                   프리랜서·디자이너·개발자를 위한 업무 OS
                 </span>
               </div>
@@ -182,8 +183,7 @@ export default function LandingPage() {
             {/* Headline */}
             <div className="mb-8 text-center">
               <h1
-                className="mx-auto max-w-4xl text-[#141b2b]"
-                style={{ fontSize: 'clamp(34px, 5vw, 56px)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em' }}
+                className="mx-auto max-w-4xl text-[34px] font-extrabold leading-[1.12] text-[#141b2b] md:text-[56px]"
               >
                 고객 관리부터 납품까지,
                 <br />
@@ -192,17 +192,17 @@ export default function LandingPage() {
             </div>
 
             {/* Sub */}
-            <p className="mx-auto mb-12 max-w-2xl text-center text-lg leading-relaxed text-[#464555] md:text-xl">
+            <p className="mx-auto mb-10 max-w-2xl text-center text-base leading-relaxed text-[#464555] md:mb-12 md:text-xl">
               주문서 접수 → 프로젝트 전환 → 단계별 진행 → 납품 링크 공유.
               <br />
               이메일과 메모장을 오가는 파편화된 업무를 단 하나의 도구로 통합합니다.
             </p>
 
             {/* CTAs */}
-            <div className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <div className="mb-14 flex flex-col items-center justify-center gap-3 sm:mb-16 sm:flex-row sm:gap-4">
               <Link
                 href="/register"
-                className="flowrit-button-primary inline-flex items-center gap-2 rounded-xl px-10 py-4 text-lg font-semibold"
+                className="flowrit-button-primary inline-flex w-full max-w-sm items-center justify-center gap-2 rounded-xl px-8 py-3.5 text-base font-semibold sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
                 style={{ boxShadow: '0 12px 32px rgba(79,70,229,0.25)' }}
               >
                 무료로 시작하기
@@ -210,7 +210,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/login"
-                className="flowrit-button-secondary inline-flex items-center rounded-xl px-10 py-4 text-lg font-semibold"
+                className="flowrit-button-secondary inline-flex w-full max-w-sm items-center justify-center rounded-xl px-8 py-3.5 text-base font-semibold sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
               >
                 기존 계정으로 로그인
               </Link>
@@ -219,34 +219,34 @@ export default function LandingPage() {
             {/* ── 실제 대시보드 UI 모형 ── */}
             <div className="relative mx-auto max-w-6xl">
               <div
-                className="pointer-events-none absolute -left-16 -top-16 h-72 w-72 rounded-full"
+                className="pointer-events-none absolute -left-10 -top-16 h-48 w-48 rounded-full sm:-left-16 sm:h-72 sm:w-72"
                 style={{ background: 'rgba(79,70,229,0.07)', filter: 'blur(72px)', zIndex: -1 }}
               />
               <div
-                className="pointer-events-none absolute -bottom-12 -right-16 h-64 w-64 rounded-full"
+                className="pointer-events-none absolute -bottom-12 -right-10 h-44 w-44 rounded-full sm:-right-16 sm:h-64 sm:w-64"
                 style={{ background: 'rgba(70,72,212,0.06)', filter: 'blur(64px)', zIndex: -1 }}
               />
 
               <div
-                className="overflow-hidden rounded-2xl bg-white p-2"
+                className="overflow-hidden rounded-2xl bg-white p-1.5 sm:p-2"
                 style={{ boxShadow: '0 32px 64px -16px rgba(0,0,0,0.1)', border: '1px solid rgba(119,117,135,0.15)' }}
               >
                 {/* Browser chrome */}
                 <div className="overflow-hidden rounded-xl border border-[var(--flowrit-border)]">
-                  <div className="flex h-11 items-center justify-between border-b border-[var(--flowrit-border)] bg-[#f8fafc] px-4">
+                  <div className="flex h-10 items-center justify-between border-b border-[var(--flowrit-border)] bg-[#f8fafc] px-3 sm:h-11 sm:px-4">
                     <div className="flex gap-1.5">
                       <span className="h-3 w-3 rounded-full bg-[#fc615d]" />
                       <span className="h-3 w-3 rounded-full bg-[#fdbc40]" />
                       <span className="h-3 w-3 rounded-full bg-[#34c749]" />
                     </div>
-                    <span className="rounded border border-[var(--flowrit-border)] bg-white/60 px-3 py-0.5 text-[11px] text-[#64748b]">
+                    <span className="max-w-[170px] truncate rounded border border-[var(--flowrit-border)] bg-white/60 px-3 py-0.5 text-[11px] text-[#64748b] sm:max-w-none">
                       flowrit.kr/dashboard
                     </span>
-                    <div className="w-14" />
+                    <div className="hidden w-14 sm:block" />
                   </div>
 
                   {/* App shell */}
-                  <div className="flex bg-[#f8fafc]" style={{ height: 460 }}>
+                  <div className="flex h-[500px] bg-[#f8fafc] sm:h-[460px]">
 
                     {/* Sidebar */}
                     <aside className="hidden w-[220px] shrink-0 flex-col border-r border-[var(--flowrit-border)] bg-white sm:flex">
@@ -287,22 +287,23 @@ export default function LandingPage() {
                     </aside>
 
                     {/* Main dashboard */}
-                    <div className="flex-1 overflow-hidden p-5">
-                      <div className="mb-4 flex items-center justify-between">
+                    <div className="flex-1 overflow-hidden p-4 sm:p-5">
+                      <div className="mb-4 flex items-start justify-between gap-3 sm:items-center">
                         <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--flowrit-primary)]">Workspace overview</p>
+                          <p className="text-[10px] font-semibold uppercase text-[var(--flowrit-primary)]">Workspace overview</p>
                           <p className="mt-0.5 text-base font-bold text-[#141b2b]">대시보드</p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
                           <span className="rounded-lg border border-[var(--flowrit-border)] bg-white px-2.5 py-1 text-[10px] font-medium text-[#64748b]">이번 달</span>
-                          <span className="flex items-center gap-1 rounded-lg bg-[var(--flowrit-primary)] px-2.5 py-1 text-[10px] font-semibold text-white">
-                            <Plus className="h-3 w-3" />새 프로젝트
+                          <span className="flex items-center gap-1 rounded-lg bg-[var(--flowrit-primary)] px-2 py-1 text-[10px] font-semibold text-white sm:px-2.5">
+                            <Plus className="h-3 w-3" />
+                            <span className="hidden sm:inline">새 프로젝트</span>
                           </span>
                         </div>
                       </div>
 
                       {/* 파이프라인 stat cards */}
-                      <div className="mb-4 grid grid-cols-4 gap-2.5">
+                      <div className="mb-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
                         {[
                           { icon: Zap, label: '진행 중', count: '7', bg: 'bg-[var(--flowrit-primary-soft)]', color: 'text-[var(--flowrit-primary)]' },
                           { icon: Clock, label: '마감 임박', count: '2', bg: 'bg-orange-50', color: 'text-orange-600' },
@@ -361,32 +362,31 @@ export default function LandingPage() {
         </section>
 
         {/* ── Features ── */}
-        <section id="features" className="bg-white py-24">
-          <div className="mx-auto max-w-[1200px] px-6">
-            <div className="mb-16">
+        <section id="features" className="bg-white py-16 md:py-24">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <div className="mb-10 md:mb-16">
               <h2
-                className="mb-4 text-[#141b2b]"
-                style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.02em' }}
+                className="mb-4 text-[28px] font-bold leading-tight text-[#141b2b] md:text-4xl"
               >
                 이메일과 메모장에서 벗어나세요
               </h2>
-              <p className="max-w-2xl text-xl leading-relaxed text-[#464555]">
+              <p className="max-w-2xl text-base leading-relaxed text-[#464555] md:text-xl">
                 의뢰 접수부터 납품까지, 프리랜서가 실제로 필요한 기능만 담았습니다.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
               {FEATURES.map((feature) => {
                 const Icon = feature.icon
                 return (
                   <article
                     key={feature.title}
-                    className="group rounded-2xl bg-[#f9f9ff] p-8 transition-all duration-300 hover:bg-white hover:shadow-xl"
+                    className="group rounded-2xl bg-[#f9f9ff] p-6 transition-all duration-300 hover:bg-white hover:shadow-xl md:p-8"
                     style={{ border: '1px solid rgba(119,117,135,0.15)' }}
                   >
                     <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(79,70,229,0.07)] text-[var(--flowrit-primary)] transition-colors group-hover:bg-[var(--flowrit-primary)] group-hover:text-white">
                       <Icon className="h-7 w-7" aria-hidden="true" />
                     </div>
-                    <h3 className="mb-4 text-2xl font-semibold text-[#141b2b]">{feature.title}</h3>
+                    <h3 className="mb-4 text-xl font-semibold text-[#141b2b] md:text-2xl">{feature.title}</h3>
                     <p className="mb-6 leading-relaxed text-[#464555]">{feature.desc}</p>
                     <ul className="space-y-2">
                       {feature.bullets.map((b) => (
@@ -404,16 +404,15 @@ export default function LandingPage() {
         </section>
 
         {/* ── Solutions by Role ── */}
-        <section id="solutions" className="bg-[#f9f9ff] py-24">
-          <div className="mx-auto max-w-[1200px] px-6">
-            <div className="mb-16 text-center">
+        <section id="solutions" className="bg-[#f9f9ff] py-16 md:py-24">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <div className="mb-10 text-center md:mb-16">
               <h2
-                className="mb-4 text-[#141b2b]"
-                style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.02em' }}
+                className="mb-4 text-[28px] font-bold leading-tight text-[#141b2b] md:text-4xl"
               >
                 어떤 규모든 맞는 방법이 있습니다
               </h2>
-              <p className="text-xl leading-relaxed text-[#464555]">
+              <p className="text-base leading-relaxed text-[#464555] md:text-xl">
                 프리랜서 개인부터 팀, 스튜디오까지 Flowrit 하나로 운영합니다.
               </p>
             </div>
@@ -422,11 +421,11 @@ export default function LandingPage() {
               style={{ background: 'rgba(119,117,135,0.12)', gap: '1px' }}
             >
               {SOLUTIONS.map((s) => (
-                <div key={s.role} className="bg-white p-12 transition-colors hover:bg-[#f9f9ff]">
-                  <span className="mb-4 block text-sm font-bold uppercase tracking-widest text-[var(--flowrit-primary)]">
+                <div key={s.role} className="bg-white p-6 transition-colors hover:bg-[#f9f9ff] md:p-12">
+                  <span className="mb-4 block text-sm font-bold uppercase text-[var(--flowrit-primary)]">
                     {s.role}
                   </span>
-                  <h3 className="mb-4 text-2xl font-bold text-[#141b2b]">{s.title}</h3>
+                  <h3 className="mb-4 text-xl font-bold text-[#141b2b] md:text-2xl">{s.title}</h3>
                   <p className="leading-relaxed text-[#464555]">{s.desc}</p>
                 </div>
               ))}
@@ -435,21 +434,20 @@ export default function LandingPage() {
         </section>
 
         {/* ── Process ── */}
-        <section id="process" className="bg-white py-24">
-          <div className="mx-auto max-w-[1200px] px-6">
-            <div className="grid items-center gap-16 lg:grid-cols-2">
+        <section id="process" className="bg-white py-16 md:py-24">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
 
               {/* Steps */}
               <div>
                 <h2
-                  className="mb-10 text-[#141b2b]"
-                  style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.02em' }}
+                  className="mb-8 text-[28px] font-bold leading-tight text-[#141b2b] md:mb-10 md:text-4xl"
                 >
                   의뢰에서 납품까지
                   <br />
                   4단계로 끝납니다
                 </h2>
-                <div className="space-y-8">
+                <div className="space-y-6 md:space-y-8">
                   {STEPS.map((step, i) => (
                     <div key={step.title} className="flex gap-5">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--flowrit-primary)] text-lg font-bold text-white">
@@ -470,15 +468,16 @@ export default function LandingPage() {
                 style={{ border: '1px solid rgba(119,117,135,0.15)' }}
               >
                 {/* 상단 헤더 */}
-                <div className="border-b border-[var(--flowrit-border)] px-6 py-4">
-                  <div className="flex items-center justify-between">
+                <div className="border-b border-[var(--flowrit-border)] px-4 py-4 sm:px-6">
+                  <div className="flex items-start justify-between gap-3 sm:items-center">
                     <div>
                       <p className="text-sm font-bold text-[#141b2b]">주문서 관리</p>
                       <p className="text-xs text-[#64748b]">고객 의뢰를 프로젝트로 전환합니다</p>
                     </div>
-                    <span className="flex items-center gap-1 rounded-lg border border-[var(--flowrit-border)] bg-white px-2.5 py-1 text-xs font-medium text-[#64748b]">
+                    <span className="flex shrink-0 items-center gap-1 rounded-lg border border-[var(--flowrit-border)] bg-white px-2.5 py-1 text-xs font-medium text-[#64748b]">
                       <ExternalLink className="h-3 w-3" />
-                      주문서 열기
+                      <span className="hidden sm:inline">주문서 열기</span>
+                      <span className="sm:hidden">열기</span>
                     </span>
                   </div>
                 </div>
@@ -490,7 +489,7 @@ export default function LandingPage() {
                     { icon: CheckCircle2, label: '검토', desc: '내용·일정 확인' },
                     { icon: Zap, label: '전환', desc: '프로젝트 즉시 생성' },
                   ].map(({ icon: Icon, label, desc }, idx) => (
-                    <div key={label} className={`px-4 py-4 text-center ${idx < 2 ? 'border-r border-[var(--flowrit-border)]' : ''}`}>
+                    <div key={label} className={`px-2 py-4 text-center sm:px-4 ${idx < 2 ? 'border-r border-[var(--flowrit-border)]' : ''}`}>
                       <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--flowrit-primary-soft)]">
                         <Icon className="h-4 w-4 text-[var(--flowrit-primary)]" />
                       </div>
@@ -501,13 +500,13 @@ export default function LandingPage() {
                 </div>
 
                 {/* 폼 링크 */}
-                <div className="border-b border-[var(--flowrit-border)] px-6 py-3">
-                  <div className="flex items-center justify-between rounded-lg bg-[#f8fafc] px-3 py-2.5">
-                    <div>
+                <div className="border-b border-[var(--flowrit-border)] px-4 py-3 sm:px-6">
+                  <div className="flex items-center justify-between gap-3 rounded-lg bg-[#f8fafc] px-3 py-2.5">
+                    <div className="min-w-0">
                       <p className="text-[10px] font-semibold text-[#464555]">주문서 폼</p>
-                      <p className="mt-0.5 font-mono text-[11px] text-[#64748b]">flowrit.kr/order/my-studio</p>
+                      <p className="mt-0.5 truncate font-mono text-[11px] text-[#64748b]">flowrit.kr/order/my-studio</p>
                     </div>
-                    <span className="rounded bg-[var(--flowrit-primary-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--flowrit-primary)]">복사</span>
+                    <span className="shrink-0 rounded bg-[var(--flowrit-primary-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--flowrit-primary)]">복사</span>
                   </div>
                 </div>
 
@@ -517,7 +516,7 @@ export default function LandingPage() {
                     { name: '김민준', contact: 'minjun@brand.co', content: '브랜드 아이덴티티 디자인 의뢰드립니다. 로고부터 명함, 소셜미디어 템플릿까지...', type: '주문서', date: '오늘' },
                     { name: '이서연', contact: 'seoyeon@cafe.kr', content: '카페 메뉴판 리뉴얼 작업 문의드립니다. A4 2페이지 분량으로...', type: '문의', date: '어제' },
                   ].map((item) => (
-                    <div key={item.name} className="px-5 py-4">
+                    <div key={item.name} className="px-4 py-4 sm:px-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-2.5">
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-50 text-sm font-bold text-violet-700">
@@ -549,16 +548,15 @@ export default function LandingPage() {
         </section>
 
         {/* ── Pricing ── */}
-        <section id="pricing" className="bg-[#f9f9ff] py-24">
-          <div className="mx-auto max-w-[1200px] px-6">
-            <div className="mb-16 text-center">
+        <section id="pricing" className="bg-[#f9f9ff] py-16 md:py-24">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <div className="mb-10 text-center md:mb-16">
               <h2
-                className="mb-4 text-[#141b2b]"
-                style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.02em' }}
+                className="mb-4 text-[28px] font-bold leading-tight text-[#141b2b] md:text-4xl"
               >
                 간단하고 합리적인 요금제
               </h2>
-              <p className="text-xl leading-relaxed text-[#464555]">
+              <p className="text-base leading-relaxed text-[#464555] md:text-xl">
                 무료로 시작하고, 팀이 커지면 Pro로 전환하세요.
               </p>
             </div>
@@ -566,7 +564,7 @@ export default function LandingPage() {
 
               {/* Free */}
               <article
-                className="flex flex-col rounded-3xl bg-white p-10"
+                className="flex flex-col rounded-3xl bg-white p-6 md:p-10"
                 style={{ border: '1px solid rgba(119,117,135,0.15)' }}
               >
                 <h3 className="mb-2 text-xl font-bold text-[#141b2b]">무료</h3>
@@ -593,7 +591,7 @@ export default function LandingPage() {
 
               {/* Pro */}
               <article
-                className="relative flex flex-col overflow-hidden rounded-3xl p-10 text-white"
+                className="relative flex flex-col overflow-hidden rounded-3xl p-6 text-white md:p-10"
                 style={{ background: 'var(--flowrit-primary)', boxShadow: '0 24px 48px rgba(79,70,229,0.3)' }}
               >
                 <div className="absolute right-6 top-6 rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase">
@@ -625,28 +623,27 @@ export default function LandingPage() {
         </section>
 
         {/* ── Final CTA ── */}
-        <section className="py-24 text-center text-white" style={{ backgroundColor: '#1e1b4b' }}>
-          <div className="mx-auto max-w-3xl px-6">
+        <section className="py-16 text-center text-white md:py-24" style={{ backgroundColor: '#1e1b4b' }}>
+          <div className="mx-auto max-w-3xl px-4 sm:px-6">
             <h2
-              className="mb-8 text-white"
-              style={{ fontSize: 36, fontWeight: 700, lineHeight: 1.2, letterSpacing: '-0.02em' }}
+              className="mb-6 text-[28px] font-bold leading-tight text-white md:mb-8 md:text-4xl"
             >
               지금 바로 업무 방식을 바꿔보세요
             </h2>
-            <p className="mb-12 text-xl leading-relaxed text-white/60">
+            <p className="mb-10 text-base leading-relaxed text-white/60 md:mb-12 md:text-xl">
               5분이면 워크스페이스를 만들고 주문서 링크를 공유할 수 있습니다.
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/register"
-                className="flowrit-button-primary rounded-xl px-12 py-5 text-lg font-bold"
+                className="flowrit-button-primary w-full max-w-sm rounded-xl px-10 py-4 text-base font-bold sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
                 style={{ boxShadow: '0 8px 32px rgba(79,70,229,0.2)' }}
               >
                 무료로 시작하기
               </Link>
               <Link
                 href="/login"
-                className="rounded-xl bg-white/10 px-12 py-5 text-lg font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+                className="w-full max-w-sm rounded-xl bg-white/10 px-10 py-4 text-base font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:w-auto sm:px-12 sm:py-5 sm:text-lg"
               >
                 로그인
               </Link>
@@ -656,9 +653,9 @@ export default function LandingPage() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-[var(--flowrit-border)] bg-white pb-8 pt-16">
-        <div className="mx-auto max-w-[1200px] px-6">
-          <div className="mb-12 grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-5">
+      <footer className="border-t border-[var(--flowrit-border)] bg-white pb-8 pt-12 md:pt-16">
+        <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <div className="mb-10 grid grid-cols-2 gap-8 md:mb-12 md:grid-cols-4 md:gap-12 lg:grid-cols-5">
             <div className="col-span-2">
               <Link href="/" className="mb-6 flex items-center gap-2">
                 <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={30} height={30} />

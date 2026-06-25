@@ -7,11 +7,13 @@ export default async function TemplatesPage() {
 
   return (
     <div className="flowrit-page">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-gray-900">워크플로우 템플릿</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          프로젝트에 적용할 단계 흐름과 고객 표시명을 관리합니다.
-        </p>
+      <div className="flowrit-page-header">
+        <div>
+          <h1 className="flowrit-page-title">워크플로우 템플릿</h1>
+          <p className="flowrit-page-description">
+            프로젝트에 적용할 단계 흐름과 고객 표시명을 관리합니다.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">

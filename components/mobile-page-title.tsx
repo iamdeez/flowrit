@@ -4,14 +4,15 @@ import { usePathname } from 'next/navigation'
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': '대시보드',
+  '/orders': '주문서 관리',
   '/projects': '프로젝트',
   '/revisions': '수정 요청',
   '/customers': '고객',
   '/messages': '메시지',
   '/analytics': '성과 분석',
+  '/templates': '템플릿',
   '/team': '팀',
   '/settings': '설정',
-  '/billing': '빌링',
   '/notifications': '알림',
 }
 
