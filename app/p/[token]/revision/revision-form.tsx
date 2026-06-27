@@ -136,6 +136,7 @@ export function CustomerRevisionForm({ token }: { token: string }) {
                   <button
                     type="button"
                     onClick={() => removeFile(f.url)}
+                    aria-label={`이미지 제거: ${f.name}`}
                     className="flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -159,6 +160,7 @@ export function CustomerRevisionForm({ token }: { token: string }) {
                 <button
                   type="button"
                   onClick={() => removeFile(f.url)}
+                  aria-label={`첨부 파일 제거: ${f.name}`}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <X className="h-4 w-4" />

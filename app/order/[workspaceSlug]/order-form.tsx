@@ -83,12 +83,15 @@ export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fi
 
   if (state.success) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm">
+      <div
+        role="status"
+        className="rounded-xl border border-[var(--flowrit-border)] bg-[var(--flowrit-success-soft)] p-8 text-center"
+      >
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-[var(--flowrit-success-text)]">
           <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
         </div>
-        <p className="text-lg font-semibold text-emerald-900">주문서가 접수되었습니다</p>
-        <p className="mt-2 text-sm leading-6 text-emerald-700">
+        <p className="text-lg font-semibold text-[var(--flowrit-success-text)]">주문서가 접수되었습니다</p>
+        <p className="mt-2 text-sm leading-6 text-[var(--flowrit-success-text)]">
           담당자가 내용을 확인한 뒤 일정과 다음 단계를 안내드리겠습니다.
         </p>
       </div>
@@ -171,6 +174,7 @@ export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fi
                       <button
                         type="button"
                         onClick={() => setFiles((prev) => prev.filter((x) => x.url !== f.url))}
+                        aria-label={`첨부 파일 제거: ${f.name}`}
                         className="ml-auto shrink-0 text-gray-400 hover:text-red-500"
                       >
                         <X className="h-3.5 w-3.5" />
@@ -195,7 +199,7 @@ export function OrderForm({ workspaceSlug, fields }: { workspaceSlug: string; fi
       })}
 
       {state.error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p role="alert" className="flowrit-form-error">{state.error}</p>
       )}
 
       <button

@@ -310,9 +310,13 @@ export function PublicProjectPortal({
             </div>
 
             {project.assets.length === 0 ? (
-              <p className="rounded-lg bg-[var(--flowrit-panel-subtle)] px-3 py-4 text-sm text-[var(--flowrit-text-muted)]">
-                아직 공유된 납품 이력이 없습니다.
-              </p>
+              <div className="flowrit-empty-state">
+                <div className="flowrit-empty-icon">
+                  <FileText className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="flowrit-empty-title">아직 공유된 납품 이력이 없습니다.</p>
+                <p className="flowrit-empty-description">결과물이 전달되면 이곳에서 확인할 수 있습니다.</p>
+              </div>
             ) : (
               <div className="space-y-5">
                 {!isProjectCompleted && (
@@ -393,10 +397,12 @@ export function PublicProjectPortal({
             </div>
 
             {project.revisions.length === 0 ? (
-              <div className="flowrit-panel-padded">
-                <p className="text-sm text-[var(--flowrit-text-muted)]">
-                  아직 접수된 수정 요청이 없습니다.
-                </p>
+              <div className="flowrit-empty-state">
+                <div className="flowrit-empty-icon">
+                  <MessageSquareText className="h-5 w-5" aria-hidden="true" />
+                </div>
+                <p className="flowrit-empty-title">아직 접수된 수정 요청이 없습니다.</p>
+                <p className="flowrit-empty-description">수정이 필요하면 위 버튼으로 요청을 남겨주세요.</p>
               </div>
             ) : (
               project.revisions.map((revision) => (

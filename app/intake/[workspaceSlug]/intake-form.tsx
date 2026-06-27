@@ -57,12 +57,15 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
 
   if (state.success) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-emerald-600 shadow-sm">
+      <div
+        role="status"
+        className="rounded-xl border border-[var(--flowrit-border)] bg-[var(--flowrit-success-soft)] p-8 text-center"
+      >
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-[var(--flowrit-success-text)]">
           <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
         </div>
-        <p className="text-lg font-semibold text-emerald-900">의뢰가 접수되었습니다</p>
-        <p className="mt-2 text-sm leading-6 text-emerald-700">
+        <p className="text-lg font-semibold text-[var(--flowrit-success-text)]">의뢰가 접수되었습니다</p>
+        <p className="mt-2 text-sm leading-6 text-[var(--flowrit-success-text)]">
           담당자가 내용을 확인한 뒤 필요한 정보와 다음 단계를 안내드리겠습니다.
         </p>
       </div>
@@ -74,10 +77,11 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
       <input type="hidden" name="fileUrls" value={JSON.stringify(files.map((f) => f.url))} />
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">
+        <label htmlFor="intake-name" className="block text-sm font-medium text-gray-700">
           이름 <span className="text-red-500">*</span>
         </label>
         <input
+          id="intake-name"
           name="name"
           type="text"
           required
@@ -87,8 +91,9 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">연락처</label>
+        <label htmlFor="intake-contact" className="block text-sm font-medium text-gray-700">연락처</label>
         <input
+          id="intake-contact"
           name="contact"
           type="text"
           className="flowrit-input mt-1"
@@ -97,10 +102,11 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">
+        <label htmlFor="intake-content" className="block text-sm font-medium text-gray-700">
           의뢰 내용 <span className="text-red-500">*</span>
         </label>
         <textarea
+          id="intake-content"
           name="content"
           required
           rows={5}
@@ -149,6 +155,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
                 <button
                   type="button"
                   onClick={() => removeFile(f.url)}
+                  aria-label={`첨부 파일 제거: ${f.name}`}
                   className="ml-auto shrink-0 text-gray-400 hover:text-red-500"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -160,7 +167,7 @@ export function IntakeForm({ workspaceSlug }: { workspaceSlug: string }) {
       </div>
 
       {state.error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p role="alert" className="flowrit-form-error">{state.error}</p>
       )}
 
       <button

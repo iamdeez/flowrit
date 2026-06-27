@@ -97,10 +97,10 @@ export function RevisionCommentForm({ token, revisionId, parentId, comments }: P
         {parentId && <input type="hidden" name="parentId" value={parentId} />}
 
         {state.error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{state.error}</p>
+          <p role="alert" className="flowrit-form-error">{state.error}</p>
         )}
         {state.success && (
-          <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-600">댓글이 등록되었습니다.</p>
+          <p role="status" className="flowrit-form-success">댓글이 등록되었습니다.</p>
         )}
 
         <div className="grid gap-3 sm:grid-cols-2">
