@@ -10,6 +10,7 @@ import { IntakeLinkCopy } from './intake-link-copy'
 import { WebhookInfo } from './webhook-info'
 import { OrderFormBuilder } from './order-form-builder'
 import { BillingTab } from './billing-tab'
+import { TabNav } from '@/components/ui/tab-nav'
 import { getOrInitOrderFormFields } from '@/lib/actions/form-fields'
 
 const TABS = [
@@ -87,7 +88,7 @@ export default async function SettingsPage({
 
   return (
     <div className="flowrit-page max-w-3xl">
-      <div className="flowrit-page-header mb-8">
+      <div className="flowrit-page-header">
         <div>
           <h1 className="flowrit-page-title">설정</h1>
           <p className="flowrit-page-description">계정, 워크스페이스, 주문서, 결제 설정을 관리합니다.</p>
@@ -101,21 +102,16 @@ export default async function SettingsPage({
       )}
 
       {/* 탭 네비게이션 */}
-      <div className="mb-8 flex gap-1 overflow-x-auto border-b border-gray-200">
-        {TABS.filter((t) => (t.key !== 'workspace' && t.key !== 'orderform') || isOwner).map((t) => (
-          <a
-            key={t.key}
-            href={`/settings?tab=${t.key}`}
-            className={`shrink-0 whitespace-nowrap px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              tab === t.key
-                ? 'border-indigo-600 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            } ${t.key === 'danger' ? 'text-red-500 hover:text-red-600' : ''}`}
-          >
-            {t.label}
-          </a>
-        ))}
-      </div>
+      <TabNav
+        className="mb-8"
+        activeKey={tab}
+        items={TABS.filter((t) => (t.key !== 'workspace' && t.key !== 'orderform') || isOwner).map((t) => ({
+          key: t.key,
+          label: t.label,
+          href: `/settings?tab=${t.key}`,
+          danger: t.key === 'danger',
+        }))}
+      />
 
       {/* 탭 콘텐츠 */}
       {tab === 'profile' && (

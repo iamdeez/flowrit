@@ -3,6 +3,7 @@
 import { useState, useActionState } from 'react'
 import { Check, ChevronDown, ChevronUp, Copy, ExternalLink, FlaskConical, Loader2, MapPin, MessageCircle, Search } from 'lucide-react'
 import { sendTestInquiry } from '@/lib/actions/testWebhook'
+import { TabNav } from '@/components/ui/tab-nav'
 
 // ─── 플랫폼 정보 ──────────────────────────────────────────────────────────────
 
@@ -152,6 +153,7 @@ function AdvancedWebhook({ webhookUrl }: { webhookUrl: string }) {
               href={webhookUrl}
               target="_blank"
               rel="noreferrer"
+              aria-label="엔드포인트 새 탭에서 열기"
               className="flex h-7 w-7 items-center justify-center rounded text-[var(--flowrit-text-muted)] hover:bg-white"
             >
               <ExternalLink className="h-3.5 w-3.5" />
@@ -257,27 +259,23 @@ export function WebhookInfo({ slug }: { slug: string }) {
       </div>
 
       {/* 플랫폼 탭 */}
-      <div className="flex gap-1 overflow-x-auto border-b border-[var(--flowrit-border)] [&::-webkit-scrollbar]:hidden">
-        {PLATFORMS.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            onClick={() => setActiveTab(p.id)}
-            className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-sm font-medium transition-colors -mb-px ${
-              activeTab === p.id
-                ? 'border-[var(--flowrit-primary)] text-[var(--flowrit-primary)]'
-                : 'border-transparent text-[var(--flowrit-text-muted)] hover:text-[var(--flowrit-text-secondary)]'
-            }`}
-          >
-            {p.id === 'instagram' ? (
-              <Search className="h-3.5 w-3.5" aria-hidden="true" />
-            ) : (
-              <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
-            )}
-            {p.name}
-          </button>
-        ))}
-      </div>
+      <TabNav
+        activeKey={activeTab}
+        onSelect={setActiveTab}
+        items={PLATFORMS.map((p) => ({
+          key: p.id,
+          label: (
+            <>
+              {p.id === 'instagram' ? (
+                <Search className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+              {p.name}
+            </>
+          ),
+        }))}
+      />
 
       {/* 플랫폼별 가이드 */}
       <PlatformGuide platform={activePlatform} intakeUrl={intakeUrl} />
