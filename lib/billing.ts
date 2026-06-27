@@ -31,8 +31,6 @@ export async function approveAndRegisterBillingKey(
   })
 
   const json = await res.json()
-  console.log(`[approvePayment] tid=${tid.slice(0, 16)}... result=${json.resultCode}|${(json.resultMsg ?? '').slice(0, 60)}`)
-  console.log(`[approvePayment] full response keys:`, Object.keys(json).join(','))
   if (json.resultCode !== '0000') {
     const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '결제 승인 실패'}`)
     Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, tid, amount } })
@@ -85,7 +83,6 @@ export async function registerBillingKeyDirect(
     body: JSON.stringify(body),
   })
   const json = await res.json()
-  console.log(`[subscribe/regist] resultCode=${json.resultCode} msg=${(json.resultMsg ?? '').slice(0, 60)}`)
   if (json.resultCode !== '0000') {
     const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '빌링키 발급 실패'}`)
     Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, orderId } })

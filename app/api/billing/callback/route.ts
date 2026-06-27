@@ -40,14 +40,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Already on PRO plan' }, { status: 409 })
   }
 
-  const owner = await prisma.workspaceMember.findFirst({
-    where: { workspaceId, role: 'OWNER' },
-    select: { user: { select: { email: true, name: true } } },
-  })
-
   const now = new Date()
   const amount = PLAN_PRICES[billingCycle]
-  const goodsName = `Flowrit Pro (${billingCycle === 'monthly' ? '월정기' : '연정기'})`
   const periodEnd = getNextPeriodEnd(billingCycle, now)
 
   let registration: { bid?: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }

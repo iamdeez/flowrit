@@ -23,9 +23,6 @@ async function handleReturn(request: Request): Promise<NextResponse> {
     try {
       if (contentType.includes('application/x-www-form-urlencoded') || contentType.includes('multipart/form-data')) {
         const formData = await request.formData()
-        const allFields: Record<string, string> = {}
-        formData.forEach((v, k) => { allFields[k] = String(v).slice(0, 100) })
-        console.log('[nicepay-return] POST formData fields:', JSON.stringify(allFields))
         resultCode = (formData.get('resultCode') as string) || resultCode
         resultMsg = (formData.get('resultMsg') as string) || resultMsg
         authToken = (formData.get('authToken') as string) || authToken
@@ -34,7 +31,6 @@ async function handleReturn(request: Request): Promise<NextResponse> {
         encData = (formData.get('encData') as string) || encData
       } else if (contentType.includes('application/json')) {
         const json = await request.json()
-        console.log('[nicepay-return] POST json fields:', JSON.stringify(json).slice(0, 500))
         resultCode = json.resultCode || resultCode
         resultMsg = json.resultMsg || resultMsg
         authToken = json.authToken || authToken
@@ -42,16 +38,10 @@ async function handleReturn(request: Request): Promise<NextResponse> {
         signature = json.signature || signature
         encData = json.encData || encData
       }
-    } catch (e) {
-      console.log('[nicepay-return] POST parse error:', String(e), 'content-type:', contentType)
+    } catch {
+      // 파싱 실패 시 query-param 값으로 폴백한다.
     }
   }
-
-  console.log('[nicepay-return] params:', {
-    resultCode, authToken: authToken ? `${authToken.slice(0, 10)}...` : '',
-    tid, signature: signature ? `${signature.slice(0, 16)}...` : '(empty)',
-    method: request.method,
-  })
 
   // NicePayments는 returnUrl에 resultCode 없이 authToken만 전달하는 경우가 있음.
   // authToken 존재 자체가 인증 성공 신호이며, 실제 결과는 /subscribe/regist 응답으로 확인.
