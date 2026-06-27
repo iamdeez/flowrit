@@ -63,6 +63,8 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* App Router 루트 layout 의 <head> 는 전역 폰트 로드의 올바른 위치 — 룰은 pages router 기준 오탐 */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&display=swap"
           rel="stylesheet"

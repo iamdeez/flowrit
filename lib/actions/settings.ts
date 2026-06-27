@@ -51,7 +51,7 @@ export async function updateProfile(
 
     revalidatePath('/settings')
     return { success: '프로필이 업데이트되었습니다.' }
-  } catch (e) {
+  } catch {
     return { error: '프로필 업데이트에 실패했습니다.' }
   }
 }

@@ -1,5 +1,5 @@
 import { expect, test } from 'playwright/test'
-import { e2eEnv, requireEnv, requireMutationAllowed } from './helpers'
+import { requireEnv, requireMutationAllowed } from './helpers'
 
 test.describe('signup and onboarding', () => {
   test('B-02 duplicate workspace slug is rejected during onboarding', async ({ page }) => {
@@ -14,11 +14,7 @@ test.describe('signup and onboarding', () => {
     await page.getByRole('button', { name: '가입하기' }).click()
     await page.waitForURL(/\/onboarding/, { timeout: 15_000 })
 
-    // Try to use existing slug (flowrit-demo) which should already be taken
-    const slugInput = page.locator('input[name="workspaceSlug"]')
-      .or(page.locator('input').filter({ hasText: /flowrit-demo/ }))
-      .or(page.locator('input').nth(1)).first()
-
+    // 기존 슬러그(flowrit-demo)와 중복되도록 동일 이름을 입력한다.
     // OnboardingForm uses hidden inputs for submission; visible name input has placeholder "홍길동 스튜디오"
     const nameInput = page.getByPlaceholder('홍길동 스튜디오')
     await nameInput.fill('Flowrit Demo') // This should auto-set slug to flowrit-demo

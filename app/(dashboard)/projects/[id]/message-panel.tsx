@@ -19,13 +19,6 @@ type MessagePanelProps = {
   shareLink: string
 }
 
-const VARIABLES = [
-  { token: '{고객명}', value: 'customerName' },
-  { token: '{단계}', value: 'stageName' },
-  { token: '{마감일}', value: 'dueDate' },
-  { token: '{공유링크}', value: 'shareLink' },
-] as const
-
 export function MessagePanel({
   templates,
   customerName,

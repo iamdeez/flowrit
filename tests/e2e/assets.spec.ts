@@ -1,5 +1,5 @@
 import { expect, test } from 'playwright/test'
-import { e2eEnv, login, requireEnv, requireMutationAllowed } from './helpers'
+import { login, requireEnv, requireMutationAllowed } from './helpers'
 
 test.describe('assets (deliverables)', () => {
   async function goToFirstProjectAssets(page: Parameters<typeof login>[0]) {
