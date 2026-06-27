@@ -68,7 +68,8 @@ async function handleReturn(request: Request): Promise<NextResponse> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         authToken: ${JSON.stringify(authToken)},
-        orderId: ${JSON.stringify(orderId)}
+        orderId: ${JSON.stringify(orderId)},
+        encData: ${JSON.stringify(encData || signature || undefined)}
       })
     })
     .then(function(r) { return r.json(); })

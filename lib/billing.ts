@@ -1,4 +1,3 @@
-import { createCipheriv } from 'crypto'
 import * as Sentry from '@sentry/nextjs'
 
 const NICEPAY_API_BASE = 'https://api.nicepay.co.kr/v1'
@@ -12,18 +11,9 @@ function authHeader(): string {
   return `Basic ${Buffer.from(`${clientId}:${secretKey}`).toString('base64')}`
 }
 
-// NicePayments /subscribe/regist 필수 encData.
-// secretKey는 32자 hex 문자열 → hex decode하면 16바이트 AES-128 키.
-function buildEncData(authToken: string): string {
-  const secretKey = process.env.NICEPAY_SECRET_KEY!
-  const key = Buffer.from(secretKey, 'hex')
-  const cipher = createCipheriv('aes-128-ecb', key, null)
-  return Buffer.concat([cipher.update(authToken, 'utf8'), cipher.final()]).toString('base64')
-}
-
 /**
  * 나이스페이먼츠 빌링키 발급 + 첫 결제
- * AUTHNICE를 amount > 0으로 호출했으므로 /subscribe/regist에 amount/goodsName/encData 모두 필수.
+ * encData: AUTHNICE fnSuccess(팝업)가 제공한 PKCS7 blob. 모바일 redirect에서는 signature 대체.
  */
 export async function registerBillingKey(
   authToken: string,
@@ -32,10 +22,12 @@ export async function registerBillingKey(
   buyerName: string,
   amount: number,
   goodsName: string,
+  encData?: string,
 ): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }> {
   const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
-  const encData = buildEncData(authToken)
-  const body = { clientId, authToken, orderId, buyerEmail, buyerName, amount, goodsName, encData }
+  const body: Record<string, unknown> = { clientId, authToken, orderId, buyerEmail, buyerName, amount, goodsName }
+  if (encData) body.encData = encData
+  console.log(`[registerBillingKey] encData=${encData ? `${encData.slice(0, 20)}...` : 'NONE'}`)
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
@@ -66,16 +58,17 @@ export async function registerBillingKey(
 /**
  * 카드 변경용 빌링키 등록 (amount=0, 첫 결제 없음)
  * AUTHNICE를 amount=0으로 호출한 후 서버에서 이 함수로 새 빌링키를 발급한다.
+ * encData: AUTHNICE fnSuccess(팝업)가 제공한 PKCS7 blob.
  */
 export async function registerCard(
   authToken: string,
   orderId: string,
   buyerEmail: string,
   buyerName: string,
+  encData?: string,
 ): Promise<{ bid: string; cardName?: string; cardNum?: string }> {
   const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
-  const encData = buildEncData(authToken)
-  const body = {
+  const body: Record<string, unknown> = {
     clientId,
     authToken,
     orderId,
@@ -83,8 +76,8 @@ export async function registerCard(
     buyerName,
     amount: 0,
     goodsName: 'Flowrit 결제 수단 등록',
-    encData,
   }
+  if (encData) body.encData = encData
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',

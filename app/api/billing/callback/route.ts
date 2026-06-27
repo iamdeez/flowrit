@@ -20,17 +20,19 @@ export async function POST(request: Request) {
 
   const workspaceId = session.user.workspaceId
 
-  let body: { authToken: string; orderId: string; billingCycle: BillingCycle }
+  let body: { authToken: string; orderId: string; billingCycle: BillingCycle; encData?: string; signature?: string }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { authToken, orderId, billingCycle } = body
+  const { authToken, orderId, billingCycle, encData, signature } = body
   if (!authToken || !orderId || (billingCycle !== 'monthly' && billingCycle !== 'yearly')) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
+  // encData: AUTHNICE fnSuccess(팝업)가 제공한 PKCS7 blob. 모바일 redirect에서는 signature를 대체 사용.
+  const resolvedEncData = encData || signature
 
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId },
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
       owner?.user.name ?? '',
       amount,
       goodsName,
+      resolvedEncData,
     )
   } catch (err) {
     await sendOpsAlert({

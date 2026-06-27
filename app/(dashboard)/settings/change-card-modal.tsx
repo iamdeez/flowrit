@@ -43,12 +43,12 @@ export function ChangeCardModal({ onClose, onSuccess }: Props) {
     }
     window.addEventListener('message', handleReturnMessage)
 
-    async function processCardChange(authToken: string) {
+    async function processCardChange(authToken: string, encData?: string) {
       try {
         const res = await fetch('/api/billing/change-card', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ authToken, orderId }),
+          body: JSON.stringify({ authToken, orderId, encData }),
         })
         const result = await res.json()
         if (result.success) {
@@ -73,7 +73,7 @@ export function ChangeCardModal({ onClose, onSuccess }: Props) {
       returnUrl: `${appUrl}/api/billing/nicepay-return?mode=change-card&orderId=${orderId}`,
       fnSuccess: async (result) => {
         window.removeEventListener('message', handleReturnMessage)
-        await processCardChange(result.authToken)
+        await processCardChange(result.authToken, result.encData)
       },
       fnError: (result) => {
         window.removeEventListener('message', handleReturnMessage)

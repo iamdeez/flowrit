@@ -15,14 +15,14 @@ export async function POST(request: Request) {
 
   const workspaceId = session.user.workspaceId
 
-  let body: { authToken: string; orderId: string }
+  let body: { authToken: string; orderId: string; encData?: string }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { authToken, orderId } = body
+  const { authToken, orderId, encData } = body
   if (!authToken || !orderId) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
@@ -48,6 +48,7 @@ export async function POST(request: Request) {
       orderId,
       owner?.user.email ?? '',
       owner?.user.name ?? '',
+      encData,
     )
   } catch (err) {
     await sendOpsAlert({
