@@ -212,7 +212,15 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-gray-400">등록된 결제 수단이 없습니다.</p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-400">등록된 결제 수단이 없습니다.</p>
+                <button
+                  onClick={() => setShowChangeCard(true)}
+                  className="flowrit-button-secondary text-sm"
+                >
+                  카드 등록
+                </button>
+              </div>
             )}
           </div>
         </div>
