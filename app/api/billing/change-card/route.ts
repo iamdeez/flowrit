@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
-import { registerCard, cancelBillingKey } from '@/lib/billing'
+import { registerBillingKeyDirect, cancelBillingKey, type CardDetails } from '@/lib/billing'
 import { sendOpsAlert } from '@/lib/ops-alert'
 
 export async function POST(request: Request) {
@@ -15,16 +15,16 @@ export async function POST(request: Request) {
 
   const workspaceId = session.user.workspaceId
 
-  let body: { authToken: string; orderId: string; encData?: string }
+  let body: { card: CardDetails }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { authToken, orderId, encData } = body
-  if (!authToken || !orderId) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  const { card } = body
+  if (!card?.cardNo || !card.expYear || !card.expMonth || !card.idNo || !card.cardPw) {
+    return NextResponse.json({ error: 'Missing card details' }, { status: 400 })
   }
 
   const subscription = await prisma.subscription.findUnique({
@@ -41,14 +41,15 @@ export async function POST(request: Request) {
     select: { user: { select: { email: true, name: true } } },
   })
 
+  const orderId = `card-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+
   let newCard: { bid: string; cardName?: string; cardNum?: string }
   try {
-    newCard = await registerCard(
-      authToken,
+    newCard = await registerBillingKeyDirect(
+      card,
       orderId,
-      owner?.user.email ?? '',
-      owner?.user.name ?? '',
-      encData,
+      owner?.user.name ?? undefined,
+      owner?.user.email ?? undefined,
     )
   } catch (err) {
     await sendOpsAlert({

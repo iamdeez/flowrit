@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import * as Sentry from '@sentry/nextjs'
 
 const NICEPAY_API_BASE = 'https://api.nicepay.co.kr/v1'
@@ -47,43 +48,46 @@ export async function approveAndRegisterBillingKey(
   }
 }
 
+export interface CardDetails {
+  cardNo: string    // 카드번호 숫자만
+  expYear: string   // 유효기간 년 YY
+  expMonth: string  // 유효기간 월 MM
+  idNo: string      // 생년월일 6자리(개인) 또는 사업자번호 10자리(법인)
+  cardPw: string    // 비밀번호 앞 2자리
+}
+
+function buildEncData(card: CardDetails): string {
+  const secretKey = process.env.NICEPAY_SECRET_KEY!
+  const key = Buffer.from(secretKey.substring(0, 16), 'utf8')
+  const plain = `cardNo=${card.cardNo}&expYear=${card.expYear}&expMonth=${card.expMonth}&idNo=${card.idNo}&cardPw=${card.cardPw}`
+  const cipher = crypto.createCipheriv('aes-128-ecb', key, null)
+  cipher.setAutoPadding(true)
+  return Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()]).toString('hex')
+}
+
 /**
- * 카드 변경용 빌링키 등록 (amount=0, 첫 결제 없음)
- * AUTHNICE를 amount=0으로 호출한 후 서버에서 이 함수로 새 빌링키를 발급한다.
- * encData: AUTHNICE fnSuccess(팝업)가 제공한 PKCS7 blob.
+ * 카드 정보 직접 입력으로 빌링키 발급 (/v1/subscribe/regist)
  */
-export async function registerCard(
-  authToken: string,
+export async function registerBillingKeyDirect(
+  card: CardDetails,
   orderId: string,
-  buyerEmail: string,
-  buyerName: string,
-  encData?: string,
+  buyerName?: string,
+  buyerEmail?: string,
 ): Promise<{ bid: string; cardName?: string; cardNum?: string }> {
-  const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
-  const body: Record<string, unknown> = {
-    clientId,
-    authToken,
-    orderId,
-    buyerEmail,
-    buyerName,
-    amount: 0,
-    goodsName: 'Flowrit 결제 수단 등록',
-  }
-  if (encData) body.encData = encData
+  const encData = buildEncData(card)
+  const body: Record<string, unknown> = { encData, orderId }
+  if (buyerName) body.buyerName = buyerName
+  if (buyerEmail) body.buyerEmail = buyerEmail
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
-    headers: {
-      Authorization: authHeader(),
-      'Content-Type': 'application/json',
-    },
+    headers: { Authorization: authHeader(), 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
-
   const json = await res.json()
-  console.log(`NP(card):${json.resultCode}|${(json.resultMsg ?? '').slice(0, 60)}`)
+  console.log(`[subscribe/regist] resultCode=${json.resultCode} msg=${(json.resultMsg ?? '').slice(0, 60)}`)
   if (json.resultCode !== '0000') {
-    const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '카드 등록 실패'}`)
+    const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '빌링키 발급 실패'}`)
     Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, orderId } })
     throw err
   }
