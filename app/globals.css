@@ -20,6 +20,8 @@
   --flowrit-warning-text: #92400e;
   --flowrit-danger-soft: #fef2f2;
   --flowrit-danger-text: #991b1b;
+  --flowrit-danger: #dc2626;
+  --flowrit-danger-hover: #b91c1c;
   --flowrit-radius-control: 0.5rem;
   --flowrit-radius-panel: 0.625rem;
   --flowrit-page-padding: 2rem;
@@ -101,6 +103,14 @@ a {
   .flowrit-button-primary:disabled {
     cursor: not-allowed;
     opacity: 0.55;
+  }
+
+  .flowrit-button-danger {
+    background: var(--flowrit-danger);
+  }
+
+  .flowrit-button-danger:hover {
+    background: var(--flowrit-danger-hover);
   }
 
   .flowrit-button-secondary {

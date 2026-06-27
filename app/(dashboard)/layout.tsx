@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { MobilePageTitle } from '@/components/mobile-page-title'
 import { MobileNavWrapper } from '@/components/mobile-nav-wrapper'
+import { ConfirmProvider } from '@/components/ui/confirm-dialog'
 import { NotificationBell } from '@/components/notification-bell'
 import { SidebarNav } from '@/components/sidebar-nav'
 import { auth } from '@/lib/auth'
@@ -87,7 +88,7 @@ export default async function DashboardLayout({
 
         {/* Scrollable page content — extra bottom padding on mobile for tab bar */}
         <div className="flex-1 overflow-y-auto pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pb-0">
-          {children}
+          <ConfirmProvider>{children}</ConfirmProvider>
         </div>
       </main>
 
