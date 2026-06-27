@@ -13,9 +13,9 @@ const roleLabel: Record<WorkspaceRole, string> = {
 }
 
 const roleBadgeClass: Record<WorkspaceRole, string> = {
-  OWNER: 'bg-indigo-50 text-indigo-700',
-  ADMIN: 'bg-blue-50 text-blue-700',
-  MEMBER: 'bg-gray-100 text-gray-600',
+  OWNER: 'flowrit-badge flowrit-badge-active',
+  ADMIN: 'flowrit-badge flowrit-badge-pending',
+  MEMBER: 'flowrit-badge flowrit-badge-archived',
 }
 
 export default async function TeamPage() {
@@ -64,7 +64,7 @@ export default async function TeamPage() {
                   {canChangeRole ? (
                     <RoleChangeSelect memberId={m.id} currentRole={memberRole} />
                   ) : (
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleBadgeClass[memberRole]}`}>
+                    <span className={roleBadgeClass[memberRole]}>
                       {roleLabel[memberRole]}
                     </span>
                   )}
