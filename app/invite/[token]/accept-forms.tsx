@@ -39,8 +39,9 @@ export function AcceptInviteForm({ token, email, isNewUser }: Props) {
       <input type="hidden" name="token" value={token} />
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+        <label htmlFor="invite-email" className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
         <input
+          id="invite-email"
           type="email"
           value={email}
           readOnly

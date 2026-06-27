@@ -130,13 +130,14 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
                 <form action={editAction} className="space-y-3">
                   <input type="hidden" name="id" value={field.id} />
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">필드 이름</label>
-                    <input name="label" defaultValue={field.label} className="flowrit-input text-sm" required />
+                    <label htmlFor={`edit-label-${field.id}`} className="block text-xs font-medium text-gray-700 mb-1">필드 이름</label>
+                    <input id={`edit-label-${field.id}`} name="label" defaultValue={field.label} className="flowrit-input text-sm" required />
                   </div>
                   {field.type !== 'file' && field.type !== 'date' && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">플레이스홀더</label>
+                      <label htmlFor={`edit-ph-${field.id}`} className="block text-xs font-medium text-gray-700 mb-1">플레이스홀더</label>
                       <input
+                        id={`edit-ph-${field.id}`}
                         name="placeholder"
                         defaultValue={field.placeholder ?? ''}
                         className="flowrit-input text-sm"
@@ -146,10 +147,11 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
                   )}
                   {field.type === 'select' && (
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                      <label htmlFor={`edit-opts-${field.id}`} className="block text-xs font-medium text-gray-700 mb-1">
                         선택 옵션 <span className="text-gray-400">(줄바꿈으로 구분)</span>
                       </label>
                       <textarea
+                        id={`edit-opts-${field.id}`}
                         name="options"
                         rows={3}
                         defaultValue={field.options?.join('\n') ?? ''}
@@ -206,19 +208,19 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
         <div className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-gray-900">새 필드 추가</h3>
-            <button onClick={() => setShowAddForm(false)} className="text-gray-400 hover:text-gray-600">
+            <button onClick={() => setShowAddForm(false)} aria-label="추가 취소" className="text-gray-400 hover:text-gray-600">
               <X className="h-4 w-4" />
             </button>
           </div>
           <form action={addAction} className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">필드 이름 *</label>
-                <input name="label" className="flowrit-input text-sm" placeholder="예: 회사명" required />
+                <label htmlFor="add-label" className="block text-xs font-medium text-gray-700 mb-1">필드 이름 *</label>
+                <input id="add-label" name="label" className="flowrit-input text-sm" placeholder="예: 회사명" required />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">유형 *</label>
-                <select name="type" className="flowrit-input text-sm" required>
+                <label htmlFor="add-type" className="block text-xs font-medium text-gray-700 mb-1">유형 *</label>
+                <select id="add-type" name="type" className="flowrit-input text-sm" required>
                   <option value="text">텍스트 (한 줄)</option>
                   <option value="textarea">장문 (여러 줄)</option>
                   <option value="date">날짜</option>
@@ -227,14 +229,15 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">플레이스홀더</label>
-              <input name="placeholder" className="flowrit-input text-sm" placeholder="입력 예시 텍스트" />
+              <label htmlFor="add-ph" className="block text-xs font-medium text-gray-700 mb-1">플레이스홀더</label>
+              <input id="add-ph" name="placeholder" className="flowrit-input text-sm" placeholder="입력 예시 텍스트" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
+              <label htmlFor="add-opts" className="block text-xs font-medium text-gray-700 mb-1">
                 선택 옵션 <span className="text-gray-400">(드롭다운 유형만 사용, 줄바꿈으로 구분)</span>
               </label>
               <textarea
+                id="add-opts"
                 name="options"
                 rows={3}
                 className="flowrit-input text-sm"

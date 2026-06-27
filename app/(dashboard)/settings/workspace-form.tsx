@@ -23,8 +23,9 @@ export function WorkspaceForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">워크스페이스 이름</label>
+        <label htmlFor="ws-name" className="block text-sm font-medium text-gray-700 mb-1">워크스페이스 이름</label>
         <input
+          id="ws-name"
           type="text"
           name="name"
           defaultValue={initialName}
@@ -34,8 +35,9 @@ export function WorkspaceForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">슬러그</label>
+        <label htmlFor="ws-slug" className="block text-sm font-medium text-gray-700 mb-1">슬러그</label>
         <input
+          id="ws-slug"
           type="text"
           name="slug"
           defaultValue={initialSlug}

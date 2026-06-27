@@ -24,6 +24,7 @@ function LinkRow({ label, url }: { label: string; url: string }) {
               href={url}
               target="_blank"
               rel="noreferrer"
+              aria-label={`${label} 미리보기 (새 탭)`}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--flowrit-text-muted)] transition-colors hover:bg-white hover:text-[var(--flowrit-text)]"
             >
               <ExternalLink className="h-3.5 w-3.5" />

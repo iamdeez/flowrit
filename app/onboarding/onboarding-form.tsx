@@ -58,10 +58,11 @@ export function OnboardingForm({
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="ob-name" className="block text-sm font-medium text-gray-700 mb-1">
           워크스페이스 이름
         </label>
         <input
+          id="ob-name"
           value={name}
           onChange={(e) => handleNameChange(e.target.value)}
           placeholder="홍길동 스튜디오"
@@ -76,7 +77,7 @@ export function OnboardingForm({
 
       {/* Slug */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="ob-slug" className="block text-sm font-medium text-gray-700 mb-1">
           워크스페이스 URL
         </label>
         <div className="flex items-center rounded-lg border border-[var(--flowrit-border-strong)] bg-white focus-within:outline focus-within:outline-2 focus-within:outline-[var(--flowrit-primary)]">
@@ -84,6 +85,7 @@ export function OnboardingForm({
             flowrit.app/
           </span>
           <input
+            id="ob-slug"
             value={slug}
             onChange={(e) => handleSlugChange(e.target.value)}
             placeholder="my-studio"

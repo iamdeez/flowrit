@@ -24,8 +24,9 @@ export function ProfileForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">이름</label>
+          <label htmlFor="pf-name" className="mb-1 block text-sm font-medium text-gray-700">이름</label>
           <input
+            id="pf-name"
             type="text"
             name="name"
             defaultValue={initialName}
@@ -35,8 +36,9 @@ export function ProfileForm({
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">이메일</label>
+          <label htmlFor="pf-email" className="mb-1 block text-sm font-medium text-gray-700">이메일</label>
           <input
+            id="pf-email"
             type="email"
             name="email"
             defaultValue={initialEmail}

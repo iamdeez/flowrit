@@ -17,8 +17,9 @@ export function PasswordForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">현재 비밀번호</label>
+        <label htmlFor="pw-current" className="block text-sm font-medium text-gray-700 mb-1">현재 비밀번호</label>
         <input
+          id="pw-current"
           type="password"
           name="currentPassword"
           required
@@ -27,8 +28,9 @@ export function PasswordForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호</label>
+        <label htmlFor="pw-new" className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호</label>
         <input
+          id="pw-new"
           type="password"
           name="newPassword"
           required
@@ -39,8 +41,9 @@ export function PasswordForm() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호 확인</label>
+        <label htmlFor="pw-confirm" className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호 확인</label>
         <input
+          id="pw-confirm"
           type="password"
           name="confirmPassword"
           required
