@@ -112,10 +112,10 @@ const PRO_FEATURES = ['무제한 프로젝트', '팀원 최대 5명', '성과 �
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#f9f9ff] text-[#141b2b] antialiased">
+    <div className="min-h-screen bg-[var(--flowrit-panel-subtle)] text-[var(--flowrit-text)] antialiased">
 
       {/* ── Navigation ── */}
-      <header className="sticky top-0 z-50 border-b border-[rgba(119,117,135,0.2)] bg-white/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-[var(--flowrit-border)] bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 px-4 sm:px-6 md:h-20">
           <div className="flex min-w-0 items-center gap-8 lg:gap-12">
             <Link href="/" className="flex min-w-0 items-center gap-2">
@@ -132,7 +132,7 @@ export default function LandingPage() {
                 <a
                   key={label}
                   href={href}
-                  className="text-sm font-semibold text-[#464555] transition-colors hover:text-[var(--flowrit-primary)]"
+                  className="text-sm font-semibold text-[var(--flowrit-text-secondary)] transition-colors hover:text-[var(--flowrit-primary)]"
                 >
                   {label}
                 </a>
@@ -142,7 +142,7 @@ export default function LandingPage() {
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             <Link
               href="/login"
-              className="hidden px-4 py-2 text-sm font-semibold text-[#464555] transition-colors hover:text-[var(--flowrit-primary)] sm:inline-flex"
+              className="hidden px-4 py-2 text-sm font-semibold text-[var(--flowrit-text-secondary)] transition-colors hover:text-[var(--flowrit-primary)] sm:inline-flex"
             >
               로그인
             </Link>
@@ -183,7 +183,7 @@ export default function LandingPage() {
             {/* Headline */}
             <div className="mb-8 text-center">
               <h1
-                className="mx-auto max-w-4xl text-[34px] font-extrabold leading-[1.12] text-[#141b2b] md:text-[56px]"
+                className="mx-auto max-w-4xl text-[34px] font-extrabold leading-[1.12] text-[var(--flowrit-text)] md:text-[56px]"
               >
                 고객 관리부터 납품까지,
                 <br />
@@ -192,7 +192,7 @@ export default function LandingPage() {
             </div>
 
             {/* Sub */}
-            <p className="mx-auto mb-10 max-w-2xl text-center text-base leading-relaxed text-[#464555] md:mb-12 md:text-xl">
+            <p className="mx-auto mb-10 max-w-2xl text-center text-base leading-relaxed text-[var(--flowrit-text-secondary)] md:mb-12 md:text-xl">
               주문서 접수 → 프로젝트 전환 → 단계별 진행 → 납품 링크 공유.
               <br />
               이메일과 메모장을 오가는 파편화된 업무를 단 하나의 도구로 통합합니다.
@@ -216,8 +216,8 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* ── 실제 대시보드 UI 모형 ── */}
-            <div className="relative mx-auto max-w-6xl">
+            {/* ── 실제 대시보드 UI 모형 (장식용) ── */}
+            <div className="relative mx-auto max-w-6xl" aria-hidden="true">
               <div
                 className="pointer-events-none absolute -left-10 -top-16 h-48 w-48 rounded-full sm:-left-16 sm:h-72 sm:w-72"
                 style={{ background: 'rgba(79,70,229,0.07)', filter: 'blur(72px)', zIndex: -1 }}
@@ -229,7 +229,7 @@ export default function LandingPage() {
 
               <div
                 className="overflow-hidden rounded-2xl bg-white p-1.5 sm:p-2"
-                style={{ boxShadow: '0 32px 64px -16px rgba(0,0,0,0.1)', border: '1px solid rgba(119,117,135,0.15)' }}
+                style={{ boxShadow: '0 32px 64px -16px rgba(0,0,0,0.1)', border: '1px solid var(--flowrit-border)' }}
               >
                 {/* Browser chrome */}
                 <div className="overflow-hidden rounded-xl border border-[var(--flowrit-border)]">
@@ -239,7 +239,7 @@ export default function LandingPage() {
                       <span className="h-3 w-3 rounded-full bg-[#fdbc40]" />
                       <span className="h-3 w-3 rounded-full bg-[#34c749]" />
                     </div>
-                    <span className="max-w-[170px] truncate rounded border border-[var(--flowrit-border)] bg-white/60 px-3 py-0.5 text-[11px] text-[#64748b] sm:max-w-none">
+                    <span className="max-w-[170px] truncate rounded border border-[var(--flowrit-border)] bg-white/60 px-3 py-0.5 text-[11px] text-[var(--flowrit-text-muted)] sm:max-w-none">
                       flowrit.kr/dashboard
                     </span>
                     <div className="hidden w-14 sm:block" />
@@ -253,8 +253,8 @@ export default function LandingPage() {
                       <div className="flex items-center gap-2 border-b border-[var(--flowrit-border)] px-4 py-3.5">
                         <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--flowrit-primary)] text-sm font-bold text-white">F</span>
                         <div>
-                          <p className="text-xs font-semibold text-[#141b2b]">Flowrit</p>
-                          <p className="text-[10px] text-[#64748b]">나의 스튜디오</p>
+                          <p className="text-xs font-semibold text-[var(--flowrit-text)]">Flowrit</p>
+                          <p className="text-[10px] text-[var(--flowrit-text-muted)]">나의 스튜디오</p>
                         </div>
                       </div>
                       <nav className="flex-1 space-y-0.5 px-2 py-3">
@@ -271,7 +271,7 @@ export default function LandingPage() {
                             className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium ${
                               active
                                 ? 'bg-[var(--flowrit-primary-soft)] text-[var(--flowrit-primary)]'
-                                : 'text-[#64748b]'
+                                : 'text-[var(--flowrit-text-muted)]'
                             }`}
                           >
                             <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -291,10 +291,10 @@ export default function LandingPage() {
                       <div className="mb-4 flex items-start justify-between gap-3 sm:items-center">
                         <div>
                           <p className="text-[10px] font-semibold uppercase text-[var(--flowrit-primary)]">Workspace overview</p>
-                          <p className="mt-0.5 text-base font-bold text-[#141b2b]">대시보드</p>
+                          <p className="mt-0.5 text-base font-bold text-[var(--flowrit-text)]">대시보드</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-                          <span className="rounded-lg border border-[var(--flowrit-border)] bg-white px-2.5 py-1 text-[10px] font-medium text-[#64748b]">이번 달</span>
+                          <span className="rounded-lg border border-[var(--flowrit-border)] bg-white px-2.5 py-1 text-[10px] font-medium text-[var(--flowrit-text-muted)]">이번 달</span>
                           <span className="flex items-center gap-1 rounded-lg bg-[var(--flowrit-primary)] px-2 py-1 text-[10px] font-semibold text-white sm:px-2.5">
                             <Plus className="h-3 w-3" />
                             <span className="hidden sm:inline">새 프로젝트</span>
@@ -317,7 +317,7 @@ export default function LandingPage() {
                                 <Icon className={`h-3.5 w-3.5 ${s.color}`} />
                               </div>
                               <p className={`text-xl font-bold ${s.color}`}>{s.count}</p>
-                              <p className="mt-0.5 text-[10px] text-[#64748b]">{s.label}</p>
+                              <p className="mt-0.5 text-[10px] text-[var(--flowrit-text-muted)]">{s.label}</p>
                             </div>
                           )
                         })}
@@ -325,8 +325,8 @@ export default function LandingPage() {
 
                       {/* 오늘의 우선순위 */}
                       <div className="mb-2 flex items-center justify-between">
-                        <p className="text-xs font-semibold text-[#141b2b]">오늘의 우선순위</p>
-                        <span className="text-[10px] text-[#64748b]">마감 임박 · 수정 요청</span>
+                        <p className="text-xs font-semibold text-[var(--flowrit-text)]">오늘의 우선순위</p>
+                        <span className="text-[10px] text-[var(--flowrit-text-muted)]">마감 임박 · 수정 요청</span>
                       </div>
                       <div className="space-y-1.5">
                         {[
@@ -344,8 +344,8 @@ export default function LandingPage() {
                               <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-orange-500" />
                             )}
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-[11px] font-semibold text-[#141b2b]">{p.title}</p>
-                              <p className="text-[10px] text-[#64748b]">{p.customer} · {p.stage}</p>
+                              <p className="truncate text-[11px] font-semibold text-[var(--flowrit-text)]">{p.title}</p>
+                              <p className="text-[10px] text-[var(--flowrit-text-muted)]">{p.customer} · {p.stage}</p>
                             </div>
                             <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${p.badgeCls}`}>
                               {p.badge}
@@ -366,11 +366,11 @@ export default function LandingPage() {
           <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
             <div className="mb-10 md:mb-16">
               <h2
-                className="mb-4 text-[28px] font-bold leading-tight text-[#141b2b] md:text-4xl"
+                className="mb-4 text-[28px] font-bold leading-tight text-[var(--flowrit-text)] md:text-4xl"
               >
                 이메일과 메모장에서 벗어나세요
               </h2>
-              <p className="max-w-2xl text-base leading-relaxed text-[#464555] md:text-xl">
+              <p className="max-w-2xl text-base leading-relaxed text-[var(--flowrit-text-secondary)] md:text-xl">
                 의뢰 접수부터 납품까지, 프리랜서가 실제로 필요한 기능만 담았습니다.
               </p>
             </div>
@@ -380,17 +380,17 @@ export default function LandingPage() {
                 return (
                   <article
                     key={feature.title}
-                    className="group rounded-2xl bg-[#f9f9ff] p-6 transition-all duration-300 hover:bg-white hover:shadow-xl md:p-8"
-                    style={{ border: '1px solid rgba(119,117,135,0.15)' }}
+                    className="group rounded-2xl bg-[var(--flowrit-panel-subtle)] p-6 transition-all duration-300 hover:bg-white hover:shadow-xl md:p-8"
+                    style={{ border: '1px solid var(--flowrit-border)' }}
                   >
                     <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[rgba(79,70,229,0.07)] text-[var(--flowrit-primary)] transition-colors group-hover:bg-[var(--flowrit-primary)] group-hover:text-white">
                       <Icon className="h-7 w-7" aria-hidden="true" />
                     </div>
-                    <h3 className="mb-4 text-xl font-semibold text-[#141b2b] md:text-2xl">{feature.title}</h3>
-                    <p className="mb-6 leading-relaxed text-[#464555]">{feature.desc}</p>
+                    <h3 className="mb-4 text-xl font-semibold text-[var(--flowrit-text)] md:text-2xl">{feature.title}</h3>
+                    <p className="mb-6 leading-relaxed text-[var(--flowrit-text-secondary)]">{feature.desc}</p>
                     <ul className="space-y-2">
                       {feature.bullets.map((b) => (
-                        <li key={b} className="flex items-start gap-2 text-sm text-[#464555]">
+                        <li key={b} className="flex items-start gap-2 text-sm text-[var(--flowrit-text-secondary)]">
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--flowrit-primary)]" aria-hidden="true" />
                           {b}
                         </li>
@@ -404,29 +404,29 @@ export default function LandingPage() {
         </section>
 
         {/* ── Solutions by Role ── */}
-        <section id="solutions" className="bg-[#f9f9ff] py-16 md:py-24">
+        <section id="solutions" className="bg-[var(--flowrit-panel-subtle)] py-16 md:py-24">
           <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
             <div className="mb-10 text-center md:mb-16">
               <h2
-                className="mb-4 text-[28px] font-bold leading-tight text-[#141b2b] md:text-4xl"
+                className="mb-4 text-[28px] font-bold leading-tight text-[var(--flowrit-text)] md:text-4xl"
               >
                 어떤 규모든 맞는 방법이 있습니다
               </h2>
-              <p className="text-base leading-relaxed text-[#464555] md:text-xl">
+              <p className="text-base leading-relaxed text-[var(--flowrit-text-secondary)] md:text-xl">
                 프리랜서 개인부터 팀, 스튜디오까지 Flowrit 하나로 운영합니다.
               </p>
             </div>
             <div
-              className="grid grid-cols-1 overflow-hidden rounded-3xl border border-[rgba(119,117,135,0.2)] lg:grid-cols-3"
-              style={{ background: 'rgba(119,117,135,0.12)', gap: '1px' }}
+              className="grid grid-cols-1 overflow-hidden rounded-3xl border border-[var(--flowrit-border)] lg:grid-cols-3"
+              style={{ background: 'var(--flowrit-border)', gap: '1px' }}
             >
               {SOLUTIONS.map((s) => (
-                <div key={s.role} className="bg-white p-6 transition-colors hover:bg-[#f9f9ff] md:p-12">
+                <div key={s.role} className="bg-white p-6 transition-colors hover:bg-[var(--flowrit-panel-subtle)] md:p-12">
                   <span className="mb-4 block text-sm font-bold uppercase text-[var(--flowrit-primary)]">
                     {s.role}
                   </span>
-                  <h3 className="mb-4 text-xl font-bold text-[#141b2b] md:text-2xl">{s.title}</h3>
-                  <p className="leading-relaxed text-[#464555]">{s.desc}</p>
+                  <h3 className="mb-4 text-xl font-bold text-[var(--flowrit-text)] md:text-2xl">{s.title}</h3>
+                  <p className="leading-relaxed text-[var(--flowrit-text-secondary)]">{s.desc}</p>
                 </div>
               ))}
             </div>
@@ -441,7 +441,7 @@ export default function LandingPage() {
               {/* Steps */}
               <div>
                 <h2
-                  className="mb-8 text-[28px] font-bold leading-tight text-[#141b2b] md:mb-10 md:text-4xl"
+                  className="mb-8 text-[28px] font-bold leading-tight text-[var(--flowrit-text)] md:mb-10 md:text-4xl"
                 >
                   의뢰에서 납품까지
                   <br />
@@ -454,27 +454,28 @@ export default function LandingPage() {
                         {i + 1}
                       </div>
                       <div>
-                        <h4 className="mb-1.5 text-lg font-bold text-[#141b2b]">{step.title}</h4>
-                        <p className="leading-relaxed text-[#464555]">{step.desc}</p>
+                        <h4 className="mb-1.5 text-lg font-bold text-[var(--flowrit-text)]">{step.title}</h4>
+                        <p className="leading-relaxed text-[var(--flowrit-text-secondary)]">{step.desc}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* 실제 주문서 관리 UI 모형 */}
+              {/* 실제 주문서 관리 UI 모형 (장식용) */}
               <div
                 className="overflow-hidden rounded-3xl bg-white shadow-xl"
-                style={{ border: '1px solid rgba(119,117,135,0.15)' }}
+                style={{ border: '1px solid var(--flowrit-border)' }}
+                aria-hidden="true"
               >
                 {/* 상단 헤더 */}
                 <div className="border-b border-[var(--flowrit-border)] px-4 py-4 sm:px-6">
                   <div className="flex items-start justify-between gap-3 sm:items-center">
                     <div>
-                      <p className="text-sm font-bold text-[#141b2b]">주문서 관리</p>
-                      <p className="text-xs text-[#64748b]">고객 의뢰를 프로젝트로 전환합니다</p>
+                      <p className="text-sm font-bold text-[var(--flowrit-text)]">주문서 관리</p>
+                      <p className="text-xs text-[var(--flowrit-text-muted)]">고객 의뢰를 프로젝트로 전환합니다</p>
                     </div>
-                    <span className="flex shrink-0 items-center gap-1 rounded-lg border border-[var(--flowrit-border)] bg-white px-2.5 py-1 text-xs font-medium text-[#64748b]">
+                    <span className="flex shrink-0 items-center gap-1 rounded-lg border border-[var(--flowrit-border)] bg-white px-2.5 py-1 text-xs font-medium text-[var(--flowrit-text-muted)]">
                       <ExternalLink className="h-3 w-3" />
                       <span className="hidden sm:inline">주문서 열기</span>
                       <span className="sm:hidden">열기</span>
@@ -493,8 +494,8 @@ export default function LandingPage() {
                       <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--flowrit-primary-soft)]">
                         <Icon className="h-4 w-4 text-[var(--flowrit-primary)]" />
                       </div>
-                      <p className="text-xs font-bold text-[#141b2b]">{label}</p>
-                      <p className="mt-0.5 text-[10px] text-[#64748b]">{desc}</p>
+                      <p className="text-xs font-bold text-[var(--flowrit-text)]">{label}</p>
+                      <p className="mt-0.5 text-[10px] text-[var(--flowrit-text-muted)]">{desc}</p>
                     </div>
                   ))}
                 </div>
@@ -503,8 +504,8 @@ export default function LandingPage() {
                 <div className="border-b border-[var(--flowrit-border)] px-4 py-3 sm:px-6">
                   <div className="flex items-center justify-between gap-3 rounded-lg bg-[#f8fafc] px-3 py-2.5">
                     <div className="min-w-0">
-                      <p className="text-[10px] font-semibold text-[#464555]">주문서 폼</p>
-                      <p className="mt-0.5 truncate font-mono text-[11px] text-[#64748b]">flowrit.kr/order/my-studio</p>
+                      <p className="text-[10px] font-semibold text-[var(--flowrit-text-secondary)]">주문서 폼</p>
+                      <p className="mt-0.5 truncate font-mono text-[11px] text-[var(--flowrit-text-muted)]">flowrit.kr/order/my-studio</p>
                     </div>
                     <span className="shrink-0 rounded bg-[var(--flowrit-primary-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--flowrit-primary)]">복사</span>
                   </div>
@@ -524,19 +525,19 @@ export default function LandingPage() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <p className="text-sm font-semibold text-[#141b2b]">{item.name}</p>
+                              <p className="text-sm font-semibold text-[var(--flowrit-text)]">{item.name}</p>
                               <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold ${item.type === '주문서' ? 'bg-violet-100 text-violet-700' : 'bg-sky-100 text-sky-700'}`}>
                                 {item.type}
                               </span>
                             </div>
-                            <p className="text-[11px] text-[#64748b]">{item.contact}</p>
+                            <p className="text-[11px] text-[var(--flowrit-text-muted)]">{item.contact}</p>
                           </div>
                         </div>
-                        <span className="shrink-0 text-[10px] text-[#64748b]">{item.date}</span>
+                        <span className="shrink-0 text-[10px] text-[var(--flowrit-text-muted)]">{item.date}</span>
                       </div>
-                      <p className="mt-2.5 line-clamp-2 text-xs text-[#464555]">{item.content}</p>
+                      <p className="mt-2.5 line-clamp-2 text-xs text-[var(--flowrit-text-secondary)]">{item.content}</p>
                       <div className="mt-3 flex justify-end gap-2 border-t border-[var(--flowrit-border)] pt-2.5">
-                        <span className="rounded-lg border border-[var(--flowrit-border)] px-2.5 py-1 text-[11px] font-medium text-[#64748b]">무시</span>
+                        <span className="rounded-lg border border-[var(--flowrit-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--flowrit-text-muted)]">무시</span>
                         <span className="rounded-lg bg-[var(--flowrit-primary)] px-2.5 py-1 text-[11px] font-semibold text-white">프로젝트로 전환</span>
                       </div>
                     </div>
@@ -548,15 +549,15 @@ export default function LandingPage() {
         </section>
 
         {/* ── Pricing ── */}
-        <section id="pricing" className="bg-[#f9f9ff] py-16 md:py-24">
+        <section id="pricing" className="bg-[var(--flowrit-panel-subtle)] py-16 md:py-24">
           <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
             <div className="mb-10 text-center md:mb-16">
               <h2
-                className="mb-4 text-[28px] font-bold leading-tight text-[#141b2b] md:text-4xl"
+                className="mb-4 text-[28px] font-bold leading-tight text-[var(--flowrit-text)] md:text-4xl"
               >
                 간단하고 합리적인 요금제
               </h2>
-              <p className="text-base leading-relaxed text-[#464555] md:text-xl">
+              <p className="text-base leading-relaxed text-[var(--flowrit-text-secondary)] md:text-xl">
                 무료로 시작하고, 팀이 커지면 Pro로 전환하세요.
               </p>
             </div>
@@ -565,17 +566,17 @@ export default function LandingPage() {
               {/* Free */}
               <article
                 className="flex flex-col rounded-3xl bg-white p-6 md:p-10"
-                style={{ border: '1px solid rgba(119,117,135,0.15)' }}
+                style={{ border: '1px solid var(--flowrit-border)' }}
               >
-                <h3 className="mb-2 text-xl font-bold text-[#141b2b]">무료</h3>
+                <h3 className="mb-2 text-xl font-bold text-[var(--flowrit-text)]">무료</h3>
                 <div className="mb-3">
-                  <span className="text-4xl font-bold text-[#141b2b]">₩0</span>
-                  <span className="text-[#464555]"> /월</span>
+                  <span className="text-4xl font-bold text-[var(--flowrit-text)]">₩0</span>
+                  <span className="text-[var(--flowrit-text-secondary)]"> /월</span>
                 </div>
-                <p className="mb-8 text-sm text-[#64748b]">개인 프리랜서, 시작 단계에 적합합니다.</p>
+                <p className="mb-8 text-sm text-[var(--flowrit-text-muted)]">개인 프리랜서, 시작 단계에 적합합니다.</p>
                 <ul className="mb-10 flex-grow space-y-4">
                   {FREE_FEATURES.map((f) => (
-                    <li key={f} className="flex items-center gap-3 text-[#141b2b]">
+                    <li key={f} className="flex items-center gap-3 text-[var(--flowrit-text)]">
                       <Check className="h-5 w-5 shrink-0 text-[var(--flowrit-primary)]" aria-hidden="true" />
                       {f}
                     </li>
@@ -623,14 +624,14 @@ export default function LandingPage() {
         </section>
 
         {/* ── Final CTA ── */}
-        <section className="py-16 text-center text-white md:py-24" style={{ backgroundColor: '#1e1b4b' }}>
+        <section className="py-16 text-center text-white md:py-24" style={{ backgroundColor: 'var(--flowrit-ink)' }}>
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
             <h2
               className="mb-6 text-[28px] font-bold leading-tight text-white md:mb-8 md:text-4xl"
             >
               지금 바로 업무 방식을 바꿔보세요
             </h2>
-            <p className="mb-10 text-base leading-relaxed text-white/60 md:mb-12 md:text-xl">
+            <p className="mb-10 text-base leading-relaxed text-white/75 md:mb-12 md:text-xl">
               5분이면 워크스페이스를 만들고 주문서 링크를 공유할 수 있습니다.
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -661,7 +662,7 @@ export default function LandingPage() {
                 <Image src="/FLOWRIT_icon_logo.svg" alt="Flowrit 아이콘" width={30} height={30} />
                 <Image src="/FLOWRIT_text_logo.svg" alt="Flowrit" width={100} height={16} />
               </Link>
-              <p className="max-w-xs text-sm leading-relaxed text-[#464555]">
+              <p className="max-w-xs text-sm leading-relaxed text-[var(--flowrit-text-secondary)]">
                 프리랜서·디자이너·개발자를 위한 AI Workflow OS. 고객 관리, 프로젝트 진행, 납품까지 한 곳에서.
               </p>
             </div>
@@ -679,8 +680,8 @@ export default function LandingPage() {
               { label: '개인정보처리방침', href: '/privacy' },
             ]} />
           </div>
-          <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--flowrit-border)] pt-8 text-xs text-[#64748b] md:flex-row">
-            <p>© 2025 Flowrit. All rights reserved.</p>
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--flowrit-border)] pt-8 text-xs text-[var(--flowrit-text-muted)] md:flex-row">
+            <p>© {new Date().getFullYear()} Flowrit. All rights reserved.</p>
             <div className="flex gap-6">
               <Link href="/terms" className="transition-colors hover:text-[var(--flowrit-primary)]">이용약관</Link>
               <Link href="/privacy" className="transition-colors hover:text-[var(--flowrit-primary)]">개인정보처리방침</Link>
@@ -701,13 +702,13 @@ function FooterLinks({
 }) {
   return (
     <div>
-      <h5 className="mb-5 font-bold text-[#141b2b]">{title}</h5>
+      <h5 className="mb-5 font-bold text-[var(--flowrit-text)]">{title}</h5>
       <ul className="space-y-3.5">
         {links.map(({ label, href }) => (
           <li key={label}>
             <Link
               href={href}
-              className="text-sm text-[#464555] transition-colors hover:text-[var(--flowrit-primary)]"
+              className="text-sm text-[var(--flowrit-text-secondary)] transition-colors hover:text-[var(--flowrit-primary)]"
             >
               {label}
             </Link>
