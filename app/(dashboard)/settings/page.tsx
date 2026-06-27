@@ -72,6 +72,9 @@ export default async function SettingsPage({
             status: true,
             currentPeriodEnd: true,
             cancelAtPeriodEnd: true,
+            billingKey: true,
+            cardName: true,
+            cardNum: true,
             payments: {
               select: { amount: true, status: true, method: true, paidAt: true, createdAt: true },
               orderBy: { createdAt: 'desc' },

@@ -286,6 +286,8 @@ model Subscription {
   status             String    @default("active") // "active" | "past_due"
   billingKey         String?
   customerKey        String?
+  cardName           String?  // 카드사명 (NicePayments 응답)
+  cardNum            String?  // 마스킹 카드번호 (NicePayments 응답)
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?
   cancelAtPeriodEnd  Boolean   @default(false)

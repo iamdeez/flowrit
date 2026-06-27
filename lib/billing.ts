@@ -23,7 +23,7 @@ export async function registerBillingKey(
   buyerName: string,
   amount: number,
   goodsName: string,
-): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string }> {
+): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }> {
   const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
   const body = { clientId, authToken, orderId, buyerEmail, buyerName, amount, goodsName }
 
@@ -48,6 +48,72 @@ export async function registerBillingKey(
     tid: json.tid as string,
     payMethod: json.payMethod as string,
     paidAt: json.paidAt as string,
+    cardName: json.cardName as string | undefined,
+    cardNum: json.cardNum as string | undefined,
+  }
+}
+
+/**
+ * 카드 변경용 빌링키 등록 (amount=0, 첫 결제 없음)
+ * AUTHNICE를 amount=0으로 호출한 후 서버에서 이 함수로 새 빌링키를 발급한다.
+ */
+export async function registerCard(
+  authToken: string,
+  orderId: string,
+  buyerEmail: string,
+  buyerName: string,
+): Promise<{ bid: string; cardName?: string; cardNum?: string }> {
+  const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
+  const body = {
+    clientId,
+    authToken,
+    orderId,
+    buyerEmail,
+    buyerName,
+    amount: 0,
+    goodsName: 'Flowrit 결제 수단 등록',
+  }
+
+  const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
+    method: 'POST',
+    headers: {
+      Authorization: authHeader(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+
+  const json = await res.json()
+  console.log(`NP(card):${json.resultCode}|${(json.resultMsg ?? '').slice(0, 60)}`)
+  if (json.resultCode !== '0000') {
+    const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '카드 등록 실패'}`)
+    Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, orderId } })
+    throw err
+  }
+  return {
+    bid: json.bid as string,
+    cardName: json.cardName as string | undefined,
+    cardNum: json.cardNum as string | undefined,
+  }
+}
+
+/**
+ * 나이스페이먼츠 빌링키 해지
+ * 카드 삭제 또는 카드 교체 시 이전 빌링키를 해지한다.
+ * 실패해도 예외를 던지지 않고 로깅만 한다 (NicePayments 측 정리 실패가 DB 정리를 막으면 안 됨).
+ */
+export async function cancelBillingKey(bid: string): Promise<void> {
+  try {
+    const res = await fetch(`${NICEPAY_API_BASE}/subscribe/${encodeURIComponent(bid)}`, {
+      method: 'DELETE',
+      headers: { Authorization: authHeader() },
+    })
+    const json = await res.json()
+    if (json.resultCode !== '0000') {
+      console.error(`cancelBillingKey failed: [${json.resultCode}] ${json.resultMsg}`)
+    }
+  } catch (e) {
+    console.error('cancelBillingKey error:', e)
   }
 }
 

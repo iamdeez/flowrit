@@ -6,6 +6,7 @@ import { NextResponse } from 'next/server'
 
 async function handleReturn(request: Request): Promise<NextResponse> {
   const url = new URL(request.url)
+  const mode = url.searchParams.get('mode') ?? 'upgrade' // 'upgrade' | 'change-card'
   const billingCycle = url.searchParams.get('billingCycle') ?? 'monthly'
   const orderId = url.searchParams.get('orderId') ?? ''
 
@@ -57,8 +58,31 @@ async function handleReturn(request: Request): Promise<NextResponse> {
   const isSuccess = !!authToken || resultCode === '0000'
   const errorMsg = resultMsg || '결제 인증에 실패했습니다.'
 
+  const isChangeCard = mode === 'change-card'
   const fullPageScript = isSuccess
-    ? `
+    ? isChangeCard
+      ? `
+    fetch('/api/billing/change-card', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        authToken: ${JSON.stringify(authToken)},
+        orderId: ${JSON.stringify(orderId)}
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        window.location.href = '/settings?tab=billing&cardChanged=true';
+      } else {
+        window.location.href = '/settings?billingError=' + encodeURIComponent(data.error || '카드 변경에 실패했습니다.');
+      }
+    })
+    .catch(function(e) {
+      window.location.href = '/settings?billingError=' + encodeURIComponent('네트워크 오류: ' + String(e));
+    });`
+      : `
     fetch('/api/billing/callback', {
       method: 'POST',
       credentials: 'include',

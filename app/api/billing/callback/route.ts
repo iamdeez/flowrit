@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   const goodsName = `Flowrit Pro (${billingCycle === 'monthly' ? '월정기' : '연정기'})`
   const periodEnd = getNextPeriodEnd(billingCycle, now)
 
-  let registration: { bid: string; tid: string; payMethod: string; paidAt: string }
+  let registration: { bid: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }
   try {
     registration = await registerBillingKey(
       authToken,
@@ -85,6 +85,8 @@ export async function POST(request: Request) {
           status: 'active',
           billingKey: registration.bid,
           customerKey: workspaceId,
+          cardName: registration.cardName ?? null,
+          cardNum: registration.cardNum ?? null,
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
           cancelAtPeriodEnd: false,
@@ -96,6 +98,8 @@ export async function POST(request: Request) {
           status: 'active',
           billingKey: registration.bid,
           customerKey: workspaceId,
+          cardName: registration.cardName ?? null,
+          cardNum: registration.cardNum ?? null,
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
           cancelAtPeriodEnd: false,

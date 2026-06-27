@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { AlertTriangle, Check, Crown, ReceiptText } from 'lucide-react'
+import { AlertTriangle, Check, CreditCard, Crown, ReceiptText } from 'lucide-react'
 import { cancelSubscription } from '@/lib/actions/billing'
 import { UpgradeModal } from './upgrade-modal'
+import { ChangeCardModal } from './change-card-modal'
 
 type Payment = {
   amount: number
@@ -19,6 +20,9 @@ type Subscription = {
   status: string
   currentPeriodEnd: Date | null
   cancelAtPeriodEnd: boolean
+  billingKey: string | null
+  cardName: string | null
+  cardNum: string | null
   payments: Payment[]
 } | null
 
@@ -49,8 +53,10 @@ export function getBillingPlanMessage({
 
 export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
   const [showUpgrade, setShowUpgrade] = useState(false)
+  const [showChangeCard, setShowChangeCard] = useState(false)
   const [canceling, setCanceling] = useState(false)
   const [cancelDone, setCancelDone] = useState(false)
+  const [deletingCard, setDeletingCard] = useState(false)
 
   const isPro = workspacePlan === 'pro'
   const isCancelScheduled = subscription?.cancelAtPeriodEnd ?? false
@@ -67,12 +73,35 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
     periodEnd,
   })
 
+  const hasCard = !!(subscription?.billingKey)
+  const cardDisplay = subscription?.cardName
+    ? `${subscription.cardName}${subscription.cardNum ? ` · ${subscription.cardNum}` : ''}`
+    : subscription?.cardNum ?? null
+
   async function handleCancel() {
     if (!confirm('구독을 취소하시겠어요? 현재 결제 기간이 끝나면 무료 플랜으로 전환됩니다.')) return
     setCanceling(true)
     const res = await cancelSubscription()
     setCanceling(false)
     if (res.success) setCancelDone(true)
+  }
+
+  async function handleDeleteCard() {
+    if (!confirm('카드를 삭제하면 구독이 즉시 해지되고 무료 플랜으로 전환됩니다. 계속하시겠어요?')) return
+    setDeletingCard(true)
+    try {
+      const res = await fetch('/api/billing/delete-card', { method: 'POST' })
+      const data = await res.json()
+      if (data.success) {
+        window.location.href = '/settings?tab=billing'
+      } else {
+        alert(data.error || '카드 삭제에 실패했습니다.')
+      }
+    } catch {
+      alert('네트워크 오류가 발생했습니다.')
+    } finally {
+      setDeletingCard(false)
+    }
   }
 
   return (
@@ -148,6 +177,47 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
         </div>
       </div>
 
+      {/* 결제 수단 */}
+      {isOwner && isPro && (
+        <div>
+          <h2 className="text-base font-semibold text-gray-900 mb-4">결제 수단</h2>
+          <div className="flowrit-panel-padded">
+            {hasCard ? (
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100">
+                    <CreditCard className="h-4 w-4 text-gray-500" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {cardDisplay ?? '등록된 카드'}
+                    </p>
+                    <p className="text-xs text-gray-400">정기 결제 수단</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowChangeCard(true)}
+                    className="flowrit-button-secondary text-sm"
+                  >
+                    카드 변경
+                  </button>
+                  <button
+                    onClick={handleDeleteCard}
+                    disabled={deletingCard}
+                    className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                  >
+                    {deletingCard ? '처리 중...' : '카드 삭제'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">등록된 결제 수단이 없습니다.</p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 결제 내역 */}
       <div>
         <h2 className="mb-4 text-base font-semibold text-gray-900">결제 내역</h2>
@@ -205,6 +275,12 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
 
       {showUpgrade && (
         <UpgradeModal onClose={() => setShowUpgrade(false)} />
+      )}
+      {showChangeCard && (
+        <ChangeCardModal
+          onClose={() => setShowChangeCard(false)}
+          onSuccess={() => { window.location.href = '/settings?tab=billing&cardChanged=true' }}
+        />
       )}
     </div>
   )
