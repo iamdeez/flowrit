@@ -1,3 +1,4 @@
+import { createCipheriv } from 'crypto'
 import * as Sentry from '@sentry/nextjs'
 
 const NICEPAY_API_BASE = 'https://api.nicepay.co.kr/v1'
@@ -11,10 +12,18 @@ function authHeader(): string {
   return `Basic ${Buffer.from(`${clientId}:${secretKey}`).toString('base64')}`
 }
 
+// NicePayments /subscribe/regist 필수 encData.
+// secretKey는 32자 hex 문자열 → hex decode하면 16바이트 AES-128 키.
+function buildEncData(authToken: string): string {
+  const secretKey = process.env.NICEPAY_SECRET_KEY!
+  const key = Buffer.from(secretKey, 'hex')
+  const cipher = createCipheriv('aes-128-ecb', key, null)
+  return Buffer.concat([cipher.update(authToken, 'utf8'), cipher.final()]).toString('base64')
+}
+
 /**
  * 나이스페이먼츠 빌링키 발급 + 첫 결제
- * AUTHNICE를 amount > 0으로 호출했으므로 /subscribe/regist에 동일한 amount/goodsName 필수.
- * NicePayments는 authToken에 포함된 금액 서명과 regist 요청의 amount가 일치하는지 검증한다.
+ * AUTHNICE를 amount > 0으로 호출했으므로 /subscribe/regist에 amount/goodsName/encData 모두 필수.
  */
 export async function registerBillingKey(
   authToken: string,
@@ -25,7 +34,8 @@ export async function registerBillingKey(
   goodsName: string,
 ): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }> {
   const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
-  const body = { clientId, authToken, orderId, buyerEmail, buyerName, amount, goodsName }
+  const encData = buildEncData(authToken)
+  const body = { clientId, authToken, orderId, buyerEmail, buyerName, amount, goodsName, encData }
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
@@ -64,6 +74,7 @@ export async function registerCard(
   buyerName: string,
 ): Promise<{ bid: string; cardName?: string; cardNum?: string }> {
   const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
+  const encData = buildEncData(authToken)
   const body = {
     clientId,
     authToken,
@@ -72,6 +83,7 @@ export async function registerCard(
     buyerName,
     amount: 0,
     goodsName: 'Flowrit 결제 수단 등록',
+    encData,
   }
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
