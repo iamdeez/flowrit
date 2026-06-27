@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition, useActionState } from 'react'
 import { ChevronUp, ChevronDown, Pencil, Trash2, Plus, X, Lock, GripVertical } from 'lucide-react'
 import { Tooltip } from '@/components/tooltip'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import {
   addOrderFormField,
   updateOrderFormField,
@@ -24,6 +25,8 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
   const [showAddForm, setShowAddForm] = useState(false)
   const [pending, startTransition] = useTransition()
 
+  const confirm = useConfirm()
+
   const [addState, addAction, addPending] = useActionState(addOrderFormField, {})
   const [editState, editAction, editPending] = useActionState(updateOrderFormField, {})
 
@@ -36,8 +39,14 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
     startTransition(async () => { await moveOrderFormField(id, direction) })
   }
 
-  function handleDelete(id: string) {
-    if (!confirm('이 필드를 삭제하시겠습니까?')) return
+  async function handleDelete(id: string) {
+    const ok = await confirm({
+      title: '필드 삭제',
+      description: '이 필드를 삭제하시겠습니까?',
+      confirmLabel: '삭제',
+      danger: true,
+    })
+    if (!ok) return
     startTransition(async () => { await deleteOrderFormField(id) })
   }
 
@@ -75,6 +84,7 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
                   <button
                     onClick={() => handleMove(field.id, 'up')}
                     disabled={index === 0 || pending}
+                    aria-label="위로 이동"
                     className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-25 rounded"
                   >
                     <ChevronUp className="h-4 w-4" />
@@ -84,6 +94,7 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
                   <button
                     onClick={() => handleMove(field.id, 'down')}
                     disabled={index === fields.length - 1 || pending}
+                    aria-label="아래로 이동"
                     className="p-1.5 text-gray-400 hover:text-gray-600 disabled:opacity-25 rounded"
                   >
                     <ChevronDown className="h-4 w-4" />
@@ -92,6 +103,7 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
                 <Tooltip content="편집">
                   <button
                     onClick={() => setEditingId(editingId === field.id ? null : field.id)}
+                    aria-label="필드 편집"
                     className="p-1.5 text-gray-400 hover:text-indigo-600 rounded"
                   >
                     <Pencil className="h-3.5 w-3.5" />
@@ -102,6 +114,7 @@ export function OrderFormBuilder({ fields }: { fields: FormFieldRow[] }) {
                     <button
                       onClick={() => handleDelete(field.id)}
                       disabled={pending}
+                      aria-label="필드 삭제"
                       className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-25 rounded"
                     >
                       <Trash2 className="h-3.5 w-3.5" />

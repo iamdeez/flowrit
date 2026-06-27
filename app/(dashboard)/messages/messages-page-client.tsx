@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { MessageSquare, Pencil, Trash2 } from 'lucide-react'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { deleteMessageTemplate } from '@/lib/actions/message'
 import { MessageForm } from './message-form'
 
@@ -13,6 +14,7 @@ type Template = {
 
 export function MessagesPageClient({ templates }: { templates: Template[] }) {
   const [editing, setEditing] = useState<Template | null>(null)
+  const confirm = useConfirm()
 
   return (
     <div className="flex flex-col-reverse gap-6 md:grid md:grid-cols-[minmax(0,1fr)_minmax(360px,480px)]">
@@ -55,6 +57,17 @@ export function MessagesPageClient({ templates }: { templates: Template[] }) {
                       <input type="hidden" name="id" value={t.id} />
                       <button
                         type="submit"
+                        onClick={async (e) => {
+                          e.preventDefault()
+                          const form = e.currentTarget.form
+                          const ok = await confirm({
+                            title: '템플릿 삭제',
+                            description: `'${t.name}' 템플릿을 삭제하시겠습니까?`,
+                            confirmLabel: '삭제',
+                            danger: true,
+                          })
+                          if (ok) form?.requestSubmit()
+                        }}
                         className="flowrit-icon-button flowrit-icon-button-danger"
                         aria-label="삭제"
                       >

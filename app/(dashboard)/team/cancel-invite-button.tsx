@@ -1,13 +1,21 @@
 'use client'
 
 import { useTransition } from 'react'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { cancelInvite } from '@/lib/actions/team'
 
 export function CancelInviteButton({ inviteId, email }: { inviteId: string; email: string }) {
   const [pending, startTransition] = useTransition()
+  const confirm = useConfirm()
 
-  function handleClick() {
-    if (!confirm(`${email} 초대를 취소하시겠습니까?`)) return
+  async function handleClick() {
+    const ok = await confirm({
+      title: '초대 취소',
+      description: `${email} 초대를 취소하시겠습니까?`,
+      confirmLabel: '초대 취소',
+      danger: true,
+    })
+    if (!ok) return
     startTransition(() => cancelInvite(inviteId))
   }
 

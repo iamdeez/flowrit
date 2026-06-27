@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { AlertTriangle, Check, CreditCard, Crown, ReceiptText } from 'lucide-react'
+import { toast } from 'sonner'
+import { useConfirm } from '@/components/ui/confirm-dialog'
 import { cancelSubscription } from '@/lib/actions/billing'
 import { UpgradeModal } from './upgrade-modal'
 import { ChangeCardModal } from './change-card-modal'
@@ -57,6 +59,7 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
   const [canceling, setCanceling] = useState(false)
   const [cancelDone, setCancelDone] = useState(false)
   const [deletingCard, setDeletingCard] = useState(false)
+  const confirm = useConfirm()
 
   const isPro = workspacePlan === 'pro'
   const isCancelScheduled = subscription?.cancelAtPeriodEnd ?? false
@@ -79,15 +82,28 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
     : subscription?.cardNum ?? null
 
   async function handleCancel() {
-    if (!confirm('구독을 취소하시겠어요? 현재 결제 기간이 끝나면 무료 플랜으로 전환됩니다.')) return
+    const ok = await confirm({
+      title: '구독 취소',
+      description: '구독을 취소하시겠어요? 현재 결제 기간이 끝나면 무료 플랜으로 전환됩니다.',
+      confirmLabel: '구독 취소',
+      danger: true,
+    })
+    if (!ok) return
     setCanceling(true)
     const res = await cancelSubscription()
     setCanceling(false)
     if (res.success) setCancelDone(true)
+    else toast.error('구독 취소에 실패했습니다.')
   }
 
   async function handleDeleteCard() {
-    if (!confirm('카드를 삭제하면 구독이 즉시 해지되고 무료 플랜으로 전환됩니다. 계속하시겠어요?')) return
+    const ok = await confirm({
+      title: '카드 삭제',
+      description: '카드를 삭제하면 구독이 즉시 해지되고 무료 플랜으로 전환됩니다. 계속하시겠어요?',
+      confirmLabel: '카드 삭제',
+      danger: true,
+    })
+    if (!ok) return
     setDeletingCard(true)
     try {
       const res = await fetch('/api/billing/delete-card', { method: 'POST' })
@@ -95,10 +111,10 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
       if (data.success) {
         window.location.href = '/settings?tab=billing'
       } else {
-        alert(data.error || '카드 삭제에 실패했습니다.')
+        toast.error(data.error || '카드 삭제에 실패했습니다.')
       }
     } catch {
-      alert('네트워크 오류가 발생했습니다.')
+      toast.error('네트워크 오류가 발생했습니다.')
     } finally {
       setDeletingCard(false)
     }
@@ -113,9 +129,7 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                  isPro ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'
-                }`}>
+                <span className={`flowrit-badge ${isPro ? 'flowrit-badge-active' : 'flowrit-badge-archived'}`}>
                   {isPro && <Crown className="h-3.5 w-3.5" aria-hidden="true" />}
                   {isPro ? 'PRO' : 'FREE'}
                 </span>
@@ -230,35 +244,33 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
       <div>
         <h2 className="mb-4 text-base font-semibold text-gray-900">결제 내역</h2>
         {payments.length > 0 ? (
-          <div className="rounded-xl border border-gray-200 overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gray-50">
+          <div className="flowrit-table-wrap">
+            <table className="flowrit-table">
+              <thead>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">날짜</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">금액</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">수단</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">상태</th>
+                  <th>날짜</th>
+                  <th>금액</th>
+                  <th>수단</th>
+                  <th>상태</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody>
                 {payments.map((p, i) => (
                   <tr key={i}>
-                    <td className="px-4 py-3 text-sm text-gray-700">
+                    <td>
                       {(p.paidAt ?? p.createdAt) instanceof Date
                         ? new Date(p.paidAt ?? p.createdAt).toLocaleDateString('ko-KR')
                         : String(p.paidAt ?? p.createdAt).slice(0, 10)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      ₩{p.amount.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{p.method ?? '-'}</td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                    <td>₩{p.amount.toLocaleString()}</td>
+                    <td>{p.method ?? '-'}</td>
+                    <td>
+                      <span className={`flowrit-badge ${
                         p.status === 'done'
-                          ? 'bg-green-100 text-green-700'
+                          ? 'flowrit-badge-done'
                           : p.status === 'failed'
-                          ? 'bg-red-100 text-red-700'
-                          : 'bg-gray-100 text-gray-600'
+                          ? 'flowrit-badge-danger'
+                          : 'flowrit-badge-pending'
                       }`}>
                         {p.status === 'done' ? '완료' : p.status === 'failed' ? '실패' : p.status}
                       </span>
