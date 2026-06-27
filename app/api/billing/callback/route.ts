@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import {
-  registerBillingKey,
+  approveAndRegisterBillingKey,
   getNextPeriodEnd,
   PLAN_PRICES,
   type BillingCycle,
@@ -20,19 +20,17 @@ export async function POST(request: Request) {
 
   const workspaceId = session.user.workspaceId
 
-  let body: { authToken: string; orderId: string; billingCycle: BillingCycle; encData?: string; signature?: string }
+  let body: { tid: string; orderId: string; billingCycle: BillingCycle }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { authToken, orderId, billingCycle, encData, signature } = body
-  if (!authToken || !orderId || (billingCycle !== 'monthly' && billingCycle !== 'yearly')) {
+  const { tid, orderId, billingCycle } = body
+  if (!tid || !orderId || (billingCycle !== 'monthly' && billingCycle !== 'yearly')) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
-  // encData: AUTHNICE fnSuccess(팝업)가 제공한 PKCS7 blob. 모바일 redirect에서는 signature를 대체 사용.
-  const resolvedEncData = encData || signature
 
   const workspace = await prisma.workspace.findUnique({
     where: { id: workspaceId },
@@ -52,17 +50,9 @@ export async function POST(request: Request) {
   const goodsName = `Flowrit Pro (${billingCycle === 'monthly' ? '월정기' : '연정기'})`
   const periodEnd = getNextPeriodEnd(billingCycle, now)
 
-  let registration: { bid: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }
+  let registration: { bid?: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }
   try {
-    registration = await registerBillingKey(
-      authToken,
-      orderId,
-      owner?.user.email ?? '',
-      owner?.user.name ?? '',
-      amount,
-      goodsName,
-      resolvedEncData,
-    )
+    registration = await approveAndRegisterBillingKey(tid, amount)
   } catch (err) {
     await sendOpsAlert({
       level: 'critical',
@@ -86,7 +76,7 @@ export async function POST(request: Request) {
           plan: 'pro',
           billingCycle,
           status: 'active',
-          billingKey: registration.bid,
+          billingKey: registration.bid ?? null,
           customerKey: workspaceId,
           cardName: registration.cardName ?? null,
           cardNum: registration.cardNum ?? null,
@@ -99,7 +89,7 @@ export async function POST(request: Request) {
           plan: 'pro',
           billingCycle,
           status: 'active',
-          billingKey: registration.bid,
+          billingKey: registration.bid ?? null,
           customerKey: workspaceId,
           cardName: registration.cardName ?? null,
           cardNum: registration.cardNum ?? null,

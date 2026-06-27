@@ -89,9 +89,7 @@ async function handleReturn(request: Request): Promise<NextResponse> {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        authToken: ${JSON.stringify(authToken)},
-        signature: ${JSON.stringify(signature)},
-        encData: ${JSON.stringify(encData || undefined)},
+        tid: ${JSON.stringify(tid)},
         orderId: ${JSON.stringify(orderId)},
         billingCycle: ${JSON.stringify(billingCycle)}
       })

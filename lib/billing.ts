@@ -12,46 +12,38 @@ function authHeader(): string {
 }
 
 /**
- * 나이스페이먼츠 빌링키 발급 + 첫 결제
- * encData: AUTHNICE fnSuccess(팝업)가 제공한 PKCS7 blob. 모바일 redirect에서는 signature 대체.
+ * AUTHNICE R2_ 결제창 승인 + 빌링키 수령
+ * /v1/payments/{tid} — AUTHNICE Server 승인 모델의 올바른 endpoint.
+ * bid는 계정 설정에 따라 응답에 포함될 수 있음.
  */
-export async function registerBillingKey(
-  authToken: string,
-  orderId: string,
-  buyerEmail: string,
-  buyerName: string,
+export async function approveAndRegisterBillingKey(
+  tid: string,
   amount: number,
-  goodsName: string,
-  encData?: string,
-): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }> {
-  const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
-  const body: Record<string, unknown> = { clientId, authToken, orderId, buyerEmail, buyerName, amount, goodsName }
-  if (encData) body.encData = encData
-  console.log(`[registerBillingKey] encData=${encData ? `${encData.slice(0, 20)}...` : 'NONE'}`)
-
-  const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
+): Promise<{ bid?: string; tid: string; payMethod: string; paidAt: string; cardName?: string; cardNum?: string }> {
+  const res = await fetch(`${NICEPAY_API_BASE}/payments/${encodeURIComponent(tid)}`, {
     method: 'POST',
     headers: {
       Authorization: authHeader(),
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ amount }),
   })
 
   const json = await res.json()
-  console.log(`NP:${json.resultCode}|${(json.resultMsg ?? '').slice(0, 60)}`)
+  console.log(`[approvePayment] tid=${tid.slice(0, 16)}... result=${json.resultCode}|${(json.resultMsg ?? '').slice(0, 60)}`)
+  console.log(`[approvePayment] full response keys:`, Object.keys(json).join(','))
   if (json.resultCode !== '0000') {
-    const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '빌링키 발급 실패'}`)
-    Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, orderId, amount } })
+    const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '결제 승인 실패'}`)
+    Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, tid, amount } })
     throw err
   }
   return {
-    bid: json.bid as string,
+    bid: json.bid as string | undefined,
     tid: json.tid as string,
     payMethod: json.payMethod as string,
     paidAt: json.paidAt as string,
-    cardName: json.cardName as string | undefined,
-    cardNum: json.cardNum as string | undefined,
+    cardName: (json.card?.cardName ?? json.cardName) as string | undefined,
+    cardNum: (json.card?.cardNum ?? json.cardNum) as string | undefined,
   }
 }
 
