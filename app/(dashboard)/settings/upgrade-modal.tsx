@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { Check } from 'lucide-react'
+import { Modal } from '@/components/ui/modal'
 import { CardForm, type CardInput } from './card-form'
 
 type Props = {
@@ -38,74 +40,63 @@ export function UpgradeModal({ onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">Pro 플랜 업그레이드</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* 혜택 */}
-        <div className="mb-5 rounded-xl bg-indigo-50 p-4">
-          <p className="text-sm font-medium text-indigo-800 mb-2">Pro 플랜 혜택</p>
-          <ul className="space-y-1">
-            {['무제한 프로젝트', '팀원 최대 5명', '우선 고객 지원'].map((f) => (
-              <li key={f} className="flex items-center gap-2 text-sm text-indigo-700">
-                <svg className="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* 결제 주기 선택 */}
-        <div className="mb-5">
-          <p className="text-sm font-medium text-gray-700 mb-3">결제 주기</p>
-          <div className="grid grid-cols-2 gap-3">
-            {(['monthly', 'yearly'] as const).map((cycle) => (
-              <button
-                key={cycle}
-                onClick={() => setBillingCycle(cycle)}
-                disabled={loading}
-                className={`rounded-lg border-2 p-3 text-left transition-colors ${
-                  billingCycle === cycle
-                    ? 'border-indigo-600 bg-indigo-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <p className="text-sm font-semibold text-gray-900">
-                  {cycle === 'monthly' ? '월정기' : '연정기'}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  {cycle === 'monthly' ? '월 ₩29,900' : '연 ₩298,000'}
-                </p>
-                {cycle === 'yearly' && (
-                  <span className="mt-1 inline-block text-xs text-indigo-600 font-medium">
-                    2개월 무료
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <CardForm
-          onSubmit={handleSubmit}
-          loading={loading}
-          submitLabel={`${priceLabel}로 시작하기`}
-          error={error}
-        />
-
-        <p className="mt-3 text-center text-xs text-gray-400">
-          언제든지 취소 가능 · 카드 정보는 나이스페이먼츠가 안전하게 보관
-        </p>
+    <Modal open onClose={onClose} title="Pro 플랜 업그레이드" maxWidth="md">
+      {/* 혜택 */}
+      <div className="mb-5 rounded-lg bg-[var(--flowrit-primary-soft)] p-4">
+        <p className="mb-2 text-sm font-medium text-[var(--flowrit-primary-soft-text)]">Pro 플랜 혜택</p>
+        <ul className="space-y-1">
+          {['무제한 프로젝트', '팀원 최대 5명', '우선 고객 지원'].map((f) => (
+            <li key={f} className="flex items-center gap-2 text-sm text-[var(--flowrit-primary-soft-text)]">
+              <Check className="h-4 w-4" aria-hidden="true" />
+              {f}
+            </li>
+          ))}
+        </ul>
       </div>
-    </div>
+
+      {/* 결제 주기 선택 */}
+      <div className="mb-5">
+        <p className="mb-3 text-sm font-medium text-[var(--flowrit-text-secondary)]">결제 주기</p>
+        <div className="grid grid-cols-2 gap-3">
+          {(['monthly', 'yearly'] as const).map((cycle) => (
+            <button
+              key={cycle}
+              type="button"
+              onClick={() => setBillingCycle(cycle)}
+              disabled={loading}
+              aria-pressed={billingCycle === cycle}
+              className={`rounded-lg border-2 p-3 text-left transition-colors ${
+                billingCycle === cycle
+                  ? 'border-[var(--flowrit-primary)] bg-[var(--flowrit-primary-soft)]'
+                  : 'border-[var(--flowrit-border)] hover:border-[var(--flowrit-border-strong)]'
+              }`}
+            >
+              <p className="text-sm font-semibold text-[var(--flowrit-text)]">
+                {cycle === 'monthly' ? '월정기' : '연정기'}
+              </p>
+              <p className="mt-0.5 text-xs text-[var(--flowrit-text-muted)]">
+                {cycle === 'monthly' ? '월 ₩29,900' : '연 ₩298,000'}
+              </p>
+              {cycle === 'yearly' && (
+                <span className="mt-1 inline-block text-xs font-medium text-[var(--flowrit-primary)]">
+                  2개월 무료
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <CardForm
+        onSubmit={handleSubmit}
+        loading={loading}
+        submitLabel={`${priceLabel}로 시작하기`}
+        error={error}
+      />
+
+      <p className="mt-3 text-center text-xs text-[var(--flowrit-text-muted)]">
+        언제든지 취소 가능 · 카드 정보는 나이스페이먼츠가 안전하게 보관
+      </p>
+    </Modal>
   )
 }

@@ -77,13 +77,14 @@ export function CardForm({ onSubmit, loading, submitLabel, error: externalError 
     })
   }
 
-  const inputCls = 'w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50'
+  const labelCls = 'block text-xs font-medium text-[var(--flowrit-text-secondary)] mb-1'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">카드번호</label>
+        <label htmlFor="card-no" className={labelCls}>카드번호</label>
         <input
+          id="card-no"
           type="text"
           inputMode="numeric"
           autoComplete="cc-number"
@@ -91,15 +92,16 @@ export function CardForm({ onSubmit, loading, submitLabel, error: externalError 
           onChange={e => handleCardNoChange(e.target.value)}
           placeholder="0000 0000 0000 0000"
           disabled={loading}
-          className={inputCls}
+          className="flowrit-input"
           required
         />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">유효기간</label>
+          <label htmlFor="card-exp" className={labelCls}>유효기간</label>
           <input
+            id="card-exp"
             type="text"
             inputMode="numeric"
             autoComplete="cc-exp"
@@ -108,13 +110,14 @@ export function CardForm({ onSubmit, loading, submitLabel, error: externalError 
             placeholder="MM / YY"
             maxLength={5}
             disabled={loading}
-            className={inputCls}
+            className="flowrit-input"
             required
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">비밀번호 앞 2자리</label>
+          <label htmlFor="card-pw" className={labelCls}>비밀번호 앞 2자리</label>
           <input
+            id="card-pw"
             type="password"
             inputMode="numeric"
             autoComplete="cc-csc"
@@ -123,35 +126,36 @@ export function CardForm({ onSubmit, loading, submitLabel, error: externalError 
             placeholder="••"
             maxLength={2}
             disabled={loading}
-            className={inputCls}
+            className="flowrit-input"
             required
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
+        <label htmlFor="card-idno" className={labelCls}>
           생년월일 6자리
         </label>
         <input
+          id="card-idno"
           type="text"
           inputMode="numeric"
           value={idNo}
           onChange={e => setIdNo(e.target.value.replace(/\D/g, '').slice(0, 10))}
           placeholder="예: 901231"
           disabled={loading}
-          className={inputCls}
+          className="flowrit-input"
           required
         />
-        <p className="mt-1 text-xs text-gray-400">개인: 생년월일 6자리 / 법인: 사업자번호 10자리</p>
+        <p className="flowrit-form-help">개인: 생년월일 6자리 / 법인: 사업자번호 10자리</p>
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="flowrit-form-error">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 rounded-xl bg-indigo-600 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors disabled:opacity-50"
+        className="flowrit-button-primary w-full"
       >
         {loading ? '처리 중...' : submitLabel}
       </button>
