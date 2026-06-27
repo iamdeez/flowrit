@@ -1,17 +1,6 @@
-import { createCipheriv } from 'crypto'
 import * as Sentry from '@sentry/nextjs'
 
 const NICEPAY_API_BASE = 'https://api.nicepay.co.kr/v1'
-
-// NicePayments /subscribe/regist encData.
-// secretKey는 32자 hex 문자열 → hex decode하면 16바이트 AES-128 키.
-// 이전에 UTF-8 해석했던 것이 오류였음.
-function buildEncDataFromAuthToken(authToken: string): string {
-  const secretKey = process.env.NICEPAY_SECRET_KEY!
-  const key = Buffer.from(secretKey, 'hex')  // hex decode → 16 bytes
-  const cipher = createCipheriv('aes-128-ecb', key, null)
-  return Buffer.concat([cipher.update(authToken, 'utf8'), cipher.final()]).toString('base64')
-}
 
 export const PLAN_PRICES = { monthly: 29900, yearly: 298000 } as const
 export type BillingCycle = keyof typeof PLAN_PRICES
@@ -23,24 +12,20 @@ function authHeader(): string {
 }
 
 /**
- * 나이스페이먼츠 빌링키 발급
- * 클라이언트 AUTHNICE fnSuccess 콜백의 authToken을 서버에서 받아 빌링키(bid) 획득.
- * popup amount > 0이면 /subscribe/regist 호출 시 첫 결제도 동시에 처리된다.
+ * 나이스페이먼츠 빌링키 발급 + 첫 결제
+ * AUTHNICE를 amount > 0으로 호출했으므로 /subscribe/regist에 동일한 amount/goodsName 필수.
+ * NicePayments는 authToken에 포함된 금액 서명과 regist 요청의 amount가 일치하는지 검증한다.
  */
 export async function registerBillingKey(
   authToken: string,
   orderId: string,
   buyerEmail: string,
   buyerName: string,
-  signature?: string,
-  authNiceEncData?: string,
+  amount: number,
+  goodsName: string,
 ): Promise<{ bid: string; tid: string; payMethod: string; paidAt: string }> {
-  // AUTHNICE fnSuccess가 encData를 제공하면 그대로 사용.
-  // 제공하지 않으면 AES-128-ECB(authToken, hex_decode(secretKey))로 직접 생성.
-  const encData = authNiceEncData || buildEncDataFromAuthToken(authToken)
-  const body: Record<string, string> = { authToken, orderId, buyerEmail, buyerName, encData }
-
-  console.log('[registerBillingKey] encData source:', authNiceEncData ? 'authnice' : 'aes128', 'len:', encData.length, encData.slice(0, 24))
+  const clientId = process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID!
+  const body = { clientId, authToken, orderId, buyerEmail, buyerName, amount, goodsName }
 
   const res = await fetch(`${NICEPAY_API_BASE}/subscribe/regist`, {
     method: 'POST',
@@ -52,10 +37,10 @@ export async function registerBillingKey(
   })
 
   const json = await res.json()
-  console.log('[registerBillingKey] response:', JSON.stringify(json).slice(0, 500))
+  console.log(`NP:${json.resultCode}|${(json.resultMsg ?? '').slice(0, 60)}`)
   if (json.resultCode !== '0000') {
     const err = new Error(`[${json.resultCode}] ${json.resultMsg ?? '빌링키 발급 실패'}`)
-    Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, orderId } })
+    Sentry.captureException(err, { extra: { resultCode: json.resultCode, resultMsg: json.resultMsg, orderId, amount } })
     throw err
   }
   return {

@@ -20,14 +20,14 @@ export async function POST(request: Request) {
 
   const workspaceId = session.user.workspaceId
 
-  let body: { authToken: string; signature?: string; encData?: string; orderId: string; billingCycle: BillingCycle }
+  let body: { authToken: string; orderId: string; billingCycle: BillingCycle }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { authToken, signature, encData, orderId, billingCycle } = body
+  const { authToken, orderId, billingCycle } = body
   if (!authToken || !orderId || (billingCycle !== 'monthly' && billingCycle !== 'yearly')) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
@@ -45,9 +45,9 @@ export async function POST(request: Request) {
     select: { user: { select: { email: true, name: true } } },
   })
 
-  // 나이스페이먼츠 빌링키 발급 + 첫 결제 (AUTHNICE popup에서 실제 금액으로 승인됨)
   const now = new Date()
   const amount = PLAN_PRICES[billingCycle]
+  const goodsName = `Flowrit Pro (${billingCycle === 'monthly' ? '월정기' : '연정기'})`
   const periodEnd = getNextPeriodEnd(billingCycle, now)
 
   let registration: { bid: string; tid: string; payMethod: string; paidAt: string }
@@ -57,8 +57,8 @@ export async function POST(request: Request) {
       orderId,
       owner?.user.email ?? '',
       owner?.user.name ?? '',
-      signature,
-      encData,
+      amount,
+      goodsName,
     )
   } catch (err) {
     await sendOpsAlert({
