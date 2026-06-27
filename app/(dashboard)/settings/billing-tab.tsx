@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { AlertTriangle, Check, CreditCard, Crown, ReceiptText } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfirm } from '@/components/ui/confirm-dialog'
@@ -60,6 +61,7 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
   const [cancelDone, setCancelDone] = useState(false)
   const [deletingCard, setDeletingCard] = useState(false)
   const confirm = useConfirm()
+  const router = useRouter()
 
   const isPro = workspacePlan === 'pro'
   const isCancelScheduled = subscription?.cancelAtPeriodEnd ?? false
@@ -109,7 +111,8 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
       const res = await fetch('/api/billing/delete-card', { method: 'POST' })
       const data = await res.json()
       if (data.success) {
-        window.location.href = '/settings?tab=billing'
+        toast.success('카드가 삭제되었습니다.')
+        router.refresh()
       } else {
         toast.error(data.error || '카드 삭제에 실패했습니다.')
       }
@@ -299,7 +302,11 @@ export function BillingTab({ isOwner, workspacePlan, subscription }: Props) {
       {showChangeCard && (
         <ChangeCardModal
           onClose={() => setShowChangeCard(false)}
-          onSuccess={() => { window.location.href = '/settings?tab=billing&cardChanged=true' }}
+          onSuccess={() => {
+            setShowChangeCard(false)
+            toast.success('카드가 변경되었습니다.')
+            router.refresh()
+          }}
         />
       )}
     </div>

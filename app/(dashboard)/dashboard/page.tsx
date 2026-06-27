@@ -358,10 +358,10 @@ export default async function DashboardPage({
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">
             Workspace overview
           </p>
-          <h1 className="mt-2 text-2xl font-semibold text-gray-900">
+          <h1 className="flowrit-page-title mt-2">
             대시보드
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="flowrit-page-description">
             오늘 처리할 운영 항목과 기간별 성과 지표를 한 화면에서 확인합니다.
           </p>
         </div>
