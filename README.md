@@ -106,7 +106,7 @@ npm run dev   # http://localhost:3000
 ## 테스트
 
 ```bash
-npm test             # Vitest 단위 테스트 (166 tests)
+npm test             # Vitest 단위 테스트 (168 tests)
 npm run typecheck    # tsc --noEmit
 npm run lint         # ESLint
 npx playwright test  # E2E (E2E_TEST_EMAIL / E2E_TEST_PASSWORD 필요)

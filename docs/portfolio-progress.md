@@ -41,7 +41,7 @@ npx -y @mermaid-js/mermaid-cli@latest -i docs/diagrams/dNN.mmd -o docs/diagrams/
 
 ### B. 콘텐츠 보강
 - [ ] **본인 역할·기여도** 강조 문단 추가 (1인 풀스택, 담당 범위 구체화)
-- [ ] **정량 성과·지표** 추가 (테스트 166개, 커버리지, Lighthouse, 번들 크기, 응답시간 등 측정 후 기재)
+- [x] **검증 지표 추가** — 테스트 168개, Playwright E2E 21 specs, DB-backed 주문 페이지 성능 baseline 기록
 - [ ] **라이브 데모 URL + 데모 계정**(`flowrit-demo@example.com` / `demo1234`) 안내 추가
 - [ ] 스크린샷 추가 촬영: 고객 포털(`/p/[token]`), 공개 주문서, 프로젝트 상세, 분석 대시보드, 결제/구독 화면
 - [ ] (선택) **영문 버전** `portfolio.en.md`

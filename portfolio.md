@@ -79,7 +79,7 @@
 | 메일 | **Resend** | 트랜잭션 이메일(초대·알림·마감 리마인더) |
 | 관측 | **Sentry + Discord Webhook** | 에러 추적 + 운영 이벤트 실시간 알림 |
 | 배포 | **Vercel + Vercel Cron** | Git push 기반 자동 배포, 스케줄 작업 |
-| 테스트 | **Vitest + Playwright** | 단위(166 tests) + E2E(desktop/mobile) |
+| 테스트 | **Vitest + Playwright** | 단위(168 tests) + E2E(desktop/mobile) |
 
 ---
 

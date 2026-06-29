@@ -3,8 +3,10 @@ import { mockDeep, mockReset } from 'vitest-mock-extended'
 import type { PrismaClient } from '@/app/generated/prisma/client'
 
 const prismaMock = mockDeep<PrismaClient>()
+const fetchMock = vi.fn()
 vi.mock('@/lib/db', () => ({ prisma: prismaMock }))
 vi.mock('@/lib/auth', () => ({ auth: vi.fn() }))
+vi.mock('@sentry/nextjs', () => ({ captureException: vi.fn() }))
 
 const OWNER_SESSION = {
   user: { id: 'u1', workspaceId: 'ws1', email: 'owner@example.com', name: 'Owner', role: 'OWNER' },
@@ -16,8 +18,55 @@ const MEMBER_SESSION = {
 
 beforeEach(async () => {
   mockReset(prismaMock)
+  fetchMock.mockReset()
+  vi.stubGlobal('fetch', fetchMock)
+  process.env.NEXT_PUBLIC_NICEPAY_CLIENT_ID = 'test-client'
+  process.env.NICEPAY_SECRET_KEY = 'test-secret'
   const { auth } = await import('@/lib/auth')
   vi.mocked(auth).mockResolvedValue(OWNER_SESSION)
+})
+
+// F101 회귀 방지: AUTHNICE R2_ 승인 모델은 /v1/payments/{tid}를 사용한다.
+describe('approveAndRegisterBillingKey', () => {
+  it('tid 승인 endpoint와 amount만 사용해 결제를 승인한다', async () => {
+    fetchMock.mockResolvedValue({
+      json: vi.fn().mockResolvedValue({
+        resultCode: '0000',
+        tid: 'tid-123',
+        bid: 'bid-123',
+        payMethod: 'CARD',
+        paidAt: '2026-06-30T00:00:00.000Z',
+        card: { cardName: '테스트카드', cardNum: '411111******1111' },
+      }),
+    })
+
+    const { approveAndRegisterBillingKey } = await import('@/lib/billing')
+    const result = await approveAndRegisterBillingKey('tid-123', 29900)
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.nicepay.co.kr/v1/payments/tid-123',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ amount: 29900 }),
+      }),
+    )
+    expect(result).toEqual(expect.objectContaining({ tid: 'tid-123', bid: 'bid-123' }))
+  })
+
+  it('승인 실패 응답은 오류로 전환해 구독 저장 단계로 진행하지 않게 한다', async () => {
+    fetchMock.mockResolvedValue({
+      json: vi.fn().mockResolvedValue({
+        resultCode: 'F101',
+        resultMsg: 'PKCS7 검증 실패',
+      }),
+    })
+
+    const { approveAndRegisterBillingKey } = await import('@/lib/billing')
+
+    await expect(approveAndRegisterBillingKey('tid-failed', 29900)).rejects.toThrow(
+      '[F101] PKCS7 검증 실패',
+    )
+  })
 })
 
 // SC-010: 구독 취소 (기간 말 해지)
