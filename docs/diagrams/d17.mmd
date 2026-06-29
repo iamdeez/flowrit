@@ -1,0 +1,18 @@
+flowchart TD
+    App["Flowrit (Production)"] -->|예외| Sentry["Sentry<br/>(client/server/edge)"]
+    App -->|운영 이벤트| OA["sendOpsAlert()"]
+    OA --> San["ops-sanitize<br/>(민감 키 마스킹)"]
+    San --> Disc["Discord Webhook"]
+
+    subgraph Events["알림 대상 이벤트"]
+        E1["Cron 실패"]
+        E2["정기 결제 실패"]
+        E3["billing callback 실패"]
+        E4["이메일 발송 실패"]
+        E5["Webhook 처리 실패"]
+        E6["Health degraded"]
+    end
+    Events --> OA
+
+    HC["GET /api/health"] -->|공개| Sum["status · service · timestamp"]
+    HC -->|Bearer 토큰| Det["app · database · env 상세 + 503 on degraded"]

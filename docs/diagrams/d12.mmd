@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    participant U as 사용자
+    participant App as Flowrit
+    participant Nice as NicePayments
+    participant DB as PostgreSQL
+    participant Cron as Vercel Cron
+
+    U->>App: Pro 업그레이드 (카드 인증)
+    App->>Nice: 결제창 승인 + 빌링키 수령
+    Nice-->>App: { bid, cardName, cardNum }
+    App->>DB: Subscription(plan=pro, billingKey) 저장
+    loop 매일 자정 UTC
+        Cron->>App: GET /api/cron/daily (Bearer CRON_SECRET)
+        App->>DB: currentPeriodEnd 도래 구독 조회
+        App->>Nice: 빌링키로 정기 결제
+        alt 성공
+            Nice-->>App: 승인
+            App->>DB: Payment(done) + 기간 갱신
+        else 실패
+            Nice-->>App: 거절
+            App->>DB: status=past_due, retryCount++
+            App->>App: Discord 운영 알림
+        end
+    end

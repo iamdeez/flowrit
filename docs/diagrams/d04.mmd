@@ -1,0 +1,24 @@
+flowchart TD
+    subgraph Public["공개 (비인증)"]
+        L["/login · /signup"]
+        I["/intake/[slug] 문의 폼"]
+        O["/order/[slug] 주문서 폼"]
+        P["/p/[token] 고객 포털"]
+        INV["/invite/[token] 초대 수락"]
+    end
+
+    subgraph Auth["인증 필요 (dashboard)"]
+        DASH["/dashboard"]
+        PROJ["/projects · /revisions · /orders"]
+    end
+
+    subgraph AdminOnly["OWNER/ADMIN 전용"]
+        CUST["/customers"]
+        ANAL["/analytics"]
+        TEAM["/team"]
+        SET["/settings · /templates · /messages"]
+    end
+
+    proxy["proxy.ts"] -->|미인증| L
+    proxy -->|MEMBER 차단| DASH
+    DASH -.사이드바 필터.-> AdminOnly

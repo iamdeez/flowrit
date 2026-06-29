@@ -41,8 +41,9 @@ flowrit/
 │   │   └── templates/   ← 워크플로우 템플릿 (OWNER/ADMIN 전용)
 │   ├── api/
 │   │   ├── auth/[...nextauth]/  ← NextAuth 핸들러
-│   │   ├── cron/deadline-reminder/  ← Vercel Cron (매일 자정 UTC)
-│   │   ├── cron/billing/            ← Vercel Cron (정기 결제)
+│   │   ├── cron/daily/              ← Vercel Cron (매일 자정 UTC — 마감 리마인더 + 정기 결제 통합)
+│   │   ├── cron/deadline-reminder/  ← 비스케줄 (daily로 통합, 수동 호출용)
+│   │   ├── cron/billing/            ← 비스케줄 (daily로 통합, 수동 호출용)
 │   │   ├── export/      ← 데이터 내보내기
 │   │   ├── health/      ← 공개 요약 + 토큰 보호 상세 Health Check
 │   │   ├── upload/      ← Presigned URL 발급
@@ -100,8 +101,9 @@ Prisma Client (lib/db.ts)  →  PostgreSQL (Neon)
 | `lib/actions/testWebhook.ts` | lib/actions | 설정 화면 테스트 의뢰 전송 Server Action |
 | `components/sidebar-nav.tsx` | components | RBAC 기반 메뉴 필터링, pendingOrderCount 뱃지 |
 | `app/api/webhooks/intake/[workspaceSlug]/route.ts` | app/api | Bearer 인증 기반 외부 플랫폼 Webhook 수신 엔드포인트 |
-| `app/api/cron/deadline-reminder/` | app/api | Vercel Cron — 마감 24시간 전 알림 발송 |
-| `app/api/cron/billing/` | app/api | Vercel Cron — Pro 구독 정기 결제 및 실패 처리 |
+| `app/api/cron/daily/` | app/api | **스케줄된** Vercel Cron — 마감 리마인더 + Pro 구독 정기 결제를 한 작업에서 통합 처리 |
+| `app/api/cron/deadline-reminder/` | app/api | 마감 임박 알림 핸들러 (daily로 통합, 비스케줄·수동 호출용) |
+| `app/api/cron/billing/` | app/api | 정기 결제·실패 처리 핸들러 (daily로 통합, 비스케줄·수동 호출용) |
 | `app/api/health/route.ts` | app/api | Health Check. 공개 요약과 `HEALTHCHECK_TOKEN` 상세 응답 |
 | `app/api/upload/route.ts` | app/api | presigned URL 발급 엔드포인트 (10MB 제한 검증) |
 
@@ -205,9 +207,9 @@ PENDING → CONVERTED (projectId 연결)
 | PostgreSQL (Neon) | Prisma + PrismaPg adapter | `lib/db.ts` |
 | Cloudflare R2 | AWS SDK S3 호환 + presigned URL | `lib/storage.ts` |
 | Resend | HTTP API (이메일 발송) | `lib/email.ts` |
-| Vercel Cron | GET `/api/cron/deadline-reminder`, `/api/cron/billing` (매일 자정 UTC) | `app/api/cron/` |
+| Vercel Cron | GET `/api/cron/daily` (매일 자정 UTC — 마감 리마인더 + 정기 결제 통합) | `app/api/cron/daily/` |
 | Discord Webhook | production 운영 알림 | `lib/ops-alert.ts` |
-| NicePayments | 카드 인증, 빌링키, 정기 결제 | `lib/billing.ts`, `app/api/billing/callback/route.ts`, `app/api/cron/billing/route.ts` |
+| NicePayments | 카드 인증, 빌링키, 정기 결제 | `lib/billing.ts`, `app/api/billing/callback/route.ts`, `app/api/cron/daily/route.ts` (스케줄된 정기 결제) |
 
 ### 3.5 1.0.0 UI 구조
 

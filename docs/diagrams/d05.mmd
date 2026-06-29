@@ -1,0 +1,87 @@
+erDiagram
+    User ||--o{ WorkspaceMember : has
+    User ||--o{ Notification : receives
+    User ||--o{ Session : owns
+    User ||--o{ PasswordResetToken : owns
+
+    Workspace ||--o{ WorkspaceMember : contains
+    Workspace ||--o{ Customer : owns
+    Workspace ||--o{ Project : owns
+    Workspace ||--o{ WorkflowTemplate : owns
+    Workspace ||--o{ Inquiry : receives
+    Workspace ||--o{ MessageTemplate : owns
+    Workspace ||--o{ WorkspaceInvite : issues
+    Workspace ||--o{ OrderFormField : configures
+    Workspace ||--o| Subscription : has
+    Workspace ||--o{ Payment : records
+    Workspace ||--o{ Notification : scopes
+
+    Customer ||--o{ Project : commissions
+
+    Project ||--o{ WorkflowStage : "has stages"
+    Project ||--o{ RevisionRequest : tracks
+    Project ||--o{ Asset : delivers
+    Project ||--o{ TimelineEvent : logs
+    Project ||--o| PublicProjectPage : "exposes via token"
+
+    WorkflowTemplate ||--o{ TemplateStage : defines
+
+    RevisionRequest ||--o{ RevisionComment : "thread"
+    RevisionRequest ||--o{ Asset : attaches
+    RevisionComment ||--o{ RevisionComment : "replies (self)"
+
+    Subscription ||--o{ Payment : bills
+
+    User {
+        string id PK
+        string email UK
+        string password
+        json notificationSettings
+    }
+    Workspace {
+        string id PK
+        string slug UK
+        string plan
+    }
+    WorkspaceMember {
+        string id PK
+        string role "OWNER|ADMIN|MEMBER"
+    }
+    Project {
+        string id PK
+        string customerId FK
+        string currentStageId
+        datetime dueDate
+        string assigneeId
+    }
+    WorkflowStage {
+        string internalName "내부 표시명"
+        string customerName "고객 표시명"
+        int order
+    }
+    RevisionRequest {
+        string status "OPEN|IN_PROGRESS|DONE"
+        string priority "HIGH|MEDIUM|LOW"
+        string source "MANUAL|CUSTOMER_PORTAL"
+        json fileUrls
+    }
+    Asset {
+        string type "DRIVE|GALLERY|VIDEO|DOCUMENT|OTHER"
+        string status "PREPARING|SHARED|EXPIRED"
+        datetime shareScheduledAt
+    }
+    Inquiry {
+        string status "PENDING|CONVERTED|DISMISSED"
+        string formType "INQUIRY|ORDER"
+        string projectId
+    }
+    PublicProjectPage {
+        string token UK "uuid"
+        boolean isActive
+    }
+    Subscription {
+        string plan "free|pro"
+        string status "active|past_due"
+        string billingKey
+        int retryCount
+    }

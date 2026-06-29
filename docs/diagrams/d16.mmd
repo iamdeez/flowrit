@@ -1,0 +1,8 @@
+flowchart LR
+    Dev["로컬 개발"] -->|git push| GH["GitHub main"]
+    GH --> CI["GitHub Actions CI"]
+    GH --> VB["Vercel 자동 빌드"]
+    VB --> Mig["prisma migrate deploy<br/>+ prisma generate"]
+    Mig --> NB["next build"]
+    NB --> Prod["Production 배포"]
+    Prod -.문제 발생.-> RB["Vercel Deployments<br/>→ Promote 이전 배포 (롤백)"]

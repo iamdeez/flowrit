@@ -1,0 +1,8 @@
+flowchart TD
+    Start["prisma 접근"] --> Cache{"globalThis.prisma<br/>존재?"}
+    Cache -->|있음| Check{"hasCurrentDelegates?<br/>(revisionComment ·<br/>assets · shareScheduledAt)"}
+    Check -->|최신| Use["재사용"]
+    Check -->|stale| Dis["$disconnect()<br/>→ 재생성"]
+    Cache -->|없음| New["새 클라이언트 생성"]
+    Dis --> New
+    New --> Use

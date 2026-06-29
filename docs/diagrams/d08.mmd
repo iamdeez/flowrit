@@ -1,0 +1,9 @@
+flowchart TD
+    U["MEMBER 사용자"] --> P{"proxy.ts<br/>MEMBER_BLOCKED_PATHS?"}
+    P -->|차단 경로| RD["→ /dashboard redirect"]
+    P -->|허용| S{"SidebarNav<br/>메뉴 필터링"}
+    S -->|숨김| Hidden["관리 메뉴 비노출"]
+    S -->|노출| View["허용된 화면"]
+    View --> Act{"Server Action<br/>role 재검증"}
+    Act -->|권한 없음| Deny["거부"]
+    Act -->|OWNER/ADMIN| Exec["실행"]

@@ -1,0 +1,7 @@
+flowchart TD
+    E["이벤트 발생<br/>(NEW_INQUIRY · REVISION_SUBMITTED · DEADLINE_SOON ...)"] --> S["sendNotification(type)"]
+    S --> Set{"사용자<br/>notificationSettings[type]?"}
+    Set -->|ON| InApp["Notification 레코드 생성<br/>(벨 아이콘)"]
+    Set -->|ON| Mail["Resend 이메일 발송"]
+    Set -->|OFF| Skip["건너뜀"]
+    Mail -.실패.-> Log["console.error + 진행 계속"]

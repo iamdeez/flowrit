@@ -1,0 +1,5 @@
+flowchart LR
+    Unit["Vitest 단위 (166)<br/>Server Action · 비즈니스 로직"] --> CI1["CI 필수 통과"]
+    E2E["Playwright E2E<br/>desktop / mobile"] --> Guard{"E2E_ALLOW_MUTATION?"}
+    Guard -->|true| Mut["가입·주문·수정요청<br/>(preview/staging만)"]
+    Guard -->|false| RO["읽기 전용 시나리오"]

@@ -1,0 +1,41 @@
+flowchart TB
+    subgraph Client["클라이언트"]
+        Browser["사용자 브라우저"]
+        Customer["고객 (비인증)"]
+        External["외부 플랫폼"]
+    end
+
+    subgraph Vercel["Vercel Edge"]
+        Proxy["proxy.ts<br/>(라우트 보호 · RBAC redirect)"]
+        SA["Server Actions<br/>(lib/actions/*)"]
+        API["API Routes<br/>(webhook · upload · cron · health)"]
+    end
+
+    subgraph Data["데이터 계층"]
+        Neon[("Neon PostgreSQL<br/>Prisma + PrismaPg")]
+        R2[("Cloudflare R2<br/>오브젝트 스토리지")]
+        Redis[("Upstash Redis<br/>Rate Limit")]
+    end
+
+    subgraph SaaS["외부 SaaS"]
+        Resend["Resend<br/>이메일"]
+        Nice["NicePayments<br/>정기 결제"]
+        Discord["Discord<br/>운영 알림"]
+        Sentry["Sentry<br/>에러 추적"]
+    end
+
+    Browser -->|HTTPS| Proxy
+    Customer -->|토큰/슬러그| API
+    External -->|Bearer Webhook| API
+    Proxy --> SA
+    Proxy --> API
+    SA --> Neon
+    SA --> R2
+    API --> Neon
+    API --> Redis
+    SA --> Resend
+    API --> Nice
+    SA -.운영 이벤트.-> Discord
+    SA -.예외.-> Sentry
+
+    Cron["Vercel Cron<br/>(매일 자정 UTC)"] -->|GET /api/cron/daily| API

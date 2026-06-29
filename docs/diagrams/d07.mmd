@@ -1,0 +1,5 @@
+flowchart LR
+    Req["요청"] --> Auth["JWT 세션<br/>workspaceId 추출"]
+    Auth --> Q["Prisma where:<br/>{ workspaceId }"]
+    Q --> DB[("PostgreSQL")]
+    Q -.필터 누락.-> X["❌ 타 테넌트 유출"]

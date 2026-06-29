@@ -1,0 +1,15 @@
+sequenceDiagram
+    autonumber
+    participant Cu as 고객
+    participant Page as /p/[token]
+    participant DB as PostgreSQL
+    participant N as 알림 시스템
+    participant W as 담당자/OWNER
+
+    Cu->>Page: 토큰 URL 접속
+    Page->>DB: PublicProjectPage(token, isActive) 조회
+    DB-->>Page: 프로젝트 진행상황 · Asset(SHARED)
+    Cu->>Page: 수정 요청 제출 (source=CUSTOMER_PORTAL)
+    Page->>DB: RevisionRequest 생성
+    Page->>N: sendNotification(REVISION_SUBMITTED)
+    N->>W: 인앱 알림 + 이메일

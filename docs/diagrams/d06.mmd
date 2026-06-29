@@ -1,0 +1,17 @@
+stateDiagram-v2
+    direction LR
+    state "의뢰 (Inquiry)" as I {
+        [*] --> PENDING
+        PENDING --> CONVERTED: 프로젝트 전환
+        PENDING --> DISMISSED: 무시
+    }
+    state "수정 요청 (RevisionRequest)" as R {
+        [*] --> OPEN
+        OPEN --> IN_PROGRESS: 작업 시작
+        IN_PROGRESS --> DONE: 완료
+    }
+    state "납품물 (Asset)" as A {
+        [*] --> PREPARING
+        PREPARING --> SHARED: 고객 공유
+        SHARED --> EXPIRED: 만료
+    }

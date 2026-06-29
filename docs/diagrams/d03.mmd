@@ -1,0 +1,7 @@
+flowchart LR
+    A["클라이언트 컴포넌트<br/>(use client)"] -->|form action 직접 호출| B["Server Action<br/>lib/actions/*.ts"]
+    B --> C{"인증 검증<br/>session.user"}
+    C -->|workspaceId scope| D{"권한 검증<br/>role 재확인"}
+    D --> E["Prisma Client<br/>lib/db.ts"]
+    E --> F[("PostgreSQL")]
+    B -->|성공| G["revalidatePath()<br/>캐시 무효화"]

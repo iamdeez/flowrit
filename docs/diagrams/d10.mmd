@@ -1,0 +1,13 @@
+sequenceDiagram
+    autonumber
+    participant Cl as 클라이언트
+    participant API as POST /api/upload
+    participant R2 as Cloudflare R2
+
+    Cl->>API: { filename, contentType, size }
+    API->>API: size ≤ MAX_UPLOAD_SIZE(10MB) 검증
+    API->>R2: presigned PUT URL 생성 (expiresIn 300s)
+    API-->>Cl: { presignedUrl, key, publicUrl }
+    Cl->>R2: PUT presignedUrl (파일 직접 전송)
+    R2-->>Cl: 200 OK
+    Cl->>API: publicUrl을 DB에 저장

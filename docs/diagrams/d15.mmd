@@ -1,0 +1,10 @@
+flowchart LR
+    Push["git push / PR"] --> CO["checkout"]
+    CO --> Node["setup-node 24<br/>(npm cache)"]
+    Node --> Inst["npm install"]
+    Inst --> Gen["prisma generate"]
+    Gen --> Lint["npm run lint"]
+    Lint --> TC["npm run typecheck"]
+    TC --> Test["npm test (166)"]
+    Test --> Build["next build"]
+    Build --> OK["✅ Merge 가능"]

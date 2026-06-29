@@ -1,0 +1,22 @@
+sequenceDiagram
+    autonumber
+    participant C as 고객/외부 플랫폼
+    participant API as 접수 엔드포인트
+    participant RL as Upstash Rate Limit
+    participant DB as PostgreSQL
+    participant N as 알림 시스템
+    participant O as OWNER
+
+    C->>API: 폼 제출 / Webhook POST
+    API->>RL: 레이트 리밋 확인
+    alt 한도 초과
+        RL-->>API: limited
+        API-->>C: 429 Too Many Requests
+    else 허용
+        API->>DB: Inquiry 생성 (status=PENDING)
+        API->>N: sendNotification(NEW_INQUIRY)
+        N->>O: 인앱 알림 + 이메일
+        API-->>C: 접수 완료 안내
+        O->>DB: 검토 후 프로젝트 전환
+        DB->>DB: Inquiry status=CONVERTED + projectId 연결
+    end

@@ -1,16 +1,19 @@
 # Flowrit
 
-> 프리랜서 디자이너·개발자를 위한 **AI Workflow OS** — 고객 관리부터 납품까지 하나의 워크스페이스에서.
+> 프리랜서 디자이너·개발자를 위한 **워크플로우 & 고객관리(CRM) SaaS** — 고객 관리부터 납품까지 하나의 워크스페이스에서.
 
 주문서 접수 → 프로젝트 전환 → 단계별 진행 → 납품 링크 공유로 이어지는 프리랜서의 업무 흐름을, 이메일과 메모장에 흩어진 방식에서 단일 도구로 통합한 SaaS입니다.
 
 ![Flowrit 랜딩](docs/screenshots/landing.png)
+
+> 📄 **설계 배경 · 시스템 아키텍처 · ERD · 핵심 솔루션 · 트러블슈팅 · 배포/운영** 상세는 [**portfolio.md**](portfolio.md)에서 다이어그램과 함께 확인할 수 있습니다.
 
 ## 목차
 
 - [주요 기능](#주요-기능)
 - [기술 스택](#기술-스택)
 - [아키텍처](#아키텍처)
+- [데이터 모델](#데이터-모델)
 - [화면](#화면)
 - [로컬 실행](#로컬-실행)
 - [테스트](#테스트)
@@ -48,6 +51,8 @@
 
 ## 아키텍처
 
+![시스템 토폴로지](docs/diagrams/d02.png)
+
 ```
 클라이언트 컴포넌트 (use client)
       │  form action / Server Action 직접 호출
@@ -63,11 +68,17 @@ Prisma Client (lib/db.ts)   →   PostgreSQL (Neon)
 - **변경 작업**: 별도 REST 레이어 없이 Server Action으로 처리하고 `revalidatePath`로 캐시 무효화.
 - **운영 안정성**: Cron 실패·결제 실패·이메일 실패·웹훅 실패를 Discord로 알림(`ops-sanitize`로 secret 마스킹), 로그인·접수 엔드포인트에 Upstash 레이트 리밋.
 
+## 데이터 모델
+
+`Workspace`를 루트 테넌트로 모든 데이터가 `workspaceId` 범위로 격리되는 멀티테넌트 스키마입니다. 전체 ERD와 도메인 상태 흐름은 [portfolio.md](portfolio.md#4-데이터-모델-erd) 참고.
+
+![ERD](docs/diagrams/d05.png)
+
 ## 화면
 
-| 대시보드 | 팀 관리(RBAC) |
-|---|---|
-| ![대시보드](docs/screenshots/dashboard.png) | ![팀](docs/screenshots/team.png) |
+| 대시보드 | 팀 관리(RBAC) | 메시지 템플릿 |
+|---|---|---|
+| ![대시보드](docs/screenshots/dashboard.png) | ![팀](docs/screenshots/team.png) | ![메시지](docs/screenshots/messages.png) |
 
 ## 로컬 실행
 
